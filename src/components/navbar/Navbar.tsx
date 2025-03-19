@@ -44,7 +44,7 @@ export default function Navbar() {
           <Link href="#about" style={{ scrollBehavior: "smooth" }} prefetch={true}>
             ABOUT US
           </Link>
-          <Link href="#schedule" prefetch={true}>SCHEDULE</Link>
+          <Link href="#gallery" prefetch={true}>2025</Link>
           <Link href="#sponsor" prefetch={true}>SPONSORS</Link>
           {/* <Link href="#gallery">GALLERY</Link> */}
           <Link href="#contact" prefetch={true}>CONTACT</Link>
@@ -85,7 +85,9 @@ export default function Navbar() {
             <Link href="#sponsor" onClick={toggleMenu} prefetch={true}>
               Sponsors
             </Link>
-            {/* <Link href="#gallery">Gallery</Link> */}
+            <Link href="#gallery" onClick={toggleMenu} prefetch={true}>
+              2025
+            </Link>
             <Link href="#contact" onClick={toggleMenu} prefetch={true}>
               Contact Us
             </Link>

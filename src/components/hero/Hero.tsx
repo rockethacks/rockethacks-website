@@ -39,7 +39,7 @@ export default function Hero() {
           </div>
           <div>
             <h2 className={`${terminal.className} text-5xl mt-2 text-[#FFDA1F]`}>
-              March 15-16<sup>th</sup>, 2025
+              RocketHacks will return in 2026.
             </h2>
           </div>
           <div>
