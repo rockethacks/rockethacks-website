@@ -26,17 +26,17 @@ type GalleryProps = {
 const exampleImages: ImageType[] = [
   {
     src: "/assets/event/01.jpg",
-    alt: "RocketHacks 2025 Event",
+    alt: "RocketHacks 2025 Github Pre-Event",
     index: 0,
   },
   {
     src: "/assets/event/02.jpg",
-    alt: "Hackathon Venue",
+    alt: "Workshop Day 1",
     index: 1,
   },
   {
     src: "/assets/event/03.jpg",
-    alt: "Team Collaboration",
+    alt: "Workshop Day 1",
     index: 2,
   },
   {
@@ -46,7 +46,7 @@ const exampleImages: ImageType[] = [
   },
   {
     src: "/assets/event/05.jpg",
-    alt: "Project Development",
+    alt: "Workshop Day 1",
     index: 4,
   },
   {
@@ -56,107 +56,107 @@ const exampleImages: ImageType[] = [
   },
   {
     src: "/assets/event/07.jpg",
-    alt: "Hackathon Activities",
+    alt: "RocketHacks 2025",
     index: 6,
   },
   {
     src: "/assets/event/08.jpg",
-    alt: "RocketHacks Workshop",
+    alt: "RocketHacks 2025",
     index: 7,
   },
   {
     src: "/assets/event/09.jpg",
-    alt: "Team Discussion",
+    alt: "RocketHacks 2025",
     index: 8,
   },
   {
     src: "/assets/event/10.jpg",
-    alt: "Brainstorming Session",
+    alt: "RocketHacks 2025",
     index: 9,
   },
   {
     src: "/assets/event/11.jpg",
-    alt: "Coding Competition",
+    alt: "RocketHacks 2025",
     index: 10,
   },
   {
     src: "/assets/event/12.jpg",
-    alt: "Tech Presentation",
+    alt: "RocketHacks 2025",
     index: 11,
   },
   {
     src: "/assets/event/13.jpg",
-    alt: "Team Meeting",
+    alt: "RocketHacks 2025",
     index: 12,
   },
   {
     src: "/assets/event/14.jpg",
-    alt: "Project Development",
+    alt: "RocketHacks 2025",
     index: 13,
   },
   {
     src: "/assets/event/15.jpg",
-    alt: "Networking Event",
+    alt: "RocketHacks 2025",
     index: 14,
   },
   {
     src: "/assets/event/16.jpg",
-    alt: "Innovation Workshop",
+    alt: "RocketHacks 2025",
     index: 15,
   },
   {
     src: "/assets/event/17.jpg",
-    alt: "Hackathon Participants",
+    alt: "RocketHacks 2025",
     index: 16,
   },
   {
     src: "/assets/event/18.jpg",
-    alt: "Collaboration Session",
+    alt: "RocketHacks 2025",
     index: 17,
   },
   {
     src: "/assets/event/19.jpg",
-    alt: "Team Building",
+    alt: "RocketHacks 2025",
     index: 18,
   },
   {
     src: "/assets/event/20.jpg",
-    alt: "Project Showcase",
+    alt: "RocketHacks 2025",
     index: 19,
   },
   {
     src: "/assets/event/21.jpg",
-    alt: "Development Session",
+    alt: "RocketHacks 2025",
     index: 20,
   },
   {
     src: "/assets/event/22.jpg",
-    alt: "Technical Discussion",
+    alt: "RocketHacks 2025",
     index: 21,
   },
   {
     src: "/assets/event/23.jpg",
-    alt: "Hackathon Team",
+    alt: "RocketHacks 2025",
     index: 22,
   },
   {
     src: "/assets/event/24.jpg",
-    alt: "Problem Solving",
+    alt: "RocketHacks 2025",
     index: 23,
   },
   {
     src: "/assets/event/25.jpg",
-    alt: "Innovation Workshop",
+    alt: "RocketHacks 2025",
     index: 24,
   },
   {
     src: "/assets/event/26.jpg",
-    alt: "Team Presentation",
+    alt: "RocketHacks 2025",
     index: 25,
   },
   {
     src: "/assets/event/27.jpg",
-    alt: "RocketHacks Event",
+    alt: "RocketHacks 2025",
     index: 26,
   }
 ];
