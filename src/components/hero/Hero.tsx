@@ -43,7 +43,7 @@ export default function Hero() {
             </h2>
           </div>
           <div>
-            <a
+            {/* <a
               href={`https://form.jotform.com/rockethacks25/rh25RegForm`}
               target="_blank"
             >
@@ -52,7 +52,7 @@ export default function Hero() {
                   <div>APPLY NOW</div>
                 </div>
               </button>
-            </a>
+            </a> */}
           </div>
           <div className="mt-6">
             <Link
