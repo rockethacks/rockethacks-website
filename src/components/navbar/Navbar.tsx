@@ -16,7 +16,7 @@ export default function Navbar() {
   });
 
   const toggleMenu = () => setMenuOpen(!menuOpen);
-
+//test re deployment
   return (
     <nav className="bg-[#030c1b] text-white text-base sticky top-0 z-20 shadow-md">
       {/* Logo and Hamburger Menu */}
