@@ -51,7 +51,7 @@ export default function About() {
                   role="img"
                 />
                 <h3
-                  className={`${terminal.className} mb-4 text-[#FFDA20] text-[32px]`}
+                  className={`${terminal.className} mb-4 text-[#FFDA20] text-[32px] leading-tight`}
                 >
                   SPONSOR US FOR 2026
                 </h3>
