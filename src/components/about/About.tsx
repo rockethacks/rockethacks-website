@@ -34,15 +34,15 @@ export default function About() {
             empower students to turn their ideas into impactful projects.
           </p>
           <div
-            className="flex flex-col lg:flex-row items-center justify-center gap-4 mt-10 max-w-5xl w-full"
+            className="flex flex-col lg:flex-row items-stretch justify-center gap-4 mt-10 max-w-5xl w-full"
             role="list"
           >
             {/* Box 1 */}
             <div
-              className="flex-1 border-2 border-blue-600 rounded-lg text-center p-8 flex flex-col items-center justify-between"
+              className="flex-1 border-2 border-blue-600 rounded-lg text-center p-8 flex flex-col items-center justify-between min-h-[400px]"
               role="listitem"
             >
-              <div>
+              <div className="flex-grow flex flex-col justify-center">
                 <IoDiamond
                   className="mx-auto mb-4"
                   size={64}
@@ -51,11 +51,11 @@ export default function About() {
                   role="img"
                 />
                 <h3
-                  className={`${terminal.className} mb-4 text-[#FFDA20] text-[32px] leading-tight`}
+                  className={`${terminal.className} mb-4 text-[#FFDA20] text-[28px] leading-tight h-[70px] flex items-center justify-center`}
                 >
                   SPONSOR US FOR 2026
                 </h3>
-                <p className="text-base">
+                <p className="text-base h-[50px] flex items-center justify-center">
                   Check out the sponsorship packet(RH26) for more info!
                 </p>
               </div>
@@ -75,10 +75,10 @@ export default function About() {
             </div>
             {/* Box 2 */}
             <div
-              className="flex-1 border-2 border-blue-600 rounded-lg text-center p-8 flex flex-col items-center justify-between"
+              className="flex-1 border-2 border-blue-600 rounded-lg text-center p-8 flex flex-col items-center justify-between min-h-[400px]"
               role="listitem"
             >
-              <div>
+              <div className="flex-grow flex flex-col justify-center">
                 <PiTerminalWindow
                   className="mx-auto mb-4"
                   size={64}
@@ -87,17 +87,17 @@ export default function About() {
                   role="img"
                 />
                 <h3
-                  className={`${terminal.className} mb-4 text-[#E4335E] text-[32px]`}
+                  className={`${terminal.className} mb-4 text-[#E4335E] text-[28px] leading-tight h-[70px] flex items-center justify-center`}
                 >
                   HACKERS
                 </h3>
-                <p className="text-base">
-                  Applications for RocketHacks are now open.&nbsp; Apply to be a
-                  hacker today!
+                <p className="text-base h-[50px] flex items-center justify-center">
+                  Applications for RocketHacks are now open. Apply to be a hacker
+                  today!
                 </p>
               </div>
               <Link
-                href="https://form.jotform.com/rockethacks25/rh25RegForm"
+                href=""
                 target="_blank"
                 aria-label="Apply to be a hacker"
               >
@@ -105,17 +105,17 @@ export default function About() {
                   className="bg-blue-600 py-3 px-20 rounded-md mt-6 focus:ring-2 focus:ring-blue-400 focus:outline-none hover:bg-[#FFDA20] hover:text-white transition-all duration-300 hover:shadow-[0_0_15px_#FFDA20]"
                   aria-label="Apply now to be a hacker"
                 >
-                  APPLY NOW
+                  APPLICATION CLOSED
                 </button>
               </Link>
             </div>
 
             {/* Box 3 */}
             <div
-              className="flex-1 border-2 border-blue-600 rounded-lg text-center p-8 flex flex-col items-center justify-between"
+              className="flex-1 border-2 border-blue-600 rounded-lg text-center p-8 flex flex-col items-center justify-between min-h-[400px]"
               role="listitem"
             >
-              <div>
+              <div className="flex-grow flex flex-col justify-center">
                 <FaHandshake
                   className="mx-auto mb-4"
                   size={64}
@@ -124,17 +124,17 @@ export default function About() {
                   role="img"
                 />
                 <h3
-                  className={`${terminal.className} mb-4 text-[#5865F2] text-[32px]`}
+                  className={`${terminal.className} mb-4 text-[#5865F2] text-[28px] leading-tight h-[70px] flex items-center justify-center`}
                 >
                   VOLUNTEER
                 </h3>
-                <p className="text-base">
+                <p className="text-base h-[50px] flex items-center justify-center">
                   Do you want to volunteer at RocketHacks this year? Fill out
                   this form.
                 </p>
               </div>
               <Link
-                href="https://docs.google.com/forms/d/e/1FAIpQLSeAmg3YExuSxCsBWOElKdpByMP_UXKGnB4HJZtd29xJTXnZzQ/viewform?usp=dialog"
+                href=""
                 rel="noopener noreferrer"
                 aria-label="Fill the volunteer form"
               >
@@ -142,7 +142,7 @@ export default function About() {
                   className="bg-blue-600 py-3 px-20 rounded-md mt-6 focus:ring-2 focus:ring-blue-400 focus:outline-none hover:bg-[#FFDA20] hover:text-white transition-all duration-300 hover:shadow-[0_0_15px_#FFDA20]"
                   aria-label="Fill out the volunteer form"
                 >
-                  VOLUNTEER
+                  FORM CLOSED
                 </button>
               </Link>
             </div>
@@ -150,7 +150,7 @@ export default function About() {
           
           {/* Tracks Section */}
           <h2 className={`${terminal.className} text-4xl md:text-6xl mt-16 mb-8 text-center text-[#FFDA20]`}>
-            TRACKS
+            TRACKS (2025)
           </h2>
           <div className="flex flex-col lg:flex-row items-center justify-center gap-4 max-w-5xl w-full flex-wrap" role="list">
             {/* AI for Good Track */}

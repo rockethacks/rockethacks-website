@@ -26,7 +26,7 @@ export default function Home() {
 
   return (
     <div>
-      {showModal && (
+      {/* {showModal && (
         <div className="fixed inset-0 bg-black bg-opacity-60 flex items-center justify-center z-50">
           <div className="bg-gradient-to-b from-[#030C1B] from-10% to-50% to-[#081D41] border-2 border-[#FFDA20] p-6 rounded-lg shadow-lg text-center max-w-md">
             <h2 className="text-2xl font-bold text-[#FFDA20]">Register Now!</h2>
@@ -41,7 +41,7 @@ export default function Home() {
             </button>
           </div>
         </div>
-      )}
+      )} */}
 
       <Navbar />
       <Hero />

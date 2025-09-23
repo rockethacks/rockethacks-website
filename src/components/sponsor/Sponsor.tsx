@@ -31,7 +31,42 @@ const Sponsor: React.FC<SponsorProps> = ({ sponsors }) => {
             SPONSORS
           </h2>
         </div>
-
+        {/* Sponsorship CTA Section */}
+        <div className="mt-12 mb-12 max-w-3xl w-full mx-auto">
+          <div className="border-2 border-blue-600 rounded-lg text-center p-8 flex flex-col items-center justify-center">
+            <div>
+              <p className="text-base mb-6">
+                Are you interested in sponsoring RocketHacks for 2026?
+              </p>
+              <div className="flex flex-col sm:flex-row gap-4 justify-center">
+                <a
+                  href="/documents/sponsorship-packet.pdf"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  aria-label="View sponsorship packet"
+                >
+                  <button
+                    className="bg-blue-600 py-3 px-8 rounded-md focus:ring-2 focus:ring-blue-400 focus:outline-none hover:bg-[#FFDA20] hover:text-black transition-all duration-300 hover:shadow-[0_0_15px_#FFDA20]"
+                    aria-label="Learn more about sponsorship"
+                  >
+                    View Sponsorship Packet
+                  </button>
+                </a>
+                <a
+                  href="mailto:rockethacks@utoledo.edu?subject=Sponsorship Inquiry - RocketHacks 2026&body=Dear RocketHacks Team,%0A%0AI hope this message finds you well. I am reaching out on behalf of [Company Name] to express our interest in sponsoring RocketHacks 2026.%0A%0AAfter reviewing your event details, we believe this aligns perfectly with our commitment to supporting innovation and empowering the next generation of tech talent. We would love to explore potential partnership opportunities.%0A%0ACould we schedule a time to discuss:%0A• Available sponsorship tiers and benefits%0A• Custom partnership opportunities%0A• How we can best support your event and participants%0A%0APlease let me know your availability for a brief call or meeting.%0A%0AThank you for your time and consideration.%0A%0ABest regards,%0A[Your Name]%0A[Your Title]%0A[Company Name]%0A[Email Address]%0A[Phone Number]"
+                  aria-label="Email us about sponsorship"
+                >
+                  <button
+                    className="bg-[#FFDA20] text-black py-3 px-8 rounded-md focus:ring-2 focus:ring-yellow-400 focus:outline-none hover:bg-yellow-500 transition-all duration-300 hover:shadow-[0_0_15px_#FFDA20]"
+                    aria-label="Contact us via email"
+                  >
+                    Contact Us
+                  </button>
+                </a>
+              </div>
+            </div>
+          </div>
+        </div>
         <div className="mt-5">
           {/* Mobile View */}
           <div className="flex flex-col items-center justify-center gap-y-2 md:hidden">
@@ -92,6 +127,7 @@ const Sponsor: React.FC<SponsorProps> = ({ sponsors }) => {
               </a>
             ))}
           </div>
+          
         </div>
       </section>
     </div>
