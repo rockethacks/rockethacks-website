@@ -53,10 +53,10 @@ export default function About() {
                 <h3
                   className={`${terminal.className} mb-4 text-[#FFDA20] text-[32px]`}
                 >
-                  SPONSORS
+                  SPONSOR US FOR 2026
                 </h3>
                 <p className="text-base">
-                  Check out the sponsorship packet for more info!
+                  Check out the sponsorship packet(RH26) for more info!
                 </p>
               </div>
               <Link
