@@ -2,6 +2,7 @@
 const nextConfig = {
   output: 'export',
   basePath: '',
+  trailingSlash: true,
   images: {
     unoptimized: true,
     domains: ['rockethacks.org'],
@@ -16,6 +17,10 @@ const nextConfig = {
     });
     return config;
   },
+  // Add this for static export compatibility
+  experimental: {
+    esmExternals: false
+  }
 };
 
 module.exports = nextConfig;
