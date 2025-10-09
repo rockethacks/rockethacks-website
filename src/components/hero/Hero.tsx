@@ -30,8 +30,8 @@ export default function Hero() {
           {/* Centered Content */}
           <div className="text-center space-y-6 animate-slide-up">
             {/* Main Heading */}
-            <div className="space-y-4">
-              <h1 className={`${terminal.className} heading-lg gradient-text uppercase tracking-wider`}>
+            <div className="space-y-0 mt-4">
+              <h1 className={`${terminal.className} text-[clamp(2.5rem,6vw,4rem)] gradient-text uppercase tracking-wider font-bold`}>
                 RocketHacks 2026
               </h1>
               
@@ -69,7 +69,7 @@ export default function Hero() {
             </div>
 
             {/* Location */}
-            <div>
+            <div className="mb-16">
               <Link
                 href="https://maps.app.goo.gl/xC2YjujFcZfS65PF8"
                 target="_blank"
@@ -89,18 +89,20 @@ export default function Hero() {
                 </span>
               </Link>
             </div>
-          </div>          {/* Floating Elements */}
+
+            {/* Scroll Indicator */}
+            <div className="flex justify-center">
+              <div className="w-6 h-10 border-2 border-rh-white/50 rounded-full flex justify-center animate-bounce">
+                <div className="w-1 h-3 bg-rh-yellow rounded-full mt-2 animate-pulse"></div>
+              </div>
+            </div>
+          </div>
+
+          {/* Floating Elements */}
           <div className="absolute top-20 left-10 w-4 h-4 bg-rh-yellow rounded-full animate-float opacity-60"></div>
           <div className="absolute top-40 right-20 w-6 h-6 bg-rh-orange rounded-full animate-float opacity-40" style={{ animationDelay: '1s' }}></div>
           <div className="absolute bottom-32 left-20 w-3 h-3 bg-rh-purple-light rounded-full animate-float opacity-70" style={{ animationDelay: '2s' }}></div>
           <div className="absolute bottom-20 right-10 w-5 h-5 bg-rh-pink rounded-full animate-float opacity-50" style={{ animationDelay: '0.5s' }}></div>
-        </div>
-
-        {/* Scroll Indicator */}
-        <div className="absolute bottom-16 left-1/2 transform -translate-x-1/2 animate-bounce">
-          <div className="w-6 h-10 border-2 border-rh-white/50 rounded-full flex justify-center">
-            <div className="w-1 h-3 bg-rh-yellow rounded-full mt-2 animate-pulse"></div>
-          </div>
         </div>
       </section>
     </div>

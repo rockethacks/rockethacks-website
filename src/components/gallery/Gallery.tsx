@@ -4,7 +4,7 @@ import Image from "next/image";
 import { terminal } from "../../app/fonts/fonts";
 import { GlassCard } from "../ui/glass-card";
 import { FaCalendar, FaUsers, FaCode, FaTrophy } from "react-icons/fa";
-import { X, ChevronRight, ChevronLeft, Play, Pause } from "lucide-react";
+import { ChevronRight, ChevronLeft, Play, Pause } from "lucide-react";
 
 type ProjectImage = {
   src: string;
@@ -70,7 +70,6 @@ const projectImages: ProjectImage[] = [
 
 const Gallery: React.FC<GalleryProps> = ({ images = projectImages }) => {
   const [currentIndex, setCurrentIndex] = useState(0);
-  const [selectedImage, setSelectedImage] = useState<ProjectImage | null>(null);
   const [filter, setFilter] = useState<string>("all");
   const [isAutoPlaying, setIsAutoPlaying] = useState(true);
 
@@ -96,17 +95,7 @@ const Gallery: React.FC<GalleryProps> = ({ images = projectImages }) => {
     return () => clearInterval(interval);
   }, [isAutoPlaying, filteredImages.length]);
 
-  // Modal body scroll lock
-  useEffect(() => {
-    if (selectedImage) {
-      document.body.style.overflow = 'hidden';
-    } else {
-      document.body.style.overflow = 'unset';
-    }
-    return () => {
-      document.body.style.overflow = 'unset';
-    };
-  }, [selectedImage]);
+
 
   const nextImage = () => {
     setCurrentIndex((prev) => (prev + 1) % filteredImages.length);
@@ -217,16 +206,7 @@ const Gallery: React.FC<GalleryProps> = ({ images = projectImages }) => {
                 </span>
               </div>
 
-              {/* Expand Button */}
-              <button
-                onClick={() => setSelectedImage(filteredImages[currentIndex])}
-                className="absolute top-4 right-4 p-2 rounded-full bg-black/50 hover:bg-black/70 text-white transition-all duration-200"
-                aria-label="View full size"
-              >
-                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 8V4m0 0h4M4 4l5 5m11-1V4m0 0h-4m4 0l-5 5M4 16v4m0 0h4m-4 0l5-5m11 5l-5-5m5 5v-4m0 4h-4" />
-                </svg>
-              </button>
+
             </div>
 
             {/* Thumbnail Navigation */}
@@ -293,57 +273,7 @@ const Gallery: React.FC<GalleryProps> = ({ images = projectImages }) => {
         </GlassCard>
       </div>
 
-      {/* Modal for Full Size View */}
-      {selectedImage && (
-        <div 
-          className="fixed inset-0 bg-black/90 backdrop-blur-sm z-50 flex items-center justify-center p-4"
-          onClick={() => setSelectedImage(null)}
-        >
-          <div className="relative max-w-7xl max-h-full" onClick={(e) => e.stopPropagation()}>
-            <button
-              onClick={() => setSelectedImage(null)}
-              className="absolute -top-12 right-0 text-white hover:text-rh-yellow transition-colors z-10 bg-black/50 rounded-full p-2"
-              aria-label="Close modal"
-            >
-              <X size={24} />
-            </button>
-            
-            <GlassCard className="overflow-hidden">
-              <div className="relative">
-                <Image
-                  src={selectedImage.src}
-                  alt={selectedImage.alt}
-                  width={1200}
-                  height={800}
-                  className="w-full h-auto max-h-[80vh] object-contain"
-                  sizes="100vw"
-                />
-                
-                <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/80 to-transparent p-6">
-                  <h3 className={`${terminal.className} text-2xl text-rh-yellow mb-4`}>
-                    {selectedImage.title}
-                  </h3>
-                  <p className="text-rh-white/80 mb-4 leading-relaxed">
-                    {selectedImage.description}
-                  </p>
-                  <div className="space-y-2 text-sm">
-                    <div className="flex justify-between">
-                      <span className="text-rh-white/60">Time:</span>
-                      <span className="text-rh-white">{selectedImage.timestamp}</span>
-                    </div>
-                    <div className="flex justify-between">
-                      <span className="text-rh-white/60">Category:</span>
-                      <span className="text-rh-yellow">
-                        {categories[selectedImage.category as keyof typeof categories]?.name}
-                      </span>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </GlassCard>
-          </div>
-        </div>
-      )}
+
     </section>
   );
 };

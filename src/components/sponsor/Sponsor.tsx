@@ -113,74 +113,53 @@ const Sponsor: React.FC<SponsorProps> = ({ sponsors }) => {
               </div>
             </GlassCard>
           </div>
-          {/* Sponsors Grid */}
-          <div className="space-y-12">
-            {Object.entries(tierConfig).map(([tier, config]) => {
-              const tierSponsors = sponsorsByTier[tier];
-              if (!tierSponsors || tierSponsors.length === 0) return null;
-
-              return (
-                <div key={tier} className="animate-fade-scale">
-                  <h3 className={`${terminal.className} 
-                    ${tier === 'partner' ? 'text-3xl md:text-4xl' : 'text-xl'} 
-                    text-rh-yellow text-center mb-8 uppercase tracking-wider font-bold
-                    ${tier === 'partner' ? 'mb-12' : 'mb-8'}
-                  `}>
-                    {config.name}
-                  </h3>
-                  
-                  <div className={`grid ${config.cols} gap-6 md:gap-8 justify-items-center items-center`}>
-                    {tierSponsors.map((sponsor, index) => (
-                      <Link
-                        key={index}
-                        href={sponsor.link}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="group block"
-                      >
-                        <GlassCard className="p-6 hover:border-rh-yellow/50 transition-all duration-300 group-hover:scale-105">
-                          <div className="flex items-center justify-center h-full">
-                            {sponsor.type === "image" && sponsor.src ? (
-                              <Image
-                                src={sponsor.src}
-                                alt={sponsor.alt}
-                                width={config.size === 'large' ? 200 : config.size === 'medium' ? 150 : 120}
-                                height={config.size === 'large' ? 200 : config.size === 'medium' ? 150 : 120}
-                                className={`
-                                  object-contain transition-all duration-300 group-hover:brightness-110
-                                  ${config.size === 'large' ? 'max-w-[200px] max-h-[100px]' : 
-                                    config.size === 'medium' ? 'max-w-[150px] max-h-[75px]' : 
-                                    'max-w-[120px] max-h-[60px]'}
-                                  ${sponsor.src?.includes("spoke") ? "bg-white p-2 rounded" : ""}
-                                `}
-                              />
-                            ) : sponsor.type === "icon" ? (
-                              <div className="flex items-center justify-center">
-                                {sponsor.icon === "github" ? (
-                                  <DiGithubFull 
-                                    className={`transition-all duration-300 group-hover:scale-110 text-rh-white group-hover:text-rh-yellow
-                                      ${config.size === 'large' ? 'h-24 w-24' : 
-                                        config.size === 'medium' ? 'h-20 w-20' : 
-                                        'h-16 w-16'}`} 
-                                  />
-                                ) : sponsor.icon === "aws" ? (
-                                  <FaAws 
-                                    className={`transition-all duration-300 group-hover:scale-110 text-rh-white group-hover:text-rh-yellow
-                                      ${config.size === 'large' ? 'h-24 w-24' : 
-                                        config.size === 'medium' ? 'h-20 w-20' : 
-                                        'h-16 w-16'}`} 
-                                  />
-                                ) : null}
-                              </div>
-                            ) : null}
-                          </div>
-                        </GlassCard>
-                      </Link>
-                    ))}
-                  </div>
-                </div>
-              );
-            })}
+          {/* Unified Sponsors Grid */}
+          <div className="animate-fade-scale">
+            <h3 className={`${terminal.className} text-3xl md:text-4xl text-rh-yellow text-center mb-12 uppercase tracking-wider font-bold`}>
+              Our Amazing Sponsors
+            </h3>
+            
+            <GlassCard variant="strong" gradient className="p-8 md:p-12">
+              <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-8 justify-items-center items-center">
+                {sponsors.map((sponsor, index) => (
+                  <Link
+                    key={index}
+                    href={sponsor.link}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="group block w-full"
+                  >
+                    <div className="glass-card p-4 h-24 w-full flex items-center justify-center hover:border-rh-yellow/50 transition-all duration-300 group-hover:scale-105 rounded-xl">
+                      {sponsor.type === "image" && sponsor.src ? (
+                        <Image
+                          src={sponsor.src}
+                          alt={sponsor.alt}
+                          width={120}
+                          height={60}
+                          className={`
+                            object-contain transition-all duration-300 group-hover:brightness-110
+                            max-w-full max-h-full w-auto h-auto
+                            ${sponsor.src?.includes("spoke") ? "bg-white p-1 rounded" : ""}
+                          `}
+                        />
+                      ) : sponsor.type === "icon" ? (
+                        <div className="flex items-center justify-center">
+                          {sponsor.icon === "github" ? (
+                            <DiGithubFull 
+                              className="h-12 w-12 transition-all duration-300 group-hover:scale-110 text-rh-white group-hover:text-rh-yellow" 
+                            />
+                          ) : sponsor.icon === "aws" ? (
+                            <FaAws 
+                              className="h-12 w-12 transition-all duration-300 group-hover:scale-110 text-rh-white group-hover:text-rh-yellow" 
+                            />
+                          ) : null}
+                        </div>
+                      ) : null}
+                    </div>
+                  </Link>
+                ))}
+              </div>
+            </GlassCard>
           </div>
 
           {/* If no sponsors, show fallback */}

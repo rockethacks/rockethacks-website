@@ -47,7 +47,7 @@ export default function Navbar() {
       }
     `}>
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex justify-between items-center h-20">
+        <div className="flex items-center h-20">
           {/* Logo */}
           <div className="flex-shrink-0">
             <Link href="/" className="block transition-transform hover:scale-105">
@@ -64,8 +64,8 @@ export default function Navbar() {
             </Link>
           </div>
 
-          {/* Desktop Navigation */}
-          <div className="hidden md:flex items-center space-x-8">
+          {/* Centered Desktop Navigation */}
+          <div className="hidden md:flex items-center justify-center flex-1 space-x-8">
             {navLinks.map((link) => (
               <Link
                 key={link.href}
