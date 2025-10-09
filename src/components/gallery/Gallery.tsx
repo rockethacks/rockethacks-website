@@ -1,201 +1,349 @@
 "use client";
-import React from "react";
+import React, { useState, useEffect } from "react";
 import Image from "next/image";
+import { terminal } from "../../app/fonts/fonts";
+import { GlassCard } from "../ui/glass-card";
+import { FaCalendar, FaUsers, FaCode, FaTrophy } from "react-icons/fa";
+import { X, ChevronRight, ChevronLeft, Play, Pause } from "lucide-react";
 
-// Importing terminal font
-import localFont from "next/font/local";
-import { 
-  Carousel, 
-  CarouselContent, 
-  CarouselItem, 
-  CarouselNext, 
-  CarouselPrevious 
-} from "../ui/carousel";
-const terminal = localFont({ src: "../../app/fonts/terminal-grotesque.ttf" });
-
-type ImageType = {
+type ProjectImage = {
   src: string;
   alt: string;
   index: number;
+  title: string;
+  description: string;
+  category: "workshop" | "coding" | "presentation" | "networking" | "awards";
+  timestamp: string;
 };
 
 type GalleryProps = {
-  images?: ImageType[];
+  images?: ProjectImage[];
 };
 
-const exampleImages: ImageType[] = [
+const projectImages: ProjectImage[] = [
   {
     src: "/assets/event/01.jpg",
     alt: "RocketHacks 2025 Github Pre-Event",
+    title: "Opening Ceremony",
+    description: "Kicking off RocketHacks 2025 with energy and excitement",
+    category: "presentation",
+    timestamp: "Day 1 - 9:00 AM",
     index: 0,
   },
   {
     src: "/assets/event/02.jpg",
     alt: "Workshop Day 1",
+    title: "Technical Workshop",
+    description: "Learning new technologies and frameworks",
+    category: "workshop",
+    timestamp: "Day 1 - 10:30 AM",
     index: 1,
   },
   {
     src: "/assets/event/03.jpg",
     alt: "Workshop Day 1",
+    title: "Team Formation",
+    description: "Finding the perfect teammates for the hackathon",
+    category: "networking",
+    timestamp: "Day 1 - 11:30 AM",
     index: 2,
   },
   {
     src: "/assets/event/04.jpg",
     alt: "Coding Session",
+    title: "Intense Coding",
+    description: "Teams working hard on their innovative solutions",
+    category: "coding",
+    timestamp: "Day 1 - 2:00 PM",
     index: 3,
   },
   {
     src: "/assets/event/05.jpg",
-    alt: "Workshop Day 1",
+    alt: "Awards Ceremony",
+    title: "Prize Distribution",
+    description: "Celebrating the most innovative projects",
+    category: "awards",
+    timestamp: "Day 2 - 4:00 PM",
     index: 4,
-  },
-  {
-    src: "/assets/event/06.jpg",
-    alt: "Mentoring Session",
-    index: 5,
-  },
-  {
-    src: "/assets/event/07.jpg",
-    alt: "RocketHacks 2025",
-    index: 6,
-  },
-  {
-    src: "/assets/event/08.jpg",
-    alt: "RocketHacks 2025",
-    index: 7,
-  },
-  {
-    src: "/assets/event/09.jpg",
-    alt: "RocketHacks 2025",
-    index: 8,
-  },
-  {
-    src: "/assets/event/10.jpg",
-    alt: "RocketHacks 2025",
-    index: 9,
-  },
-  {
-    src: "/assets/event/11.jpg",
-    alt: "RocketHacks 2025",
-    index: 10,
-  },
-  {
-    src: "/assets/event/12.jpg",
-    alt: "RocketHacks 2025",
-    index: 11,
-  },
-  {
-    src: "/assets/event/13.jpg",
-    alt: "RocketHacks 2025",
-    index: 12,
-  },
-  {
-    src: "/assets/event/14.jpg",
-    alt: "RocketHacks 2025",
-    index: 13,
-  },
-  {
-    src: "/assets/event/15.jpg",
-    alt: "RocketHacks 2025",
-    index: 14,
-  },
-  {
-    src: "/assets/event/16.jpg",
-    alt: "RocketHacks 2025",
-    index: 15,
-  },
-  {
-    src: "/assets/event/17.jpg",
-    alt: "RocketHacks 2025",
-    index: 16,
-  },
-  {
-    src: "/assets/event/18.jpg",
-    alt: "RocketHacks 2025",
-    index: 17,
-  },
-  {
-    src: "/assets/event/19.jpg",
-    alt: "RocketHacks 2025",
-    index: 18,
-  },
-  {
-    src: "/assets/event/20.jpg",
-    alt: "RocketHacks 2025",
-    index: 19,
-  },
-  {
-    src: "/assets/event/21.jpg",
-    alt: "RocketHacks 2025",
-    index: 20,
-  },
-  {
-    src: "/assets/event/22.jpg",
-    alt: "RocketHacks 2025",
-    index: 21,
-  },
-  {
-    src: "/assets/event/23.jpg",
-    alt: "RocketHacks 2025",
-    index: 22,
-  },
-  {
-    src: "/assets/event/24.jpg",
-    alt: "RocketHacks 2025",
-    index: 23,
-  },
-  {
-    src: "/assets/event/25.jpg",
-    alt: "RocketHacks 2025",
-    index: 24,
-  },
-  {
-    src: "/assets/event/26.jpg",
-    alt: "RocketHacks 2025",
-    index: 25,
-  },
-  {
-    src: "/assets/event/27.jpg",
-    alt: "RocketHacks 2025",
-    index: 26,
   }
 ];
 
-const Gallery: React.FC<GalleryProps> = ({ images = exampleImages }) => {
+const Gallery: React.FC<GalleryProps> = ({ images = projectImages }) => {
+  const [currentIndex, setCurrentIndex] = useState(0);
+  const [selectedImage, setSelectedImage] = useState<ProjectImage | null>(null);
+  const [filter, setFilter] = useState<string>("all");
+  const [isAutoPlaying, setIsAutoPlaying] = useState(true);
+
+  const categories = {
+    all: { name: "All Moments", icon: FaCalendar },
+    workshop: { name: "Workshops", icon: FaUsers },
+    coding: { name: "Coding", icon: FaCode },
+    presentation: { name: "Presentations", icon: FaTrophy },
+    networking: { name: "Networking", icon: FaUsers },
+    awards: { name: "Awards", icon: FaTrophy }
+  };
+
+  const filteredImages = filter === "all" ? images : images.filter(img => img.category === filter);
+
+  // Auto-play functionality
+  useEffect(() => {
+    if (!isAutoPlaying || filteredImages.length === 0) return;
+    
+    const interval = setInterval(() => {
+      setCurrentIndex((prev) => (prev + 1) % filteredImages.length);
+    }, 4000);
+
+    return () => clearInterval(interval);
+  }, [isAutoPlaying, filteredImages.length]);
+
+  // Modal body scroll lock
+  useEffect(() => {
+    if (selectedImage) {
+      document.body.style.overflow = 'hidden';
+    } else {
+      document.body.style.overflow = 'unset';
+    }
+    return () => {
+      document.body.style.overflow = 'unset';
+    };
+  }, [selectedImage]);
+
+  const nextImage = () => {
+    setCurrentIndex((prev) => (prev + 1) % filteredImages.length);
+    setIsAutoPlaying(false);
+  };
+
+  const prevImage = () => {
+    setCurrentIndex((prev) => (prev - 1 + filteredImages.length) % filteredImages.length);
+    setIsAutoPlaying(false);
+  };
+
+  const goToImage = (index: number) => {
+    setCurrentIndex(index);
+    setIsAutoPlaying(false);
+  };
+
+  if (filteredImages.length === 0) return null;
+
   return (
-    <section id="gallery">
-      <div className="relative w-full flex flex-col items-center p-4 xl:h-[90vh] mt-10 xl:mt-20">
-        <h2
-          className={`${terminal.className} text-4xl md:text-6xl mb-8 text-[#FFDA20]`}
+    <section id="gallery" className="relative bg-gradient-to-b from-rh-navy-dark to-rh-background text-white py-16 px-5 md:px-10">
+      {/* Background Pattern */}
+      <div className="absolute inset-0 opacity-5">
+        <div className="absolute inset-0" style={{
+          backgroundImage: `radial-gradient(circle at 25px 25px, rgba(255, 196, 90, 0.3) 2px, transparent 0)`,
+          backgroundSize: '50px 50px'
+        }}></div>
+      </div>
+
+      <div className="relative max-w-7xl mx-auto">
+        {/* Section Header */}
+        <div className="text-center mb-12 animate-slide-up">
+          <h2 className={`${terminal.className} heading-lg gradient-text mb-6 uppercase tracking-wider`}>
+            Gallery
+          </h2>
+          <div className="w-24 h-1 bg-gradient-to-r from-rh-yellow to-rh-orange mx-auto mb-8 rounded-full"></div>
+          <p className="text-lg leading-relaxed text-rh-white/90 max-w-3xl mx-auto">
+            Relive the incredible moments from RocketHacks 2025. Each image tells a story 
+            of innovation, collaboration, and breakthrough discoveries.
+          </p>
+        </div>
+
+        {/* Filter Buttons */}
+        <div className="flex flex-wrap justify-center gap-3 mb-8">
+          {Object.entries(categories).map(([key, category]) => {
+            const IconComponent = category.icon;
+            return (
+              <button
+                key={key}
+                onClick={() => setFilter(key)}
+                className={`
+                  inline-flex items-center space-x-2 px-4 py-2 rounded-lg text-sm font-medium transition-all duration-200
+                  ${filter === key 
+                    ? 'bg-rh-yellow text-rh-navy-dark' 
+                    : 'bg-rh-white/10 text-rh-white hover:bg-rh-white/20'
+                  }
+                `}
+              >
+                <IconComponent size={16} />
+                <span>{category.name}</span>
+                <span className="text-xs opacity-70">
+                  ({key === "all" ? images.length : images.filter(img => img.category === key).length})
+                </span>
+              </button>
+            );
+          })}
+        </div>
+
+        {/* Main Carousel */}
+        <GlassCard variant="strong" className="p-6 sm:p-8">
+          <div className="relative">
+            {/* Main Image Display */}
+            <div className="relative aspect-[16/9] lg:aspect-[21/9] overflow-hidden rounded-xl mb-6">
+              <Image
+                src={filteredImages[currentIndex].src}
+                alt={filteredImages[currentIndex].alt}
+                fill
+                className="object-cover transition-transform duration-500 hover:scale-105"
+                sizes="(max-width: 768px) 100vw, (max-width: 1200px) 80vw, 70vw"
+              />
+              
+              {/* Navigation Arrows */}
+              <button
+                onClick={prevImage}
+                className="absolute left-4 top-1/2 -translate-y-1/2 p-3 rounded-full bg-black/50 hover:bg-black/70 text-white transition-all duration-200"
+                aria-label="Previous image"
+              >
+                <ChevronLeft size={24} />
+              </button>
+              
+              <button
+                onClick={nextImage}
+                className="absolute right-4 top-1/2 -translate-y-1/2 p-3 rounded-full bg-black/50 hover:bg-black/70 text-white transition-all duration-200"
+                aria-label="Next image"
+              >
+                <ChevronRight size={24} />
+              </button>
+
+              {/* Image Info Overlay */}
+              <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/80 to-transparent p-6">
+                <h3 className={`${terminal.className} text-xl text-white mb-2`}>
+                  {filteredImages[currentIndex].title}
+                </h3>
+                <p className="text-white/80 text-sm mb-2">
+                  {filteredImages[currentIndex].description}
+                </p>
+                <span className="text-rh-yellow text-xs">
+                  {filteredImages[currentIndex].timestamp}
+                </span>
+              </div>
+
+              {/* Expand Button */}
+              <button
+                onClick={() => setSelectedImage(filteredImages[currentIndex])}
+                className="absolute top-4 right-4 p-2 rounded-full bg-black/50 hover:bg-black/70 text-white transition-all duration-200"
+                aria-label="View full size"
+              >
+                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 8V4m0 0h4M4 4l5 5m11-1V4m0 0h-4m4 0l-5 5M4 16v4m0 0h4m-4 0l5-5m11 5l-5-5m5 5v-4m0 4h-4" />
+                </svg>
+              </button>
+            </div>
+
+            {/* Thumbnail Navigation */}
+            <div className="flex justify-center gap-2 mb-6 overflow-x-auto pb-2">
+              {filteredImages.map((image, index) => (
+                <button
+                  key={image.index}
+                  onClick={() => goToImage(index)}
+                  className={`
+                    relative flex-shrink-0 w-20 h-12 rounded-lg overflow-hidden transition-all duration-200
+                    ${currentIndex === index 
+                      ? 'ring-2 ring-rh-yellow scale-110' 
+                      : 'opacity-60 hover:opacity-100'
+                    }
+                  `}
+                >
+                  <Image
+                    src={image.src}
+                    alt={image.alt}
+                    fill
+                    className="object-cover"
+                    sizes="80px"
+                  />
+                </button>
+              ))}
+            </div>
+
+            {/* Controls */}
+            <div className="flex items-center justify-between">
+              <div className="flex items-center space-x-4">
+                <button
+                  onClick={() => setIsAutoPlaying(!isAutoPlaying)}
+                  className={`
+                    inline-flex items-center space-x-2 px-4 py-2 rounded-lg text-sm font-medium transition-all duration-200
+                    ${isAutoPlaying 
+                      ? 'bg-rh-orange text-white' 
+                      : 'bg-rh-white/10 text-rh-white hover:bg-rh-white/20'
+                    }
+                  `}
+                >
+                  {isAutoPlaying ? <Pause size={16} /> : <Play size={16} />}
+                  <span>{isAutoPlaying ? 'Pause' : 'Play'}</span>
+                </button>
+                
+                <span className="text-rh-white/70 text-sm">
+                  {currentIndex + 1} of {filteredImages.length}
+                </span>
+              </div>
+
+              <div className="flex space-x-2">
+                {filteredImages.map((_, index) => (
+                  <button
+                    key={index}
+                    onClick={() => goToImage(index)}
+                    className={`
+                      w-2 h-2 rounded-full transition-all duration-200
+                      ${currentIndex === index ? 'bg-rh-yellow' : 'bg-rh-white/30 hover:bg-rh-white/50'}
+                    `}
+                  />
+                ))}
+              </div>
+            </div>
+          </div>
+        </GlassCard>
+      </div>
+
+      {/* Modal for Full Size View */}
+      {selectedImage && (
+        <div 
+          className="fixed inset-0 bg-black/90 backdrop-blur-sm z-50 flex items-center justify-center p-4"
+          onClick={() => setSelectedImage(null)}
         >
-          2025 GALLERY
-        </h2>
-        <div className="relative w-full max-w-4xl h-auto flex justify-center items-center overflow-hidden">
-          <Carousel className="w-full max-w-4xl">
-            <CarouselContent>
-              {images.map((image) => (
-                <CarouselItem key={image.index}>
-                  <div className="relative flex items-center justify-center w-full">
-                    <Image
-                      src={image.src}
-                      alt={image.alt}
-                      width={800}
-                      height={500}
-                      priority
-                      className="w-full max-w-[80vw] h-auto max-h-[80vh] xl:max-h-[90vh] object-cover rounded-lg shadow-md transition-all duration-300"
-                    />
-                    <div className="absolute inset-0 p-20 flex items-center justify-center text-center text-white text-lg xl:text-3xl opacity-0 hover:opacity-100 hover:bg-black/70 hover:bg-opacity-50 transition-opacity backdrop-blur-sm">
-                      {image.alt}
+          <div className="relative max-w-7xl max-h-full" onClick={(e) => e.stopPropagation()}>
+            <button
+              onClick={() => setSelectedImage(null)}
+              className="absolute -top-12 right-0 text-white hover:text-rh-yellow transition-colors z-10 bg-black/50 rounded-full p-2"
+              aria-label="Close modal"
+            >
+              <X size={24} />
+            </button>
+            
+            <GlassCard className="overflow-hidden">
+              <div className="relative">
+                <Image
+                  src={selectedImage.src}
+                  alt={selectedImage.alt}
+                  width={1200}
+                  height={800}
+                  className="w-full h-auto max-h-[80vh] object-contain"
+                  sizes="100vw"
+                />
+                
+                <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/80 to-transparent p-6">
+                  <h3 className={`${terminal.className} text-2xl text-rh-yellow mb-4`}>
+                    {selectedImage.title}
+                  </h3>
+                  <p className="text-rh-white/80 mb-4 leading-relaxed">
+                    {selectedImage.description}
+                  </p>
+                  <div className="space-y-2 text-sm">
+                    <div className="flex justify-between">
+                      <span className="text-rh-white/60">Time:</span>
+                      <span className="text-rh-white">{selectedImage.timestamp}</span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span className="text-rh-white/60">Category:</span>
+                      <span className="text-rh-yellow">
+                        {categories[selectedImage.category as keyof typeof categories]?.name}
+                      </span>
                     </div>
                   </div>
-                </CarouselItem>
-              ))}
-            </CarouselContent>
-            <CarouselPrevious className="left-4 bg-white/30 hover:bg-white/50 text-white" />
-            <CarouselNext className="right-4 bg-white/30 hover:bg-white/50 text-white" />
-          </Carousel>
+                </div>
+              </div>
+            </GlassCard>
+          </div>
         </div>
-      </div>
+      )}
     </section>
   );
 };

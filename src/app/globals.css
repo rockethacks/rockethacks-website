@@ -2,21 +2,480 @@
 @tailwind components;
 @tailwind utilities;
 
-/* CSS variables */
+/* Import Gotham and Agrandir Wide fonts */
+@import url('https://fonts.googleapis.com/css2?family=Gotham:wght@300;400;500;700;900&display=swap');
+
+/* CSS variables for RH26 color palette */
 :root {
   --background: #030c1b;
+  --primary-white: #ffffff;
+  --primary-yellow: #ffc65a;
+  --primary-purple-light: #7f819e;
+  --primary-purple-dark: #402c7f;
+  --accent-orange: #f483f5;
+  --accent-pink: #c32c9a;
+  --accent-navy-light: #21215b;
+  --accent-navy-dark: #0a0037;
+  
+  /* Glassmorphism variables */
+  --glass-bg: rgba(255, 255, 255, 0.1);
+  --glass-border: rgba(255, 255, 255, 0.2);
+  --glass-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.37);
+  --glass-backdrop: blur(8px);
+  
+  /* Spacing */
+  --section-padding: 5rem;
+  --container-padding: 1.25rem;
+  --border-radius: 1rem;
+  --border-radius-lg: 1.5rem;
+  
+  /* Animations */
+  --transition-fast: 0.2s ease-out;
+  --transition-medium: 0.3s ease-out;
+  --transition-slow: 0.5s ease-out;
 }
 
-* {
+/* Custom scrollbar */
+::-webkit-scrollbar {
+  width: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: var(--accent-navy-dark);
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--primary-yellow);
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--primary-purple-light);
+}
+
+/* Reset and base responsive setup */
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html {
+  font-size: 16px; /* Base font size */
   scroll-behavior: smooth;
+  /* Force proper scaling */
+  -webkit-text-size-adjust: 100%;
+  -ms-text-size-adjust: 100%;
+  text-size-adjust: 100%;
+}
+
+/* More conservative responsive font scaling */
+@media screen and (min-width: 320px) {
+  html { font-size: calc(14px + 2 * ((100vw - 320px) / 680)); }
+}
+@media screen and (min-width: 1000px) {
+  html { font-size: 16px; }
 }
 
 body {
-  background: var(--background);
-  /* Always show the scrollbar  */
-  /* overflow-y: scroll; */
+  background: linear-gradient(135deg, var(--background) 0%, var(--accent-navy-dark) 100%);
+  min-height: 100vh;
+  min-height: 100dvh; /* Dynamic viewport height for mobile */
+  font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+  line-height: 1.6;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  /* Prevent horizontal scroll */
+  overflow-x: hidden;
+  /* Ensure proper width */
+  width: 100%;
+  max-width: 100vw;
+  /* Force proper rendering on high-DPI displays */
+  -webkit-transform: translateZ(0);
+  transform: translateZ(0);
+  /* Improve text rendering */
+  text-rendering: optimizeLegibility;
+  /* Ensure consistent sizing across devices */
+  zoom: 1;
 }
 
 .no-scroll {
   overflow: hidden;
+}
+
+/* Responsive container utilities */
+.container-responsive {
+  width: 100%;
+  max-width: 1200px;
+  margin-left: auto;
+  margin-right: auto;
+  padding-left: max(1rem, calc((100vw - 1200px) / 2 + 1rem));
+  padding-right: max(1rem, calc((100vw - 1200px) / 2 + 1rem));
+}
+
+.section-responsive {
+  padding-top: clamp(2rem, 5vh, 4rem);
+  padding-bottom: clamp(2rem, 5vh, 4rem);
+}
+
+/* Flexible grid system */
+.grid-responsive {
+  display: grid;
+  gap: clamp(1rem, 3vw, 2rem);
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 300px), 1fr));
+}
+
+/* Responsive image utilities */
+.img-responsive {
+  width: 100%;
+  height: auto;
+  max-width: 100%;
+  object-fit: cover;
+}
+
+/* Force proper scaling on all displays */
+.scale-fix {
+  transform: scale(1);
+  transform-origin: top left;
+}
+
+/* Ensure no horizontal overflow */
+.no-overflow {
+  overflow-x: hidden;
+  max-width: 100vw;
+}
+
+/* Better button responsiveness */
+.btn-responsive {
+  min-height: 44px; /* Touch target size */
+  padding: clamp(0.5rem, 2vw, 1rem) clamp(1rem, 3vw, 2rem);
+  font-size: clamp(0.875rem, 2vw, 1.125rem);
+}
+
+/* More conservative typography scaling */
+.heading-xl {
+  font-family: 'Terminal Grotesque', 'Gotham', sans-serif;
+  font-size: clamp(2rem, 4vw, 4rem);
+  font-weight: 700;
+  line-height: 1.1;
+  letter-spacing: -0.02em;
+}
+
+.heading-lg {
+  font-family: 'Terminal Grotesque', 'Gotham', sans-serif;
+  font-size: clamp(1.5rem, 3vw, 2.5rem);
+  font-weight: 600;
+  line-height: 1.2;
+  letter-spacing: -0.01em;
+}
+
+.heading-md {
+  font-family: 'Terminal Grotesque', 'Gotham', sans-serif;
+  font-size: clamp(1.25rem, 2vw, 2rem);
+  font-weight: 500;
+  line-height: 1.3;
+}
+
+.heading-sm {
+  font-family: 'Terminal Grotesque', 'Gotham', sans-serif;
+  font-size: clamp(1rem, 1.5vw, 1.5rem);
+  font-weight: 500;
+  line-height: 1.4;
+}
+
+/* Glassmorphism utility classes */
+.glass {
+  background: var(--glass-bg);
+  backdrop-filter: var(--glass-backdrop);
+  -webkit-backdrop-filter: var(--glass-backdrop);
+  border: 1px solid var(--glass-border);
+  box-shadow: var(--glass-shadow);
+}
+
+.glass-strong {
+  background: rgba(255, 255, 255, 0.15);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  box-shadow: 0 12px 40px 0 rgba(31, 38, 135, 0.5);
+}
+
+/* Modern button styles */
+.btn-primary {
+  background: linear-gradient(135deg, var(--primary-yellow) 0%, var(--accent-orange) 100%);
+  color: var(--accent-navy-dark);
+  border: none;
+  border-radius: var(--border-radius);
+  padding: 1rem 2rem;
+  font-weight: 600;
+  font-size: 1rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  transition: all var(--transition-medium);
+  cursor: pointer;
+  position: relative;
+  overflow: hidden;
+}
+
+.btn-primary::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
+  transition: left var(--transition-slow);
+}
+
+.btn-primary:hover::before {
+  left: 100%;
+}
+
+.btn-primary:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 25px rgba(255, 196, 90, 0.4);
+}
+
+.btn-secondary {
+  background: transparent;
+  color: var(--primary-white);
+  border: 2px solid var(--primary-yellow);
+  border-radius: var(--border-radius);
+  padding: 1rem 2rem;
+  font-weight: 600;
+  font-size: 1rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  transition: all var(--transition-medium);
+  cursor: pointer;
+  position: relative;
+  overflow: hidden;
+}
+
+.btn-secondary::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 0;
+  height: 100%;
+  background: var(--primary-yellow);
+  transition: width var(--transition-medium);
+  z-index: -1;
+}
+
+.btn-secondary:hover::before {
+  width: 100%;
+}
+
+.btn-secondary:hover {
+  color: var(--accent-navy-dark);
+  transform: translateY(-2px);
+  box-shadow: 0 8px 25px rgba(255, 196, 90, 0.3);
+}
+
+/* Card component */
+.card {
+  background: var(--glass-bg);
+  backdrop-filter: var(--glass-backdrop);
+  -webkit-backdrop-filter: var(--glass-backdrop);
+  border: 1px solid var(--glass-border);
+  border-radius: var(--border-radius-lg);
+  box-shadow: var(--glass-shadow);
+  transition: all var(--transition-medium);
+  overflow: hidden;
+}
+
+.card:hover {
+  transform: translateY(-8px);
+  box-shadow: 0 12px 40px 0 rgba(31, 38, 135, 0.5);
+  border-color: var(--primary-yellow);
+}
+
+/* Gradient text */
+.gradient-text {
+  background: linear-gradient(135deg, var(--primary-yellow) 0%, var(--accent-orange) 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+/* Animations */
+@keyframes float {
+  0%, 100% { transform: translateY(0px); }
+  50% { transform: translateY(-10px); }
+}
+
+@keyframes glow {
+  0%, 100% { 
+    box-shadow: 0 0 5px var(--primary-yellow), 0 0 10px var(--primary-yellow), 0 0 15px var(--primary-yellow);
+  }
+  50% { 
+    box-shadow: 0 0 10px var(--primary-yellow), 0 0 20px var(--primary-yellow), 0 0 30px var(--primary-yellow);
+  }
+}
+
+@keyframes slideInUp {
+  from {
+    opacity: 0;
+    transform: translateY(30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes fadeInScale {
+  from {
+    opacity: 0;
+    transform: scale(0.8);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+.animate-float {
+  animation: float 3s ease-in-out infinite;
+}
+
+.animate-glow {
+  animation: glow 2s ease-in-out infinite alternate;
+}
+
+.animate-slide-up {
+  animation: slideInUp 0.6s ease-out forwards;
+}
+
+.animate-fade-scale {
+  animation: fadeInScale 0.5s ease-out forwards;
+}
+
+/* Responsive design utilities */
+@media (max-width: 768px) {
+  :root {
+    --section-padding: 3rem;
+    --container-padding: 1rem;
+  }
+  
+  .heading-xl {
+    font-size: clamp(2rem, 6vw, 3.5rem);
+  }
+  
+  .btn-primary,
+  .btn-secondary {
+    padding: 0.875rem 1.5rem;
+    font-size: 0.875rem;
+  }
+}
+
+/* High zoom level support */
+@media (min-resolution: 2dppx) and (max-width: 1920px) {
+  .heading-xl {
+    font-size: clamp(2.5rem, 6vw, 4rem);
+  }
+  
+  .heading-lg {
+    font-size: clamp(1.75rem, 4vw, 2.5rem);
+  }
+}
+
+/* Ultra-wide screen support */
+@media (min-width: 2560px) {
+  .heading-xl {
+    font-size: clamp(4rem, 8vw, 8rem);
+  }
+  
+  .heading-lg {
+    font-size: clamp(3rem, 5vw, 5rem);
+  }
+  
+  .container {
+    max-width: 1800px;
+  }
+}
+
+/* Adaptive grid system */
+.adaptive-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 1.5rem;
+}
+
+@media (min-width: 768px) {
+  .adaptive-grid {
+    gap: 2rem;
+  }
+}
+
+@media (min-width: 1024px) {
+  .adaptive-grid {
+    gap: 2.5rem;
+  }
+}
+
+/* Container queries for component-level responsiveness */
+@container (max-width: 400px) {
+  .card {
+    padding: 1rem;
+  }
+  
+  .btn-primary,
+  .btn-secondary {
+    padding: 0.75rem 1rem;
+    font-size: 0.875rem;
+  }
+}
+
+/* Focus and accessibility improvements */
+.focus-ring {
+  @apply focus:outline-none focus:ring-2 focus:ring-rh-yellow focus:ring-offset-2 focus:ring-offset-rh-navy-dark;
+}
+
+/* High contrast mode support */
+@media (prefers-contrast: high) {
+  .glass {
+    background: rgba(255, 255, 255, 0.2);
+    border: 2px solid rgba(255, 255, 255, 0.4);
+  }
+  
+  .btn-primary {
+    border: 2px solid var(--primary-yellow);
+  }
+  
+  .btn-secondary {
+    border: 3px solid var(--primary-yellow);
+  }
+}
+
+/* Reduced motion support */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+/* Print styles */
+@media print {
+  .glass,
+  .card {
+    background: white !important;
+    color: black !important;
+    border: 1px solid #ccc !important;
+  }
+  
+  .gradient-text {
+    color: black !important;
+    -webkit-text-fill-color: unset !important;
+  }
 }

@@ -1,14 +1,11 @@
 import React from "react";
 import { PiTerminalWindow } from "react-icons/pi";
 import { IoDiamond } from "react-icons/io5";
-// import { AiOutlineDiscord } from "react-icons/ai";
 import { FaHandshake } from "react-icons/fa6";
 import { GiBrain } from "react-icons/gi";
-import { FaHeartbeat, FaChartLine, FaLeaf } from "react-icons/fa";
-import localFont from "next/font/local";
+import { FaHeartbeat, FaChartLine, FaLeaf, FaMicrochip } from "react-icons/fa";
+import { terminal } from "../../app/fonts/fonts";
 import Link from "next/link";
-
-const terminal = localFont({ src: "../../app/fonts/terminal-grotesque.ttf" });
 
 export default function About() {
   return (
@@ -16,192 +13,203 @@ export default function About() {
       <section
         id="about"
         aria-label="About RocketHacks"
-        className="about-us bg-gradient-to-b from-[#030c1b] from-50% to-[#051735] to-90% text-white py-16 px-5 md:px-10 xl:py-20"
+        className="relative bg-gradient-to-b from-rh-background via-rh-navy-dark to-rh-navy-light text-white py-20 px-5 md:px-10 xl:py-28"
       >
-        <div className="flex flex-col items-center">
-          <h2
-            className={`${terminal.className} text-4xl md:text-6xl my-[10px] text-center text-[#FFDA20]`}
-          >
-            ABOUT US
-          </h2>
-          <p className="mt-4 text-base text-pretty font-normal text-center max-w-3xl">
-            RocketHacks is a 24-hour hackathon hosted by the University of
-            Toledo dedicated to fostering innovation and problem-solving among
-            students from the Midwest and beyond. This event will gather
-            talented students from budding programmers to visionary designers to
-            build real solutions to real-world challenges. With an emphasis on
-            collaboration, creativity, and technical skills, RocketHacks will
-            empower students to turn their ideas into impactful projects.
-          </p>
-          <div
-            className="flex flex-col lg:flex-row items-stretch justify-center gap-4 mt-10 max-w-5xl w-full"
-            role="list"
-          >
-            {/* Box 1 */}
-            <div
-              className="flex-1 border-2 border-blue-600 rounded-lg text-center p-8 flex flex-col items-center justify-between min-h-[400px]"
-              role="listitem"
-            >
-              <div className="flex-grow flex flex-col justify-center">
-                <IoDiamond
-                  className="mx-auto mb-4"
-                  size={64}
-                  color="#FFDA20"
-                  aria-hidden="true"
-                  role="img"
-                />
-                <h3
-                  className={`${terminal.className} mb-4 text-[#FFDA20] text-[28px] leading-tight h-[70px] flex items-center justify-center`}
+        {/* Background Pattern */}
+        <div className="absolute inset-0 opacity-5">
+          <div className="absolute inset-0" style={{
+            backgroundImage: `radial-gradient(circle at 25px 25px, rgba(255, 196, 90, 0.3) 2px, transparent 0)`,
+            backgroundSize: '50px 50px'
+          }}></div>
+        </div>
+
+        <div className="relative max-w-7xl mx-auto">
+          {/* Section Header */}
+          <div className="text-center mb-16 animate-slide-up">
+            <h2 className={`${terminal.className} heading-lg gradient-text mb-6 uppercase tracking-wider`}>
+              About RocketHacks
+            </h2>
+            <div className="w-24 h-1 bg-gradient-to-r from-rh-yellow to-rh-orange mx-auto mb-8 rounded-full"></div>
+            <p className="text-lg leading-relaxed text-rh-white/90 max-w-4xl mx-auto">
+              RocketHacks is a 24-hour hackathon hosted by the University of
+              Toledo dedicated to fostering innovation and problem-solving among
+              students from the Midwest and beyond. This event brings together
+              talented students—from budding programmers to visionary designers—to
+              build real solutions to real-world challenges. With an emphasis on
+              collaboration, creativity, and technical skills, RocketHacks will
+              empower students to turn their ideas into impactful projects.
+            </p>
+          </div>
+          {/* Action Cards */}
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 mb-20 animate-fade-scale" role="list">
+            {/* Sponsorship Card */}
+            <div className="card group text-center p-8 hover:scale-105 transition-all duration-500" role="listitem">
+              <div className="flex flex-col h-full">
+                <div className="flex-grow">
+                  <div className="w-20 h-20 mx-auto mb-6 rounded-full bg-gradient-to-br from-rh-yellow to-rh-orange flex items-center justify-center group-hover:animate-pulse">
+                    <IoDiamond size={40} className="text-rh-navy-dark" />
+                  </div>
+                  <h3 className={`${terminal.className} text-2xl mb-4 text-rh-yellow group-hover:text-rh-orange transition-colors`}>
+                    SPONSOR US
+                  </h3>
+                  <p className="text-rh-white/80 leading-relaxed mb-6">
+                    Partner with us to support the next generation of innovators. 
+                    Check out our sponsorship packet for opportunities and benefits.
+                  </p>
+                </div>
+                <Link
+                  href="/documents/sponsorship-packet.pdf"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="btn-primary w-full group-hover:shadow-glow transition-all duration-300"
+                  aria-label="View sponsorship packet"
                 >
-                  SPONSOR US FOR 2026
-                </h3>
-                <p className="text-base h-[50px] flex items-center justify-center">
-                  Check out the sponsorship packet(RH26) for more info!
-                </p>
+                  VIEW PACKET
+                </Link>
               </div>
-              <Link
-                href="/documents/sponsorship-packet.pdf"
-                target="_blank"
-                rel="noopener noreferrer"
-                aria-label="View sponsorship packet"
-              >
-                <button
-                  className="bg-blue-600 py-3 px-20 rounded-md mt-6 focus:ring-2 focus:ring-blue-400 focus:outline-none hover:bg-[#FFDA20] hover:text-white transition-all duration-300 hover:shadow-[0_0_15px_#FFDA20]"
-                  aria-label="Download sponsor packet"
-                >
-                  SPONSOR US
-                </button>
-              </Link>
-            </div>
-            {/* Box 2 */}
-            <div
-              className="flex-1 border-2 border-blue-600 rounded-lg text-center p-8 flex flex-col items-center justify-between min-h-[400px]"
-              role="listitem"
-            >
-              <div className="flex-grow flex flex-col justify-center">
-                <PiTerminalWindow
-                  className="mx-auto mb-4"
-                  size={64}
-                  color="#E4335E"
-                  aria-hidden="true"
-                  role="img"
-                />
-                <h3
-                  className={`${terminal.className} mb-4 text-[#E4335E] text-[28px] leading-tight h-[70px] flex items-center justify-center`}
-                >
-                  HACKERS
-                </h3>
-                <p className="text-base h-[50px] flex items-center justify-center">
-                  Applications for RocketHacks are now open. Apply to be a hacker
-                  today!
-                </p>
-              </div>
-              <Link
-                href=""
-                target="_blank"
-                aria-label="Apply to be a hacker"
-              >
-                <button
-                  className="bg-blue-600 py-3 px-20 rounded-md mt-6 focus:ring-2 focus:ring-blue-400 focus:outline-none hover:bg-[#FFDA20] hover:text-white transition-all duration-300 hover:shadow-[0_0_15px_#FFDA20]"
-                  aria-label="Apply now to be a hacker"
-                >
-                  APPLICATION CLOSED
-                </button>
-              </Link>
             </div>
 
-            {/* Box 3 */}
-            <div
-              className="flex-1 border-2 border-blue-600 rounded-lg text-center p-8 flex flex-col items-center justify-between min-h-[400px]"
-              role="listitem"
-            >
-              <div className="flex-grow flex flex-col justify-center">
-                <FaHandshake
-                  className="mx-auto mb-4"
-                  size={64}
-                  color="#5865F2"
-                  aria-hidden="true"
-                  role="img"
-                />
-                <h3
-                  className={`${terminal.className} mb-4 text-[#5865F2] text-[28px] leading-tight h-[70px] flex items-center justify-center`}
-                >
-                  VOLUNTEER
-                </h3>
-                <p className="text-base h-[50px] flex items-center justify-center">
-                  Do you want to volunteer at RocketHacks this year? Fill out
-                  this form.
-                </p>
-              </div>
-              <Link
-                href=""
-                rel="noopener noreferrer"
-                aria-label="Fill the volunteer form"
-              >
+            {/* Hackers Card */}
+            <div className="card group text-center p-8 hover:scale-105 transition-all duration-500" role="listitem">
+              <div className="flex flex-col h-full">
+                <div className="flex-grow">
+                  <div className="w-20 h-20 mx-auto mb-6 rounded-full bg-gradient-to-br from-rh-pink to-rh-purple-dark flex items-center justify-center group-hover:animate-pulse">
+                    <PiTerminalWindow size={40} className="text-white" />
+                  </div>
+                  <h3 className={`${terminal.className} text-2xl mb-4 text-rh-pink group-hover:text-rh-purple-light transition-colors`}>
+                    HACKERS
+                  </h3>
+                  <p className="text-rh-white/80 leading-relaxed mb-6">
+                    Ready to code, create, and collaborate? Applications for 
+                    RocketHacks 2026 will open soon. Stay tuned!
+                  </p>
+                </div>
                 <button
-                  className="bg-blue-600 py-3 px-20 rounded-md mt-6 focus:ring-2 focus:ring-blue-400 focus:outline-none hover:bg-[#FFDA20] hover:text-white transition-all duration-300 hover:shadow-[0_0_15px_#FFDA20]"
-                  aria-label="Fill out the volunteer form"
+                  className="btn-secondary w-full opacity-60 cursor-not-allowed"
+                  disabled
+                  aria-label="Applications not yet open"
                 >
-                  FORM CLOSED
+                  COMING SOON
                 </button>
-              </Link>
+              </div>
+            </div>
+
+            {/* Volunteer Card */}
+            <div className="card group text-center p-8 hover:scale-105 transition-all duration-500" role="listitem">
+              <div className="flex flex-col h-full">
+                <div className="flex-grow">
+                  <div className="w-20 h-20 mx-auto mb-6 rounded-full bg-gradient-to-br from-rh-purple-light to-rh-navy-light flex items-center justify-center group-hover:animate-pulse">
+                    <FaHandshake size={40} className="text-white" />
+                  </div>
+                  <h3 className={`${terminal.className} text-2xl mb-4 text-rh-purple-light group-hover:text-rh-yellow transition-colors`}>
+                    VOLUNTEER
+                  </h3>
+                  <p className="text-rh-white/80 leading-relaxed mb-6">
+                    Help make RocketHacks amazing! Volunteer opportunities will 
+                    be available closer to the event date.
+                  </p>
+                </div>
+                <button
+                  className="btn-secondary w-full opacity-60 cursor-not-allowed"
+                  disabled
+                  aria-label="Volunteer applications not yet open"
+                >
+                  COMING SOON
+                </button>
+              </div>
             </div>
           </div>
           
           {/* Tracks Section */}
-          <h2 className={`${terminal.className} text-4xl md:text-6xl mt-16 mb-8 text-center text-[#FFDA20]`}>
-            TRACKS (2025)
-          </h2>
-          <div className="flex flex-col lg:flex-row items-center justify-center gap-4 max-w-5xl w-full flex-wrap" role="list">
-            {/* AI for Good Track */}
-            <div className="flex-1 min-w-[280px] border-2 border-blue-600 rounded-lg text-center p-8 flex flex-col items-center justify-between" role="listitem">
-              <div>
-                <GiBrain className="mx-auto mb-4" size={64} color="#4CAF50" aria-hidden="true" role="img" />
-                <h3 className={`${terminal.className} mb-4 text-[#4CAF50] text-[32px]`}>
-                  AI FOR GOOD
-                </h3>
-                <p className="text-base">
-                  Develop AI solutions that address social challenges and improve lives.
-                </p>
+          <div className="text-center mb-12">
+            <h2 className={`${terminal.className} heading-lg gradient-text mb-6 uppercase tracking-wider`}>
+              Competition Tracks
+            </h2>
+            <div className="w-24 h-1 bg-gradient-to-r from-rh-yellow to-rh-orange mx-auto mb-8 rounded-full"></div>
+            <p className="text-lg text-rh-white/80 max-w-3xl mx-auto">
+              Choose your path and build solutions that matter. Each track focuses on real-world challenges 
+              where technology can make a meaningful impact.
+            </p>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 animate-fade-scale" role="list">
+            {/* Green Innovation Track */}
+            <div className="card group text-center p-6 hover:scale-105 transition-all duration-500" role="listitem">
+              <div className="w-16 h-16 mx-auto mb-4 rounded-full bg-gradient-to-br from-green-400 to-emerald-600 flex items-center justify-center group-hover:animate-pulse">
+                <FaLeaf size={32} className="text-white" />
               </div>
+              <h3 className={`${terminal.className} text-xl mb-3 text-green-400 group-hover:text-green-300 transition-colors`}>
+                GREEN INNOVATION
+              </h3>
+              <p className="text-sm text-rh-white/80 leading-relaxed">
+                Build solutions that support sustainability and a cleaner future for our planet.
+              </p>
             </div>
 
-            {/* Healthcare Track */}
-            <div className="flex-1 min-w-[280px] border-2 border-blue-600 rounded-lg text-center p-8 flex flex-col items-center justify-between" role="listitem">
-              <div>
-                <FaHeartbeat className="mx-auto mb-4" size={64} color="#E91E63" aria-hidden="true" role="img" />
-                <h3 className={`${terminal.className} mb-4 text-[#E91E63] text-[32px]`}>
-                  HEALTHCARE
-                </h3>
-                <p className="text-base">
-                  Create innovative solutions to improve healthcare delivery and patient care.
-                </p>
+            {/* MedTech Track */}
+            <div className="card group text-center p-6 hover:scale-105 transition-all duration-500" role="listitem">
+              <div className="w-16 h-16 mx-auto mb-4 rounded-full bg-gradient-to-br from-red-400 to-pink-600 flex items-center justify-center group-hover:animate-pulse">
+                <FaHeartbeat size={32} className="text-white" />
               </div>
+              <h3 className={`${terminal.className} text-xl mb-3 text-red-400 group-hover:text-red-300 transition-colors`}>
+                MEDTECH
+              </h3>
+              <p className="text-sm text-rh-white/80 leading-relaxed">
+                Create technologies that improve health, wellness, and accessibility for everyone.
+              </p>
             </div>
 
-            {/* Finance Track */}
-            <div className="flex-1 min-w-[280px] border-2 border-blue-600 rounded-lg text-center p-8 flex flex-col items-center justify-between" role="listitem">
-              <div>
-                <FaChartLine className="mx-auto mb-4" size={64} color="#2196F3" aria-hidden="true" role="img" />
-                <h3 className={`${terminal.className} mb-4 text-[#2196F3] text-[32px]`}>
-                  FINANCE
-                </h3>
-                <p className="text-base">
-                  Build solutions for financial technology and economic empowerment.
-                </p>
+            {/* Next Gen AI Track */}
+            <div className="card group text-center p-6 hover:scale-105 transition-all duration-500" role="listitem">
+              <div className="w-16 h-16 mx-auto mb-4 rounded-full bg-gradient-to-br from-purple-400 to-blue-600 flex items-center justify-center group-hover:animate-pulse">
+                <GiBrain size={32} className="text-white" />
               </div>
+              <h3 className={`${terminal.className} text-xl mb-3 text-purple-400 group-hover:text-purple-300 transition-colors`}>
+                NEXT GEN AI
+              </h3>
+              <p className="text-sm text-rh-white/80 leading-relaxed">
+                Explore the future of artificial intelligence and its real-world impact on society.
+              </p>
             </div>
 
-            {/* Sustainability Track */}
-            <div className="flex-1 min-w-[280px] border-2 border-blue-600 rounded-lg text-center p-8 flex flex-col items-center justify-between" role="listitem">
-              <div>
-                <FaLeaf className="mx-auto mb-4" size={64} color="#8BC34A" aria-hidden="true" role="img" />
-                <h3 className={`${terminal.className} mb-4 text-[#8BC34A] text-[32px]`}>
-                  SUSTAINABILITY
-                </h3>
-                <p className="text-base">
-                  Develop projects that promote environmental sustainability and conservation.
-                </p>
+            {/* Hardware Track */}
+            <div className="card group text-center p-6 hover:scale-105 transition-all duration-500" role="listitem">
+              <div className="w-16 h-16 mx-auto mb-4 rounded-full bg-gradient-to-br from-orange-400 to-yellow-600 flex items-center justify-center group-hover:animate-pulse">
+                <FaMicrochip size={32} className="text-white" />
+              </div>
+              <h3 className={`${terminal.className} text-xl mb-3 text-orange-400 group-hover:text-orange-300 transition-colors`}>
+                HARDWARE
+              </h3>
+              <p className="text-sm text-rh-white/80 leading-relaxed">
+                Design and prototype smart devices that bring innovative ideas into reality.
+              </p>
+            </div>
+          </div>
+
+          {/* Call to Action */}
+          <div className="text-center mt-16">
+            <div className="glass-strong rounded-3xl p-8 max-w-2xl mx-auto">
+              <h3 className={`${terminal.className} text-2xl text-rh-yellow mb-4`}>
+                Ready to Make an Impact?
+              </h3>
+              <p className="text-rh-white/90 mb-6">
+                Join hundreds of students from across the Midwest as we hack for a better tomorrow.
+              </p>
+              <div className="flex flex-col sm:flex-row gap-4 justify-center">
+                <Link
+                  href="#contact"
+                  className="btn-primary px-6 py-3"
+                >
+                  Stay Updated
+                </Link>
+                <Link
+                  href="/documents/sponsorship-packet.pdf"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="btn-secondary px-6 py-3"
+                >
+                  Become a Sponsor
+                </Link>
               </div>
             </div>
           </div>

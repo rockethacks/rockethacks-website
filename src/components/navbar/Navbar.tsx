@@ -1,11 +1,13 @@
 "use client";
 import React, { useState, useEffect } from "react";
 import Link from "next/link";
+import Image from "next/image";
 import { FiMenu, FiX } from "react-icons/fi";
-import RocketHacks from "../../../public/assets/name-logo.svg";
+import { terminal } from "../../app/fonts/fonts";
 
 export default function Navbar() {
   const [menuOpen, setMenuOpen] = useState(false);
+  const [scrolled, setScrolled] = useState(false);
 
   useEffect(() => {
     if (menuOpen) {
@@ -13,90 +15,142 @@ export default function Navbar() {
     } else {
       document.body.classList.remove("no-scroll");
     }
-  });
+  }, [menuOpen]);
+
+  useEffect(() => {
+    const handleScroll = () => {
+      const isScrolled = window.scrollY > 20;
+      setScrolled(isScrolled);
+    };
+
+    window.addEventListener('scroll', handleScroll);
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, []);
 
   const toggleMenu = () => setMenuOpen(!menuOpen);
-//test re deployment
+
+  const navLinks = [
+    { href: "#about", label: "ABOUT" },
+    { href: "#gallery", label: "2025" },
+    { href: "#sponsor", label: "SPONSORS" },
+    { href: "#contact", label: "CONTACT" },
+    { href: "#faq", label: "FAQ" },
+    { href: "/team", label: "TEAM" }
+  ];
+
   return (
-    <nav className="bg-[#030c1b] text-white text-base sticky top-0 z-20 shadow-md">
-      {/* Logo and Hamburger Menu */}
-      <div className="container flex justify-around sm:justify-between sm:mx-auto md:justify-center md:space-x-20 items-center h-[3.8rem]">
-        {/* Logo */}
-        <div className="font-bold">
-          <Link href="/" prefetch={true}>
-            <RocketHacks className="h-16 w-auto" />
-          </Link>
-        </div>
+    <nav className={`
+      fixed top-0 left-0 right-0 z-50 transition-all duration-300
+      ${scrolled 
+        ? 'glass-strong backdrop-blur-md shadow-lg' 
+        : 'bg-transparent'
+      }
+    `}>
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="flex justify-between items-center h-20">
+          {/* Logo */}
+          <div className="flex-shrink-0">
+            <Link href="/" className="block transition-transform hover:scale-105">
+              <Image
+                src="/assets/rh_26/rh_26_folder/rh_26_bundle_png/rh_26_logo_color_transparent.png"
+                alt="RocketHacks 2026"
+                width={120}
+                height={60}
+                className="h-10 sm:h-12 w-auto object-contain"
+                priority
+                sizes="120px"
+                style={{ aspectRatio: '2/1' }}
+              />
+            </Link>
+          </div>
 
-        {/* Hamburger Menu for Mobile */}
-        <div className="inline-block md:hidden z-30">
-          <button
-            onClick={toggleMenu}
-            className="text-white focus:outline-none" // Added right margin
-            aria-label="Toggle menu"
-          >
-            {menuOpen ? <FiX size={24} /> : <FiMenu size={24} />}
-          </button>
-        </div>
+          {/* Desktop Navigation */}
+          <div className="hidden md:flex items-center space-x-8">
+            {navLinks.map((link) => (
+              <Link
+                key={link.href}
+                href={link.href}
+                className={`
+                  ${terminal.className} text-sm font-medium tracking-wider
+                  text-rh-white/90 hover:text-rh-yellow transition-colors duration-200
+                  relative group
+                `}
+              >
+                {link.label}
+                <span className="absolute -bottom-1 left-0 w-0 h-0.5 bg-rh-yellow transition-all duration-200 group-hover:w-full"></span>
+              </Link>
+            ))}
+            
+            {/* Special CTA Button */}
+            <Link
+              href="https://forms.gle/RV3DVwCddkDvU5eK8"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="btn-primary px-4 py-2 text-xs"
+            >
+              CODE & CREATE
+            </Link>
+          </div>
 
-        {/* Desktop Navigation Links */}
-        <div className="space-x-10 hidden md:block lg:mr-20 font-medium">
-          <Link href="#about" style={{ scrollBehavior: "smooth" }} prefetch={true}>
-            ABOUT US
-          </Link>
-          <Link href="#gallery" prefetch={true}>2025</Link>
-          <Link href="#sponsor" prefetch={true}>SPONSORS</Link>
-          {/* <Link href="#gallery">GALLERY</Link> */}
-          <Link href="#contact" prefetch={true}>CONTACT</Link>
-          <Link href="#faq" prefetch={true}>FAQ</Link>
-          <Link
-            href="https://forms.gle/RV3DVwCddkDvU5eK8"
-            target="_blank"
-            onClick={toggleMenu}
-            prefetch={true}
-          >
-            {" "}
-            CODE & CREATE{" "}
-          </Link>
-          <Link href="/team" prefetch={true}>MEET THE TEAM</Link>
+          {/* Mobile menu button */}
+          <div className="md:hidden">
+            <button
+              onClick={toggleMenu}
+              className="text-rh-white hover:text-rh-yellow transition-colors duration-200 p-2"
+              aria-label="Toggle menu"
+            >
+              {menuOpen ? <FiX size={24} /> : <FiMenu size={24} />}
+            </button>
+          </div>
         </div>
       </div>
 
       {/* Mobile Full-Screen Navigation Menu */}
       {menuOpen && (
-        <div className="bg-[#030c1b]/[99%] text-white inline-block xl:hidden fixed overflow-hidden inset-0  max-h-screen">
-          <div className="flex flex-col space-y-10 items-center justify-center h-full text-3xl">
-            {/* <Link
-              href="/assets/Code&CreateFlyer.pdf"
-              target="_blank"
-              onClick={toggleMenu}
-            > */}
-            <Link href="#about" onClick={toggleMenu} prefetch={true}>
-              About Us
-            </Link>
+        <div className="md:hidden fixed inset-0 z-40 bg-rh-navy-dark/95 backdrop-blur-lg">
+          <div className="flex flex-col items-center justify-center h-full space-y-8 text-center px-6">
+            <div className="mb-8">
+              <Image
+                src="/assets/rh_26/rh_26_folder/rh_26_bundle_png/rh_26_logo_color_transparent.png"
+                alt="RocketHacks 2026"
+                width={150}
+                height={75}
+                className="h-16 w-auto"
+              />
+            </div>
+            
+            {navLinks.map((link, index) => (
+              <Link
+                key={link.href}
+                href={link.href}
+                onClick={toggleMenu}
+                className={`
+                  ${terminal.className} text-2xl font-medium tracking-wider
+                  text-rh-white hover:text-rh-yellow transition-all duration-300
+                  transform hover:scale-110 animate-slide-up
+                `}
+                style={{ animationDelay: `${index * 0.1}s` }}
+              >
+                {link.label}
+              </Link>
+            ))}
+            
             <Link
               href="https://forms.gle/RV3DVwCddkDvU5eK8"
               target="_blank"
+              rel="noopener noreferrer"
               onClick={toggleMenu}
-              prefetch={true}
+              className="btn-primary px-8 py-3 text-lg mt-4 animate-fade-scale"
+              style={{ animationDelay: '0.6s' }}
             >
-              Code & Create
+              CODE & CREATE
             </Link>
-            <Link href="#sponsor" onClick={toggleMenu} prefetch={true}>
-              Sponsors
-            </Link>
-            <Link href="#gallery" onClick={toggleMenu} prefetch={true}>
-              2025
-            </Link>
-            <Link href="#contact" onClick={toggleMenu} prefetch={true}>
-              Contact Us
-            </Link>
-            <Link href="#faq" onClick={toggleMenu} prefetch={true}>
-              FAQ
-            </Link>
-            <Link href="/team" onClick={toggleMenu} prefetch={true}>
-              Meet The Team
-            </Link>
+            
+            <div className="absolute bottom-8 left-0 right-0 text-center">
+              <p className="text-rh-white/60 text-sm">
+                © 2026 RocketHacks - University of Toledo
+              </p>
+            </div>
           </div>
         </div>
       )}

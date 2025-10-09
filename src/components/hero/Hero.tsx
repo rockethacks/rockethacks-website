@@ -1,68 +1,105 @@
 import React from "react";
-import localFont from "next/font/local";
 import Image from "next/image";
 import Link from "next/link";
-
-const terminal = localFont({ src: "../../app/fonts/terminal-grotesque.ttf" });
+import { terminal } from "../../app/fonts/fonts";
 
 export default function Hero() {
   return (
     <div>
       <section
         id="home"
-        className="home text-white relative text-center h-screen overflow-hidden"
+        className="home text-white relative text-center min-h-screen min-h-[100dvh] overflow-hidden flex items-center justify-center"
       >
-        <Image
-          src="/assets/Retro_Futuristic_Moebius.png"
-          alt="background"
-          className="opacity-30"
-          layout="fill"
-          objectFit="cover"
-        />
-        <div className="absolute inset-0 flex flex-col items-center justify-center">
-          <div>
-            <h1 className={`${terminal.className} text-5xl uppercase`}>
-              presenting
-            </h1>
-          </div>
-          <div>
-            <h1 className="text-5xl">
-              <span className="text-blue-700">{"{ "}</span>
-              <span className="text-[#FFDA1F] font-bold">RocketHacks</span>
-              <span className="text-blue-700">{" }"}</span>
-            </h1>
-          </div>
-          <div>
-            <h1 className={`${terminal.className} text-5xl uppercase mt-2`}>
-              The biggest Hackathon <br /> in the midwest
-            </h1>
-          </div>
-          <div>
-            <h2 className={`${terminal.className} text-5xl mt-2 text-[#FFDA1F]`}>
-              RocketHacks will return in 2026.
-            </h2>
-          </div>
-          <div>
-            {/* <a
-              href={`https://form.jotform.com/rockethacks25/rh25RegForm`}
-              target="_blank"
-            >
-              <button className="bg-blue-600 py-3 px-5 rounded-md mt-6 focus:ring-2 focus:ring-blue-400 focus:outline-none hover:bg-[#FFDA20] hover:text-white transition-all duration-300 hover:shadow-[0_0_15px_#FFDA20]">
-                <div className="flex flex-row">
-                  <div>APPLY NOW</div>
-                </div>
-              </button>
-            </a> */}
-          </div>
-          <div className="mt-6">
-            <Link
-              href="https://maps.app.goo.gl/xC2YjujFcZfS65PF8"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="text-3xl font-bold hover:text-[#FFDA20] transition-colors duration-300 underline"
-            >
-              1700 N Westwood Ave, Toledo, OH 43607
-            </Link>
+        {/* Background Image with improved overlay */}
+        <div className="absolute inset-0">
+          <Image
+            src="/assets/rh_26/rh_26_folder/rh_26_bg.png"
+            alt="RocketHacks 2026 Background"
+            fill
+            className="object-cover object-center"
+            priority
+            quality={95}
+            sizes="100vw"
+          />
+          {/* Gradient overlay for better text readability */}
+          <div className="absolute inset-0 bg-gradient-to-b from-black/40 via-transparent to-black/60"></div>
+        </div>
+
+        {/* Content */}
+        <div className="relative z-10 w-full max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+          {/* Centered Content */}
+          <div className="text-center space-y-6 animate-slide-up">
+            {/* Main Heading */}
+            <div className="space-y-4">
+              <h1 className={`${terminal.className} heading-lg gradient-text uppercase tracking-wider`}>
+                RocketHacks 2026
+              </h1>
+              
+              <h2 className={`${terminal.className} text-[clamp(1rem,2vw,1.5rem)] text-rh-white font-light uppercase tracking-wide`}>
+                The Biggest Hackathon in the Midwest
+              </h2>
+            </div>
+
+            {/* Coming Soon Message */}
+            <div className="glass rounded-2xl p-4 sm:p-6 max-w-2xl mx-auto">
+              <h3 className={`${terminal.className} text-[clamp(1rem,1.8vw,1.25rem)] text-rh-yellow mb-3`}>
+                Coming Spring 2026
+              </h3>
+              <p className="text-[clamp(0.875rem,1.5vw,1rem)] text-rh-white/90 leading-relaxed">
+                Join us for an incredible 24-hour journey of innovation, collaboration, and problem-solving.
+              </p>
+            </div>
+
+            {/* Call to Action Buttons */}
+            <div className="flex flex-col sm:flex-row gap-3 items-center justify-center">
+              <Link
+                href="#about"
+                className="btn-primary px-6 py-3 text-[clamp(0.875rem,1.5vw,1rem)] font-semibold inline-flex items-center justify-center min-h-[44px]"
+              >
+                Learn More
+              </Link>
+              <Link
+                href="/documents/sponsorship-packet.pdf"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="btn-secondary px-6 py-3 text-[clamp(0.875rem,1.5vw,1rem)] font-semibold inline-flex items-center justify-center min-h-[44px]"
+              >
+                Sponsor Us
+              </Link>
+            </div>
+
+            {/* Location */}
+            <div>
+              <Link
+                href="https://maps.app.goo.gl/xC2YjujFcZfS65PF8"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-flex items-center space-x-2 text-[clamp(0.875rem,1.5vw,1rem)] text-rh-white/80 hover:text-rh-yellow transition-colors duration-300 group"
+                aria-label="View location on Google Maps"
+              >
+                <svg 
+                  className="w-5 h-5 group-hover:scale-110 transition-transform" 
+                  fill="currentColor" 
+                  viewBox="0 0 20 20"
+                >
+                  <path fillRule="evenodd" d="M5.05 4.05a7 7 0 119.9 9.9L10 18.9l-4.95-4.95a7 7 0 010-9.9zM10 11a2 2 0 100-4 2 2 0 000 4z" clipRule="evenodd" />
+                </svg>
+                <span className="underline decoration-rh-yellow/50 group-hover:decoration-rh-yellow">
+                  University of Toledo, Toledo, OH
+                </span>
+              </Link>
+            </div>
+          </div>          {/* Floating Elements */}
+          <div className="absolute top-20 left-10 w-4 h-4 bg-rh-yellow rounded-full animate-float opacity-60"></div>
+          <div className="absolute top-40 right-20 w-6 h-6 bg-rh-orange rounded-full animate-float opacity-40" style={{ animationDelay: '1s' }}></div>
+          <div className="absolute bottom-32 left-20 w-3 h-3 bg-rh-purple-light rounded-full animate-float opacity-70" style={{ animationDelay: '2s' }}></div>
+          <div className="absolute bottom-20 right-10 w-5 h-5 bg-rh-pink rounded-full animate-float opacity-50" style={{ animationDelay: '0.5s' }}></div>
+        </div>
+
+        {/* Scroll Indicator */}
+        <div className="absolute bottom-16 left-1/2 transform -translate-x-1/2 animate-bounce">
+          <div className="w-6 h-10 border-2 border-rh-white/50 rounded-full flex justify-center">
+            <div className="w-1 h-3 bg-rh-yellow rounded-full mt-2 animate-pulse"></div>
           </div>
         </div>
       </section>

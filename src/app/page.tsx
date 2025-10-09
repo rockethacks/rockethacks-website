@@ -16,15 +16,17 @@ import Gallery from "@/components/gallery/Gallery";
 
 export default function Home() {
   return (
-    <div>
+    <div className="min-h-screen overflow-x-hidden">
       <Navbar />
-      <Hero />
-      <About />
-      <Sponsor sponsors={SponsorData} />
-      <Prizes />
-      <Gallery />
-      <Contact />
-      <Faq />
+      <main className="relative">
+        <Hero />
+        <About />
+        <Sponsor sponsors={SponsorData} />
+        <Prizes />
+        <Gallery />
+        <Contact />
+        <Faq />
+      </main>
       <Footer />
     </div>
   );
