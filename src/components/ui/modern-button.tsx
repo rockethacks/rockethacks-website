@@ -49,11 +49,11 @@ const ModernButton = React.forwardRef<HTMLButtonElement, ModernButtonProps>(
     };
 
     if (asChild && React.isValidElement(children)) {
-      return React.cloneElement(children, {
-        className: cn(baseStyles, variants[variant], sizes[size], className),
+      return React.cloneElement(children as React.ReactElement<React.HTMLAttributes<HTMLElement>>, {
+        className: cn(baseStyles, variants[variant], sizes[size], (children.props as React.HTMLAttributes<HTMLElement>)?.className),
         ref,
         ...props
-      });
+      } as React.HTMLAttributes<HTMLElement>);
     }
 
     return (

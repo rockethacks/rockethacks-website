@@ -1,10 +1,6 @@
 import type { Metadata, Viewport } from "next";
-import Image from "next/image";
 import { terminal, jakarta } from "./fonts/fonts";
 import "./globals.css";
-
-const mlh =
-  "https://s3.amazonaws.com/logged-assets/trust-badge/2025/mlh-trust-badge-2025-blue.svg";
 
 export const viewport: Viewport = {
   width: "device-width",

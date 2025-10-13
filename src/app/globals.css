@@ -434,7 +434,7 @@ body {
 
 /* Focus and accessibility improvements */
 .focus-ring {
-  @apply focus:outline-none focus:ring-2 focus:ring-rh-yellow focus:ring-offset-2 focus:ring-offset-rh-navy-dark;
+  @apply focus:outline-none focus:ring-2 focus:ring-rh-yellow focus:ring-offset-2 focus:ring-offset-rh-background;
 }
 
 /* High contrast mode support */

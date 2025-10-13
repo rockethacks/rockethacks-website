@@ -2,8 +2,6 @@ import React from "react";
 import { PiTerminalWindow } from "react-icons/pi";
 import { IoDiamond } from "react-icons/io5";
 import { FaHandshake } from "react-icons/fa6";
-import { GiBrain } from "react-icons/gi";
-import { FaHeartbeat, FaChartLine, FaLeaf, FaMicrochip } from "react-icons/fa";
 import { terminal } from "../../app/fonts/fonts";
 import Link from "next/link";
 

@@ -1,7 +1,7 @@
 import React from "react";
 import { terminal } from "@/app/fonts/fonts";
 import Image from "next/image";
-import { FaTrophy, FaMedal, FaAward, FaGift, FaCrown, FaStar } from "react-icons/fa";
+import { FaTrophy, FaMedal, FaAward, FaCrown } from "react-icons/fa";
 import { GlassCard } from "../ui/glass-card";
 import { AnimatedIcon } from "../ui/animated-icon";
 
@@ -97,7 +97,7 @@ export const Prizes = () => {
             </h2>
             <div className="w-24 h-1 bg-gradient-to-r from-rh-yellow to-rh-orange mx-auto mb-8 rounded-full"></div>
             <p className="text-lg leading-relaxed text-rh-white/90 max-w-3xl mx-auto">
-              Compete for amazing prizes and recognition. We're preparing incredible rewards 
+              Compete for amazing prizes and recognition. We&apos;re preparing incredible rewards 
               for our most innovative teams and outstanding individual contributions.
             </p>
           </div>
@@ -119,7 +119,7 @@ export const Prizes = () => {
                 />
               </div>
               <p className="text-rh-white/70 text-sm mt-4">
-                Last year's incredible prize pool - 2026 will be even bigger!
+                Last year&apos;s incredible prize pool - 2026 will be even bigger!
               </p>
             </GlassCard>
           </div>
@@ -131,7 +131,7 @@ export const Prizes = () => {
                 RocketHacks 2026 Prize Categories
               </h3>
               <p className="text-rh-white/80 max-w-2xl mx-auto">
-                We're working with our sponsors to create an even more exciting prize structure. 
+                We&apos;re working with our sponsors to create an even more exciting prize structure. 
                 Stay tuned for official announcements!
               </p>
             </div>

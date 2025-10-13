@@ -117,7 +117,7 @@ function FAQ() {
             </h2>
             <div className="w-16 h-1 bg-gradient-to-r from-rh-yellow to-rh-orange mx-auto mb-6 rounded-full"></div>
             <p className="text-base leading-relaxed text-rh-white/90 max-w-2xl mx-auto">
-              Got questions? We've got answers!
+              Got questions? We&apos;ve got answers!
             </p>
           </div>
 
@@ -184,7 +184,7 @@ function FAQ() {
                 Still Have Questions?
               </h3>
               <p className="text-rh-white/90 mb-6">
-                Our team is here to help! Don't hesitate to reach out if you need 
+                Our team is here to help! Don&apos;t hesitate to reach out if you need 
                 any additional information about RocketHacks 2026.
               </p>
               <a

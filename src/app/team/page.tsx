@@ -95,12 +95,12 @@ const teamSections = [
   },
 ];
 
-const teamMembers = teamSections.flatMap((section) =>
-  section.members.map((member) => ({
-    ...member,
-    position: section.section,
-  }))
-);
+// const teamMembers = teamSections.flatMap((section) =>
+//   section.members.map((member) => ({
+//     ...member,
+//     position: section.section,
+//   }))
+// );
 
 // Glass Card Component
 const GlassCard = ({ 

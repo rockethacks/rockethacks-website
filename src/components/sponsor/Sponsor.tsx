@@ -25,22 +25,22 @@ interface SponsorProps {
 
 const Sponsor: React.FC<SponsorProps> = ({ sponsors }) => {
   // Group sponsors by tier for better organization
-  const sponsorsByTier = sponsors.reduce((acc, sponsor) => {
-    const tier = sponsor.tier || 'partner';
-    if (!acc[tier]) {
-      acc[tier] = [];
-    }
-    acc[tier].push(sponsor);
-    return acc;
-  }, {} as Record<string, SponsorType[]>);
+  // const sponsorsByTier = sponsors.reduce((acc, sponsor) => {
+  //   const tier = sponsor.tier || 'partner';
+  //   if (!acc[tier]) {
+  //     acc[tier] = [];
+  //   }
+  //   acc[tier].push(sponsor);
+  //   return acc;
+  // }, {} as Record<string, SponsorType[]>);
 
-  const tierConfig = {
-    platinum: { name: 'Platinum Partners', size: 'large', cols: 'grid-cols-1 md:grid-cols-2' },
-    gold: { name: 'Gold Sponsors', size: 'medium', cols: 'grid-cols-2 md:grid-cols-3' },
-    silver: { name: 'Silver Sponsors', size: 'medium', cols: 'grid-cols-2 md:grid-cols-3 lg:grid-cols-4' },
-    bronze: { name: 'Bronze Sponsors', size: 'small', cols: 'grid-cols-3 md:grid-cols-4 lg:grid-cols-6' },
-    partner: { name: 'Community Partners', size: 'small', cols: 'grid-cols-2 md:grid-cols-3 lg:grid-cols-5' }
-  };
+  // const tierConfig = {
+  //   platinum: { name: 'Platinum Partners', size: 'large', cols: 'grid-cols-1 md:grid-cols-2' },
+  //   gold: { name: 'Gold Sponsors', size: 'medium', cols: 'grid-cols-2 md:grid-cols-3' },
+  //   silver: { name: 'Silver Sponsors', size: 'medium', cols: 'grid-cols-2 md:grid-cols-3 lg:grid-cols-4' },
+  //   bronze: { name: 'Bronze Sponsors', size: 'small', cols: 'grid-cols-3 md:grid-cols-4 lg:grid-cols-6' },
+  //   partner: { name: 'Community Partners', size: 'small', cols: 'grid-cols-2 md:grid-cols-3 lg:grid-cols-5' }
+  // };
 
   return (
     <div>
@@ -64,8 +64,8 @@ const Sponsor: React.FC<SponsorProps> = ({ sponsors }) => {
             </h2>
             <div className="w-24 h-1 bg-gradient-to-r from-rh-yellow to-rh-orange mx-auto mb-8 rounded-full"></div>
             <p className="text-lg leading-relaxed text-rh-white/90 max-w-3xl mx-auto">
-              We're grateful to our incredible sponsors who make RocketHacks possible. 
-              Together, we're empowering the next generation of innovators.
+              We&apos;re grateful to our incredible sponsors who make RocketHacks possible. 
+              Together, we&apos;re empowering the next generation of innovators.
             </p>
           </div>
 
@@ -177,7 +177,7 @@ const Sponsor: React.FC<SponsorProps> = ({ sponsors }) => {
                   Sponsors Coming Soon
                 </h3>
                 <p className="text-rh-white/80 mb-6">
-                  We're actively working with amazing companies and organizations 
+                  We&apos;re actively working with amazing companies and organizations 
                   to make RocketHacks 2026 extraordinary.
                 </p>
                 <Link

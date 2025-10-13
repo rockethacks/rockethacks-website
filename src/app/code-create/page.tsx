@@ -3,7 +3,7 @@ import React from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { terminal } from "../fonts/fonts";
-import { FaCode, FaUsers, FaBrain, FaTrophy, FaUniversity, FaHandshake } from "react-icons/fa";
+import { FaCode, FaUsers, FaTrophy, FaUniversity, FaHandshake } from "react-icons/fa";
 import { PiTerminalWindow } from "react-icons/pi";
 import { GiBrain } from "react-icons/gi";
 
@@ -55,7 +55,7 @@ export default function CodeCreatePage() {
             <div className="w-24 h-1 bg-gradient-to-r from-rh-yellow to-rh-orange mx-auto mb-8 rounded-full"></div>
             <p className="text-lg leading-relaxed text-rh-white/90 max-w-4xl mx-auto">
               An inspiring day where high school students discovered the power of programming, 
-              explored the University of Toledo's College of Engineering, and built their first interactive projects.
+              explored the University of Toledo&apos;s College of Engineering, and built their first interactive projects.
             </p>
           </div>
 

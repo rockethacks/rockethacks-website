@@ -29,8 +29,8 @@ export default function Contact() {
           </h2>
           <div className="w-24 h-1 bg-gradient-to-r from-rh-yellow to-rh-orange mx-auto mb-8 rounded-full"></div>
           <p className="text-lg leading-relaxed text-rh-white/90 max-w-2xl mx-auto">
-            We're here to help! Reach out to us through any of these channels 
-            and we'll get back to you as soon as possible.
+            We&apos;re here to help! Reach out to us through any of these channels 
+            and we&apos;ll get back to you as soon as possible.
           </p>
         </div>
 

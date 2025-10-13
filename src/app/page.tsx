@@ -9,9 +9,9 @@ import Sponsor from "@/components/sponsor/Sponsor";
 import { SponsorData } from "@/components/sponsor/SponsorData";
 import Footer from "@/components/footer/Footer";
 import Contact from "@/components/contact/Contact";
-import { Prizes } from "@/components/prizes/Prizes";
 /* Kept for future use */
 /* import Schedule from "@/components/schedule/Schedule"; */
+/* import { Prizes } from "@/components/prizes/Prizes"; */
 import Gallery from "@/components/gallery/Gallery";
 
 export default function Home() {
