@@ -120,7 +120,10 @@ export default function About() {
             </div>
           </div>
           
+          {/* Temporarily hidden sections - uncomment to enable */}
+          {/*
           {/* Tracks Section */}
+          {/*
           <div className="text-center mb-12">
             <h2 className={`${terminal.className} heading-lg gradient-text mb-6 uppercase tracking-wider`}>
               Competition Tracks
@@ -134,6 +137,7 @@ export default function About() {
 
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 animate-fade-scale" role="list">
             {/* Green Innovation Track */}
+            {/*
             <div className="card group text-center p-6 hover:scale-105 transition-all duration-500" role="listitem">
               <div className="w-16 h-16 mx-auto mb-4 rounded-full bg-gradient-to-br from-green-400 to-emerald-600 flex items-center justify-center group-hover:animate-pulse">
                 <FaLeaf size={32} className="text-white" />
@@ -147,6 +151,7 @@ export default function About() {
             </div>
 
             {/* MedTech Track */}
+            {/*
             <div className="card group text-center p-6 hover:scale-105 transition-all duration-500" role="listitem">
               <div className="w-16 h-16 mx-auto mb-4 rounded-full bg-gradient-to-br from-red-400 to-pink-600 flex items-center justify-center group-hover:animate-pulse">
                 <FaHeartbeat size={32} className="text-white" />
@@ -160,6 +165,7 @@ export default function About() {
             </div>
 
             {/* Next Gen AI Track */}
+            {/*
             <div className="card group text-center p-6 hover:scale-105 transition-all duration-500" role="listitem">
               <div className="w-16 h-16 mx-auto mb-4 rounded-full bg-gradient-to-br from-purple-400 to-blue-600 flex items-center justify-center group-hover:animate-pulse">
                 <GiBrain size={32} className="text-white" />
@@ -173,6 +179,7 @@ export default function About() {
             </div>
 
             {/* Hardware Track */}
+            {/*
             <div className="card group text-center p-6 hover:scale-105 transition-all duration-500" role="listitem">
               <div className="w-16 h-16 mx-auto mb-4 rounded-full bg-gradient-to-br from-orange-400 to-yellow-600 flex items-center justify-center group-hover:animate-pulse">
                 <FaMicrochip size={32} className="text-white" />
@@ -187,6 +194,7 @@ export default function About() {
           </div>
 
           {/* Call to Action */}
+          {/*
           <div className="text-center mt-16">
             <div className="glass-strong rounded-3xl p-8 max-w-2xl mx-auto">
               <h3 className={`${terminal.className} text-2xl text-rh-yellow mb-4`}>
@@ -213,6 +221,7 @@ export default function About() {
               </div>
             </div>
           </div>
+          */}
         </div>
       </section>
     </div>

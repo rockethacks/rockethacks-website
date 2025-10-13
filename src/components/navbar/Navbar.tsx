@@ -35,7 +35,8 @@ export default function Navbar() {
     { href: "#sponsor", label: "SPONSORS" },
     { href: "#contact", label: "CONTACT" },
     { href: "#faq", label: "FAQ" },
-    { href: "/team", label: "TEAM" }
+    // Temporarily hidden - uncomment to enable team page
+    // { href: "/team", label: "TEAM" }
   ];
 
   return (
@@ -83,9 +84,7 @@ export default function Navbar() {
             
             {/* Special CTA Button */}
             <Link
-              href="https://forms.gle/RV3DVwCddkDvU5eK8"
-              target="_blank"
-              rel="noopener noreferrer"
+              href="/code-create"
               className="btn-primary px-4 py-2 text-xs"
             >
               CODE & CREATE
@@ -136,9 +135,7 @@ export default function Navbar() {
             ))}
             
             <Link
-              href="https://forms.gle/RV3DVwCddkDvU5eK8"
-              target="_blank"
-              rel="noopener noreferrer"
+              href="/code-create"
               onClick={toggleMenu}
               className="btn-primary px-8 py-3 text-lg mt-4 animate-fade-scale"
               style={{ animationDelay: '0.6s' }}

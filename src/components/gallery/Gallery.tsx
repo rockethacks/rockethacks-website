@@ -12,8 +12,7 @@ type ProjectImage = {
   index: number;
   title: string;
   description: string;
-  category: "workshop" | "coding" | "presentation" | "networking" | "awards";
-  timestamp: string;
+  category: "workshop" | "rockethacks2025" | "awards" | "teamphoto" | "githubworkshop";
 };
 
 type GalleryProps = {
@@ -23,48 +22,211 @@ type GalleryProps = {
 const projectImages: ProjectImage[] = [
   {
     src: "/assets/event/01.jpg",
-    alt: "RocketHacks 2025 Github Pre-Event",
-    title: "Opening Ceremony",
-    description: "Kicking off RocketHacks 2025 with energy and excitement",
-    category: "presentation",
-    timestamp: "Day 1 - 9:00 AM",
+    alt: "Intro to GitHub Workshop",
+    title: "Students Actively Engaged",
+    description: "Students actively involved in the GitHub workshop learning version control",
+    category: "githubworkshop",
     index: 0,
   },
   {
-    src: "/assets/event/02.jpg",
-    alt: "Workshop Day 1",
-    title: "Technical Workshop",
-    description: "Learning new technologies and frameworks",
-    category: "workshop",
-    timestamp: "Day 1 - 10:30 AM",
+    src: "/assets/event/03.jpg",
+    alt: "Intro to GitHub Workshop",
+    title: "AI-Assisted Development",
+    description: "Students developing projects using Perplexity AI (Sponsor)",
+    category: "githubworkshop",
     index: 1,
   },
   {
-    src: "/assets/event/03.jpg",
-    alt: "Workshop Day 1",
-    title: "Team Formation",
-    description: "Finding the perfect teammates for the hackathon",
-    category: "networking",
-    timestamp: "Day 1 - 11:30 AM",
+    src: "/assets/event/04.jpg",
+    alt: "Intro to GitHub Workshop",
+    title: "Collaborative Development",
+    description: "Students engaging in collaborative development as they prepare their MVPs",
+    category: "githubworkshop",
     index: 2,
   },
   {
-    src: "/assets/event/04.jpg",
-    alt: "Coding Session",
-    title: "Intense Coding",
-    description: "Teams working hard on their innovative solutions",
-    category: "coding",
-    timestamp: "Day 1 - 2:00 PM",
+    src: "/assets/event/05.jpg",
+    alt: "Intro to GitHub Workshop",
+    title: "GitHub Basics",
+    description: "Tutor teaching the class on GitHub fundamentals and best practices",
+    category: "githubworkshop",
     index: 3,
   },
   {
-    src: "/assets/event/05.jpg",
-    alt: "Awards Ceremony",
-    title: "Prize Distribution",
-    description: "Celebrating the most innovative projects",
-    category: "awards",
-    timestamp: "Day 2 - 4:00 PM",
+    src: "/assets/event/06.jpg",
+    alt: "Intro to GitHub Workshop",
+    title: "Mentor Guidance",
+    description: "Mentors from RocketHacks explaining GitHub basics to participants",
+    category: "githubworkshop",
     index: 4,
+  },
+  {
+    src: "/assets/event/07.jpg",
+    alt: "Intro to GitHub Workshop",
+    title: "Project Demonstrations",
+    description: "Participants having a great time demoing their workshop projects",
+    category: "githubworkshop",
+    index: 5,
+  },
+  {
+    src: "/assets/event/08.jpg",
+    alt: "RocketHacks 2025",
+    title: "Keynote Speech",
+    description: "Keynote speech by Tom Bush inspiring participants at RocketHacks 2025",
+    category: "rockethacks2025",
+    index: 6,
+  },
+  {
+    src: "/assets/event/09.jpg",
+    alt: "RocketHacks 2025",
+    title: "Finance Track Team",
+    description: "Team from the Finance Track building their innovative project solution",
+    category: "rockethacks2025",
+    index: 7,
+  },
+  {
+    src: "/assets/event/10.jpg",
+    alt: "RocketHacks 2025",
+    title: "AWS Workshop Fun",
+    description: "RocketHacks participants having a great time during their AWS workshop",
+    category: "workshop",
+    index: 8,
+  },
+  {
+    src: "/assets/event/11.jpg",
+    alt: "RocketHacks 2025",
+    title: "AWS Cloud Services",
+    description: "AWS Workshop hosted by Curtis on various cloud services offered by AWS",
+    category: "workshop",
+    index: 9,
+  },
+  {
+    src: "/assets/event/12.jpg",
+    alt: "RocketHacks 2025",
+    title: "Project Judging",
+    description: "Participant demoing their project to one of our expert judges",
+    category: "rockethacks2025",
+    index: 10,
+  },
+  {
+    src: "/assets/event/13.jpg",
+    alt: "RocketHacks 2025",
+    title: "Code & Create Component",
+    description: "Our amazing high school developers in our Code and Create component",
+    category: "rockethacks2025",
+    index: 11,
+  },
+  {
+    src: "/assets/event/14.jpg",
+    alt: "RocketHacks 2025",
+    title: "Leadership with Dean",
+    description: "RocketHacks organizing team with Sammy Spann, Dean of Students",
+    category: "teamphoto",
+    index: 12,
+  },
+  {
+    src: "/assets/event/15.jpg",
+    alt: "RocketHacks 2025",
+    title: "MLH Mentorship",
+    description: "RocketHacks team getting mentored by Kevin from Major League Hacking",
+    category: "rockethacks2025",
+    index: 13,
+  },
+  {
+    src: "/assets/event/16.jpg",
+    alt: "RocketHacks 2025",
+    title: "Figma to Code Workshop",
+    description: "Figma to Code Workshop led by Kevin from Major League Hacking",
+    category: "workshop",
+    index: 14,
+  },
+  {
+    src: "/assets/event/17.jpg",
+    alt: "RocketHacks 2025",
+    title: "Media Interview",
+    description: "RocketHacks organizing leadership team getting interviewed by local news",
+    category: "teamphoto",
+    index: 15,
+  },
+  {
+    src: "/assets/event/18.jpg",
+    alt: "RocketHacks 2025",
+    title: "MLH Awards Ceremony",
+    description: "MLH Awards presentation during the closing ceremony",
+    category: "awards",
+    index: 16,
+  },
+  {
+    src: "/assets/event/19.jpg",
+    alt: "RocketHacks 2025",
+    title: "SPOKE Sponsored Pizza",
+    description: "Pizza sponsored by our great sponsor - SPOKE, fueling our hackers",
+    category: "rockethacks2025",
+    index: 17,
+  },
+  {
+    src: "/assets/event/20.jpg",
+    alt: "RocketHacks 2025",
+    title: "MLH Category Winners",
+    description: "Winners of the Major League Hacking category celebrating their victory",
+    category: "awards",
+    index: 18,
+  },
+  {
+    src: "/assets/event/21.jpg",
+    alt: "RocketHacks 2025",
+    title: "MLH Category Champions",
+    description: "Winners from MLH Category showcasing their innovative projects",
+    category: "awards",
+    index: 19,
+  },
+  {
+    src: "/assets/event/22.jpg",
+    alt: "RocketHacks 2025",
+    title: "Closing Ceremony MLH Winners",
+    description: "Winners from MLH Category during the closing ceremony celebration",
+    category: "awards",
+    index: 20,
+  },
+  {
+    src: "/assets/event/23.jpg",
+    alt: "RocketHacks 2025",
+    title: "Overall Champions",
+    description: "Overall winners of RocketHacks 2025 with their well-deserved prizes",
+    category: "awards",
+    index: 21,
+  },
+  {
+    src: "/assets/event/24.jpg",
+    alt: "RocketHacks 2025",
+    title: "Core Organizing Teams",
+    description: "RH25 organizers from Logistics, Marketing, and Finance teams",
+    category: "teamphoto",
+    index: 22,
+  },
+  {
+    src: "/assets/event/25.jpg",
+    alt: "RocketHacks 2025",
+    title: "Complete Organizing Team",
+    description: "Full organizing team photo capturing all the amazing volunteers",
+    category: "teamphoto",
+    index: 23,
+  },
+  {
+    src: "/assets/event/26.jpg",
+    alt: "RocketHacks 2025",
+    title: "Mentorship in Action",
+    description: "Mentorship team guiding participants building their projects",
+    category: "rockethacks2025",
+    index: 24,
+  },
+  {
+    src: "/assets/event/27.jpg",
+    alt: "RocketHacks 2025",
+    title: "Senior Leadership Team",
+    description: "Senior leadership team from RocketHacks overseeing the event",
+    category: "teamphoto",
+    index: 25,
   }
 ];
 
@@ -75,14 +237,30 @@ const Gallery: React.FC<GalleryProps> = ({ images = projectImages }) => {
 
   const categories = {
     all: { name: "All Moments", icon: FaCalendar },
+    rockethacks2025: { name: "RocketHacks 2025", icon: FaTrophy },
+    githubworkshop: { name: "GitHub Workshop", icon: FaCode },
     workshop: { name: "Workshops", icon: FaUsers },
-    coding: { name: "Coding", icon: FaCode },
-    presentation: { name: "Presentations", icon: FaTrophy },
-    networking: { name: "Networking", icon: FaUsers },
+    teamphoto: { name: "Team Photos", icon: FaUsers },
     awards: { name: "Awards", icon: FaTrophy }
   };
 
   const filteredImages = filter === "all" ? images : images.filter(img => img.category === filter);
+
+  // Reset currentIndex when filter changes or when filteredImages becomes empty
+  useEffect(() => {
+    if (filteredImages.length === 0) {
+      setCurrentIndex(0);
+    } else if (currentIndex >= filteredImages.length || currentIndex < 0) {
+      setCurrentIndex(0);
+    }
+  }, [filter, filteredImages.length, currentIndex]);
+
+  // Additional safety check for currentIndex
+  useEffect(() => {
+    if (filteredImages.length > 0 && (currentIndex >= filteredImages.length || currentIndex < 0)) {
+      setCurrentIndex(0);
+    }
+  }, [filteredImages, currentIndex]);
 
   // Auto-play functionality
   useEffect(() => {
@@ -165,16 +343,17 @@ const Gallery: React.FC<GalleryProps> = ({ images = projectImages }) => {
 
         {/* Main Carousel */}
         <GlassCard variant="strong" className="p-6 sm:p-8">
-          <div className="relative">
-            {/* Main Image Display */}
-            <div className="relative aspect-[16/9] lg:aspect-[21/9] overflow-hidden rounded-xl mb-6">
-              <Image
-                src={filteredImages[currentIndex].src}
-                alt={filteredImages[currentIndex].alt}
-                fill
-                className="object-cover transition-transform duration-500 hover:scale-105"
-                sizes="(max-width: 768px) 100vw, (max-width: 1200px) 80vw, 70vw"
-              />
+          {filteredImages.length > 0 && filteredImages[currentIndex] ? (
+            <div className="relative">
+              {/* Main Image Display */}
+              <div className="relative aspect-[16/9] lg:aspect-[21/9] overflow-hidden rounded-xl mb-6">
+                <Image
+                  src={filteredImages[currentIndex].src}
+                  alt={filteredImages[currentIndex].alt}
+                  fill
+                  className="object-cover transition-transform duration-500 hover:scale-105"
+                  sizes="(max-width: 768px) 100vw, (max-width: 1200px) 80vw, 70vw"
+                />
               
               {/* Navigation Arrows */}
               <button
@@ -196,14 +375,11 @@ const Gallery: React.FC<GalleryProps> = ({ images = projectImages }) => {
               {/* Image Info Overlay */}
               <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/80 to-transparent p-6">
                 <h3 className={`${terminal.className} text-xl text-white mb-2`}>
-                  {filteredImages[currentIndex].title}
+                  {filteredImages[currentIndex]?.title || 'Loading...'}
                 </h3>
-                <p className="text-white/80 text-sm mb-2">
-                  {filteredImages[currentIndex].description}
+                <p className="text-white/80 text-sm">
+                  {filteredImages[currentIndex]?.description || 'Loading image description...'}
                 </p>
-                <span className="text-rh-yellow text-xs">
-                  {filteredImages[currentIndex].timestamp}
-                </span>
               </div>
 
 
@@ -270,6 +446,16 @@ const Gallery: React.FC<GalleryProps> = ({ images = projectImages }) => {
               </div>
             </div>
           </div>
+          ) : (
+            <div className="text-center py-16">
+              <h3 className={`${terminal.className} text-xl text-rh-white/60 mb-4`}>
+                No images found for this category
+              </h3>
+              <p className="text-rh-white/40">
+                Please select a different category or check back later.
+              </p>
+            </div>
+          )}
         </GlassCard>
       </div>
 

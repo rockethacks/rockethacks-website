@@ -18,8 +18,10 @@ export default function Hero() {
             fill
             className="object-cover object-center"
             priority
-            quality={95}
+            quality={75}
             sizes="100vw"
+            placeholder="blur"
+            blurDataURL="data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAAAQABAAD/2wBDAAYEBQYFBAYGBQYHBwYIChAKCgkJChQODwwQFxQYGBcUFhYaHSUfGhsjHBYWICwgIyYnKSopGR8tMC0oMCUoKSj/2wBDAQcHBwoIChMKChMoGhYaKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCj/wAARCAABAAEDASIAAhEBAxEB/8QAFQABAQAAAAAAAAAAAAAAAAAAAAv/xAAUEAEAAAAAAAAAAAAAAAAAAAAA/8QAFQEBAQAAAAAAAAAAAAAAAAAAAAX/xAAUEQEAAAAAAAAAAAAAAAAAAAAA/9oADAMBAAIRAxEAPwCdABmX/9k="
           />
           {/* Gradient overlay for better text readability */}
           <div className="absolute inset-0 bg-gradient-to-b from-black/40 via-transparent to-black/60"></div>
@@ -31,30 +33,30 @@ export default function Hero() {
           <div className="text-center space-y-6 animate-slide-up">
             {/* Main Heading */}
             <div className="space-y-0 mt-4">
-              <h1 className={`${terminal.className} text-[clamp(2.5rem,6vw,4rem)] gradient-text uppercase tracking-wider font-bold`}>
+              <h1 className={`${terminal.className} text-4xl sm:text-5xl md:text-6xl lg:text-7xl xl:text-8xl gradient-text uppercase tracking-wider font-bold`}>
                 RocketHacks 2026
               </h1>
               
-              <h2 className={`${terminal.className} text-[clamp(1rem,2vw,1.5rem)] text-rh-white font-light uppercase tracking-wide`}>
+              <h2 className={`${terminal.className} text-lg sm:text-xl md:text-2xl lg:text-3xl xl:text-4xl text-rh-white font-light uppercase tracking-wide`}>
                 The Biggest Hackathon in the Midwest
               </h2>
             </div>
 
             {/* Coming Soon Message */}
-            <div className="glass rounded-2xl p-4 sm:p-6 max-w-2xl mx-auto">
-              <h3 className={`${terminal.className} text-[clamp(1rem,1.8vw,1.25rem)] text-rh-yellow mb-3`}>
+            <div className="glass rounded-2xl p-4 sm:p-6 lg:p-8 max-w-2xl mx-auto">
+              <h3 className={`${terminal.className} text-xl sm:text-2xl md:text-3xl lg:text-4xl text-rh-yellow mb-3`}>
                 Coming Spring 2026
               </h3>
-              <p className="text-[clamp(0.875rem,1.5vw,1rem)] text-rh-white/90 leading-relaxed">
+              <p className="text-base sm:text-lg md:text-xl lg:text-2xl text-rh-white/90 leading-relaxed">
                 Join us for an incredible 24-hour journey of innovation, collaboration, and problem-solving.
               </p>
             </div>
 
             {/* Call to Action Buttons */}
-            <div className="flex flex-col sm:flex-row gap-3 items-center justify-center">
+            <div className="flex flex-col sm:flex-row gap-4 items-center justify-center">
               <Link
                 href="#about"
-                className="btn-primary px-6 py-3 text-[clamp(0.875rem,1.5vw,1rem)] font-semibold inline-flex items-center justify-center min-h-[44px]"
+                className="btn-primary px-8 py-4 text-base sm:text-lg md:text-xl font-semibold inline-flex items-center justify-center min-h-[48px] sm:min-h-[52px]"
               >
                 Learn More
               </Link>
@@ -62,7 +64,7 @@ export default function Hero() {
                 href="/documents/sponsorship-packet.pdf"
                 target="_blank"
                 rel="noopener noreferrer"
-                className="btn-secondary px-6 py-3 text-[clamp(0.875rem,1.5vw,1rem)] font-semibold inline-flex items-center justify-center min-h-[44px]"
+                className="btn-secondary px-8 py-4 text-base sm:text-lg md:text-xl font-semibold inline-flex items-center justify-center min-h-[48px] sm:min-h-[52px]"
               >
                 Sponsor Us
               </Link>
@@ -74,11 +76,11 @@ export default function Hero() {
                 href="https://maps.app.goo.gl/xC2YjujFcZfS65PF8"
                 target="_blank"
                 rel="noopener noreferrer"
-                className="inline-flex items-center space-x-2 text-[clamp(0.875rem,1.5vw,1rem)] text-rh-white/80 hover:text-rh-yellow transition-colors duration-300 group"
+                className="inline-flex items-center space-x-3 text-lg sm:text-xl md:text-2xl text-rh-white/80 hover:text-rh-yellow transition-colors duration-300 group"
                 aria-label="View location on Google Maps"
               >
                 <svg 
-                  className="w-5 h-5 group-hover:scale-110 transition-transform" 
+                  className="w-6 h-6 sm:w-7 sm:h-7 md:w-8 md:h-8 group-hover:scale-110 transition-transform" 
                   fill="currentColor" 
                   viewBox="0 0 20 20"
                 >

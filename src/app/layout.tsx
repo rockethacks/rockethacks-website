@@ -57,6 +57,8 @@ export default function RootLayout({
   return (
     <html lang="en" className={`${terminal.variable} ${jakarta.variable}`}>
       <body className={`${jakarta.className} antialiased`}>
+        {/* Temporarily hidden MLH badge - uncomment to enable */}
+        {/*
         <a
           id="mlh-trust-badge"
           className="z-30 fixed right-4 top-0 hidden lg:block transition-transform hover:scale-105"
@@ -73,6 +75,7 @@ export default function RootLayout({
             className="filter drop-shadow-lg"
           />
         </a>
+        */}
         {children}
       </body>
     </html>

@@ -22,7 +22,8 @@ export default function Home() {
         <Hero />
         <About />
         <Sponsor sponsors={SponsorData} />
-        <Prizes />
+        {/* Temporarily hidden - uncomment to enable prizes section */}
+        {/* <Prizes /> */}
         <Gallery />
         <Contact />
         <Faq />
