@@ -114,7 +114,7 @@ export const HoverIcon: React.FC<HoverIconProps> = ({
     morph: 'hover:animate-morphing-gradient'
   };
 
-  const hoverColorClasses = hoverColor ? {
+  const hoverColorClasses = {
     yellow: 'hover:from-rh-yellow hover:to-rh-orange',
     orange: 'hover:from-rh-orange hover:to-rh-pink',
     purple: 'hover:from-rh-purple-light hover:to-rh-purple-dark',
@@ -122,7 +122,9 @@ export const HoverIcon: React.FC<HoverIconProps> = ({
     blue: 'hover:from-blue-400 hover:to-blue-600',
     green: 'hover:from-green-400 hover:to-green-600',
     white: 'hover:from-white hover:to-gray-200'
-  } : {};
+  };
+
+  const effectiveHoverColor = hoverColor || props.color || 'yellow';
 
   return (
     <AnimatedIcon
@@ -130,7 +132,7 @@ export const HoverIcon: React.FC<HoverIconProps> = ({
       className={cn(
         'cursor-pointer transition-all duration-300',
         hoverClasses[hoverAnimation],
-        hoverColorClasses[hoverColor || props.color],
+        hoverColorClasses[effectiveHoverColor],
         props.className
       )}
     />

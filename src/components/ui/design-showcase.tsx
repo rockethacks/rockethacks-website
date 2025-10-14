@@ -2,7 +2,7 @@ import React from 'react';
 import { ModernButton } from './modern-button';
 import { GlassCard } from './glass-card';
 import { AnimatedIcon } from './animated-icon';
-import { LoadingSpinner } from './loading';
+import { Loading } from './loading';
 import { terminal } from '../../app/fonts/fonts';
 import { 
   FaRocket, 
@@ -187,15 +187,15 @@ export const DesignShowcase: React.FC = () => {
           </h2>
           <div className="flex justify-center space-x-8">
             <div className="text-center space-y-2">
-              <LoadingSpinner size="sm" color="yellow" />
+              <Loading size="sm" variant="spinner" />
               <p className="text-xs text-rh-white/70">Small</p>
             </div>
             <div className="text-center space-y-2">
-              <LoadingSpinner size="md" color="white" />
+              <Loading size="md" variant="spinner" />
               <p className="text-xs text-rh-white/70">Medium</p>
             </div>
             <div className="text-center space-y-2">
-              <LoadingSpinner size="lg" color="purple" />
+              <Loading size="lg" variant="spinner" />
               <p className="text-xs text-rh-white/70">Large</p>
             </div>
           </div>
