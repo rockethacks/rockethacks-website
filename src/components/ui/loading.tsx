@@ -1,61 +1,136 @@
 import React from 'react';
 import { cn } from '@/lib/utils';
 
-interface LoadingSpinnerProps {
-  size?: 'sm' | 'md' | 'lg';
-  color?: 'yellow' | 'white' | 'purple';
+interface LoadingProps {
+  size?: 'sm' | 'md' | 'lg' | 'xl';
+  variant?: 'spinner' | 'dots' | 'pulse' | 'skeleton';
   className?: string;
+  text?: string;
 }
 
-export const LoadingSpinner: React.FC<LoadingSpinnerProps> = ({ 
+const Loading: React.FC<LoadingProps> = ({ 
   size = 'md', 
-  color = 'yellow',
-  className 
+  variant = 'spinner', 
+  className,
+  text 
 }) => {
-  const sizes = {
+  const sizeClasses = {
     sm: 'w-4 h-4',
-    md: 'w-8 h-8',
-    lg: 'w-12 h-12'
+    md: 'w-6 h-6',
+    lg: 'w-8 h-8',
+    xl: 'w-12 h-12'
   };
 
-  const colors = {
-    yellow: 'border-rh-yellow',
-    white: 'border-white',
-    purple: 'border-rh-purple-light'
+  const textSizeClasses = {
+    sm: 'text-sm',
+    md: 'text-base',
+    lg: 'text-lg',
+    xl: 'text-xl'
+  };
+
+  const renderSpinner = () => (
+    <div className={cn(
+      "border-2 border-rh-white/20 border-t-rh-yellow rounded-full animate-spin",
+      sizeClasses[size]
+    )} />
+  );
+
+  const renderDots = () => (
+    <div className="flex space-x-1">
+      {[0, 1, 2].map((i) => (
+        <div
+          key={i}
+          className={cn(
+            "bg-rh-yellow rounded-full animate-pulse",
+            size === 'sm' ? 'w-1 h-1' : size === 'md' ? 'w-2 h-2' : size === 'lg' ? 'w-3 h-3' : 'w-4 h-4'
+          )}
+          style={{ animationDelay: `${i * 0.2}s` }}
+        />
+      ))}
+    </div>
+  );
+
+  const renderPulse = () => (
+    <div className={cn(
+      "bg-rh-yellow rounded-full animate-pulse-glow",
+      sizeClasses[size]
+    )} />
+  );
+
+  const renderSkeleton = () => (
+    <div className="space-y-2">
+      <div className="h-4 bg-rh-white/10 rounded animate-pulse" />
+      <div className="h-4 bg-rh-white/10 rounded animate-pulse w-3/4" />
+      <div className="h-4 bg-rh-white/10 rounded animate-pulse w-1/2" />
+    </div>
+  );
+
+  const renderVariant = () => {
+    switch (variant) {
+      case 'dots':
+        return renderDots();
+      case 'pulse':
+        return renderPulse();
+      case 'skeleton':
+        return renderSkeleton();
+      default:
+        return renderSpinner();
+    }
   };
 
   return (
     <div className={cn(
-      'animate-spin rounded-full border-2 border-t-transparent',
-      sizes[size],
-      colors[color],
+      "flex flex-col items-center justify-center space-y-2",
       className
-    )} />
+    )}>
+      {renderVariant()}
+      {text && (
+        <p className={cn(
+          "text-rh-white/70 animate-pulse",
+          textSizeClasses[size]
+        )}>
+          {text}
+        </p>
+      )}
+    </div>
   );
 };
 
-interface LoadingPageProps {
-  message?: string;
+export { Loading };
+
+// Loading overlay component
+interface LoadingOverlayProps {
+  isLoading: boolean;
+  children: React.ReactNode;
+  text?: string;
+  variant?: 'spinner' | 'dots' | 'pulse' | 'skeleton';
 }
 
-export const LoadingPage: React.FC<LoadingPageProps> = ({ 
-  message = 'Loading...' 
+export const LoadingOverlay: React.FC<LoadingOverlayProps> = ({
+  isLoading,
+  children,
+  text,
+  variant = 'spinner'
 }) => {
   return (
-    <div className="min-h-screen bg-gradient-to-b from-rh-background to-rh-navy-dark flex items-center justify-center">
-      <div className="text-center space-y-6">
-        <div className="relative">
-          {/* Outer spinning ring */}
-          <div className="w-16 h-16 border-4 border-rh-yellow/20 border-t-rh-yellow rounded-full animate-spin mx-auto"></div>
-          {/* Inner pulsing dot */}
-          <div className="absolute inset-0 flex items-center justify-center">
-            <div className="w-2 h-2 bg-rh-yellow rounded-full animate-pulse"></div>
-          </div>
+    <div className="relative">
+      {children}
+      {isLoading && (
+        <div className="absolute inset-0 bg-rh-background/80 backdrop-blur-sm flex items-center justify-center z-50">
+          <Loading variant={variant} text={text} />
         </div>
-        <div className="space-y-2">
-          <h2 className="text-xl font-terminal text-rh-yellow">RocketHacks</h2>
-          <p className="text-rh-white/70">{message}</p>
-        </div>
+      )}
+    </div>
+  );
+};
+
+// Page loading component
+export const PageLoading: React.FC<{ text?: string }> = ({ text = "Loading..." }) => {
+  return (
+    <div className="min-h-screen flex items-center justify-center bg-rh-background">
+      <div className="text-center space-y-4">
+        <Loading size="xl" variant="spinner" />
+        <p className="text-rh-white/70 text-lg animate-pulse">{text}</p>
       </div>
     </div>
   );

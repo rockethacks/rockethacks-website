@@ -27,8 +27,8 @@ export default function About() {
             <h2 className={`${terminal.className} heading-lg gradient-text mb-6 uppercase tracking-wider`}>
               About RocketHacks
             </h2>
-            <div className="w-24 h-1 bg-gradient-to-r from-rh-yellow to-rh-orange mx-auto mb-8 rounded-full"></div>
-            <p className="text-lg leading-relaxed text-rh-white/90 max-w-4xl mx-auto">
+            <div className="w-24 h-1 bg-gradient-to-r from-rh-yellow to-rh-orange mx-auto mb-8 rounded-full animate-pulse-glow"></div>
+            <p className="text-body-lg leading-relaxed text-rh-white/95 max-w-4xl mx-auto">
               RocketHacks is a 24-hour hackathon hosted by the University of
               Toledo dedicated to fostering innovation and problem-solving among
               students from the Midwest and beyond. This event brings together
@@ -39,18 +39,18 @@ export default function About() {
             </p>
           </div>
           {/* Action Cards */}
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 mb-20 animate-fade-scale" role="list">
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 mb-20" role="list">
             {/* Sponsorship Card */}
-            <div className="card group text-center p-8 hover:scale-105 transition-all duration-500" role="listitem">
+            <div className="card group text-center p-8 animate-fade-scale animate-delay-200 animate-duration-slow" role="listitem">
               <div className="flex flex-col h-full">
                 <div className="flex-grow">
-                  <div className="w-20 h-20 mx-auto mb-6 rounded-full bg-gradient-to-br from-rh-yellow to-rh-orange flex items-center justify-center group-hover:animate-pulse">
+                  <div className="w-20 h-20 mx-auto mb-6 rounded-full bg-gradient-to-br from-rh-yellow to-rh-orange flex items-center justify-center group-hover:animate-pulse-glow animate-morphing-gradient">
                     <IoDiamond size={40} className="text-rh-navy-dark" />
                   </div>
-                  <h3 className={`${terminal.className} text-2xl mb-4 text-rh-yellow group-hover:text-rh-orange transition-colors`}>
+                  <h3 className={`${terminal.className} heading-sm mb-4 text-rh-yellow group-hover:text-rh-orange transition-colors`}>
                     SPONSOR US
                   </h3>
-                  <p className="text-rh-white/80 leading-relaxed mb-6">
+                  <p className="text-body text-rh-white/85 leading-relaxed mb-6">
                     Partner with us to support the next generation of innovators. 
                     Check out our sponsorship packet for opportunities and benefits.
                   </p>
@@ -59,7 +59,7 @@ export default function About() {
                   href="/documents/sponsorship-packet.pdf"
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="btn-primary w-full group-hover:shadow-glow transition-all duration-300"
+                  className="btn-primary w-full group-hover:animate-glow transition-all duration-300"
                   aria-label="View sponsorship packet"
                 >
                   VIEW PACKET
@@ -68,16 +68,16 @@ export default function About() {
             </div>
 
             {/* Hackers Card */}
-            <div className="card group text-center p-8 hover:scale-105 transition-all duration-500" role="listitem">
+            <div className="card group text-center p-8 animate-fade-scale animate-delay-400 animate-duration-slow" role="listitem">
               <div className="flex flex-col h-full">
                 <div className="flex-grow">
-                  <div className="w-20 h-20 mx-auto mb-6 rounded-full bg-gradient-to-br from-rh-pink to-rh-purple-dark flex items-center justify-center group-hover:animate-pulse">
+                  <div className="w-20 h-20 mx-auto mb-6 rounded-full bg-gradient-to-br from-rh-pink to-rh-purple-dark flex items-center justify-center group-hover:animate-pulse-glow animate-morphing-gradient">
                     <PiTerminalWindow size={40} className="text-white" />
                   </div>
-                  <h3 className={`${terminal.className} text-2xl mb-4 text-rh-pink group-hover:text-rh-purple-light transition-colors`}>
+                  <h3 className={`${terminal.className} heading-sm mb-4 text-rh-pink group-hover:text-rh-purple-light transition-colors`}>
                     HACKERS
                   </h3>
-                  <p className="text-rh-white/80 leading-relaxed mb-6">
+                  <p className="text-body text-rh-white/85 leading-relaxed mb-6">
                     Ready to code, create, and collaborate? Applications for 
                     RocketHacks 2026 will open soon. Stay tuned!
                   </p>
@@ -93,16 +93,16 @@ export default function About() {
             </div>
 
             {/* Volunteer Card */}
-            <div className="card group text-center p-8 hover:scale-105 transition-all duration-500" role="listitem">
+            <div className="card group text-center p-8 animate-fade-scale animate-delay-600 animate-duration-slow" role="listitem">
               <div className="flex flex-col h-full">
                 <div className="flex-grow">
-                  <div className="w-20 h-20 mx-auto mb-6 rounded-full bg-gradient-to-br from-rh-purple-light to-rh-navy-light flex items-center justify-center group-hover:animate-pulse">
+                  <div className="w-20 h-20 mx-auto mb-6 rounded-full bg-gradient-to-br from-rh-purple-light to-rh-navy-light flex items-center justify-center group-hover:animate-pulse-glow animate-morphing-gradient">
                     <FaHandshake size={40} className="text-white" />
                   </div>
-                  <h3 className={`${terminal.className} text-2xl mb-4 text-rh-purple-light group-hover:text-rh-yellow transition-colors`}>
+                  <h3 className={`${terminal.className} heading-sm mb-4 text-rh-purple-light group-hover:text-rh-yellow transition-colors`}>
                     VOLUNTEER
                   </h3>
-                  <p className="text-rh-white/80 leading-relaxed mb-6">
+                  <p className="text-body text-rh-white/85 leading-relaxed mb-6">
                     Help make RocketHacks amazing! Volunteer opportunities will 
                     be available closer to the event date.
                   </p>
