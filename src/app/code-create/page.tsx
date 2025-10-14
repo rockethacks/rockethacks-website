@@ -84,14 +84,16 @@ export default function CodeCreatePage() {
                 Ready to Join Next Year?
               </h3>
               <p className="text-rh-white/90 mb-6">
-                Code & Create 2026 is coming soon! Stay updated for registration details.
+                Code & Create 2026 is coming soon! Fill out our interest form to be notified when registration opens.
               </p>
-              <Link
-                href="/#contact"
-                className="btn-primary px-8 py-3"
+              <a
+                href="https://docs.google.com/forms/d/17Mm4UXiSANYwftmRhaUssHJhZSQli6Qt3hgtIRFKThE/edit"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="btn-primary px-8 py-3 inline-block"
               >
-                Stay Updated
-              </Link>
+                Fill Interest Form
+              </a>
             </div>
           </div>
         </div>
@@ -265,16 +267,18 @@ export default function CodeCreatePage() {
                   Join Us Next Year!
                 </h3>
                 <p className="text-rh-white/90 mb-6 leading-relaxed">
-                  Code & Create 2026 is in development! Be the first to know when registration opens 
+                  Code & Create 2026 is in development! Fill out our interest form to be the first to know when registration opens 
                   for another amazing day of learning, building, and celebrating creativity.
                 </p>
                 <div className="space-y-4">
-                  <Link
-                    href="/#contact"
-                    className="btn-primary w-full px-6 py-3"
+                  <a
+                    href="https://docs.google.com/forms/d/17Mm4UXiSANYwftmRhaUssHJhZSQli6Qt3hgtIRFKThE/edit"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="btn-primary w-full px-6 py-3 inline-block text-center"
                   >
-                    Get Notified
-                  </Link>
+                    Fill Interest Form
+                  </a>
                   <Link
                     href="/"
                     className="btn-secondary w-full px-6 py-3"
