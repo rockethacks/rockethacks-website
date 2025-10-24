@@ -29,7 +29,7 @@ export const metadata: Metadata = {
     siteName: "RocketHacks",
     images: [
       {
-        url: "/assets/rh_26/rh_26_folder/rh_26_bundle_png/rh_26_logo_color_transparent.png",
+        url: "/assets/rh_26/rh_26_folder/rh_26_bundle_jpg/RH Logo condensed.jpg",
         width: 1200,
         height: 630,
         alt: "RocketHacks Logo"
