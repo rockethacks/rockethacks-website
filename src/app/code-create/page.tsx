@@ -49,19 +49,19 @@ export default function CodeCreatePage() {
         <div className="relative z-10 w-full max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
           {/* Main Heading */}
           <div className="text-center mb-16 animate-slide-up">
-            <h1 className={`${terminal.className} text-[clamp(2.5rem,6vw,4rem)] gradient-text uppercase tracking-wider font-bold mb-6`}>
+            <h1 className={`${terminal.className} text-[clamp(2rem,5vw,4rem)] gradient-text uppercase tracking-wider font-bold mb-6 px-4`}>
               Code & Create 2025
             </h1>
             <div className="w-24 h-1 bg-gradient-to-r from-rh-yellow to-rh-orange mx-auto mb-8 rounded-full"></div>
-            <p className="text-lg leading-relaxed text-rh-white/90 max-w-4xl mx-auto">
+            <p className="text-base sm:text-lg leading-relaxed text-rh-white/90 max-w-4xl mx-auto px-4">
               An inspiring day where high school students discovered the power of programming, 
               explored the University of Toledo&apos;s College of Engineering, and built their first interactive projects.
             </p>
           </div>
 
           {/* Featured Image */}
-          <div className="mb-16 animate-fade-scale">
-            <div className="glass rounded-3xl p-6 max-w-4xl mx-auto">
+          <div className="mb-16 animate-fade-scale px-4">
+            <div className="glass rounded-3xl p-4 sm:p-6 max-w-4xl mx-auto">
               <div className="relative aspect-[16/9] overflow-hidden rounded-xl">
                 <Image
                   src="/assets/event/13.jpg"
@@ -69,28 +69,30 @@ export default function CodeCreatePage() {
                   fill
                   className="object-cover"
                   sizes="(max-width: 768px) 100vw, (max-width: 1200px) 80vw, 70vw"
+                  priority
+                  quality={85}
                 />
               </div>
-              <p className="text-center text-rh-white/70 text-sm mt-4">
+              <p className="text-center text-rh-white/70 text-xs sm:text-sm mt-4">
                 High school developers showcasing their creativity during Code & Create 2025
               </p>
             </div>
           </div>
 
           {/* Call to Action */}
-          <div className="text-center">
-            <div className="glass-strong rounded-3xl p-8 max-w-2xl mx-auto">
-              <h3 className={`${terminal.className} text-2xl text-rh-yellow mb-4`}>
+          <div className="text-center px-4">
+            <div className="glass-strong rounded-3xl p-6 sm:p-8 max-w-2xl mx-auto">
+              <h3 className={`${terminal.className} text-xl sm:text-2xl text-rh-yellow mb-4`}>
                 Ready to Join Next Year?
               </h3>
-              <p className="text-rh-white/90 mb-6">
+              <p className="text-sm sm:text-base text-rh-white/90 mb-6">
                 Code & Create 2026 is coming soon! Fill out our interest form to be notified when registration opens.
               </p>
               <a
                 href="https://docs.google.com/forms/d/17Mm4UXiSANYwftmRhaUssHJhZSQli6Qt3hgtIRFKThE/edit"
                 target="_blank"
                 rel="noopener noreferrer"
-                className="btn-primary px-8 py-3 inline-block"
+                className="btn-primary px-6 sm:px-8 py-3 inline-block text-sm sm:text-base"
               >
                 Fill Interest Form
               </a>
@@ -115,9 +117,9 @@ export default function CodeCreatePage() {
             <div className="w-24 h-1 bg-gradient-to-r from-rh-yellow to-rh-orange mx-auto mb-8 rounded-full"></div>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 animate-fade-scale">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 lg:gap-8 animate-fade-scale">
             {/* Keynote Session */}
-            <div className="glass rounded-2xl p-6 hover:scale-105 transition-all duration-500">
+            <div className="glass rounded-2xl p-6 hover:scale-105 transition-all duration-500 hover:shadow-xl">
               <div className="w-16 h-16 mx-auto mb-4 rounded-full bg-gradient-to-br from-rh-yellow to-rh-orange flex items-center justify-center">
                 <GiBrain size={32} className="text-rh-navy-dark" />
               </div>
@@ -131,70 +133,70 @@ export default function CodeCreatePage() {
             </div>
 
             {/* Campus Tour */}
-            <div className="glass rounded-2xl p-6 hover:scale-105 transition-all duration-500">
-              <div className="w-16 h-16 mx-auto mb-4 rounded-full bg-gradient-to-br from-rh-pink to-rh-purple-dark flex items-center justify-center">
-                <FaUniversity size={32} className="text-white" />
+            <div className="glass rounded-2xl p-5 sm:p-6 hover:scale-105 transition-all duration-500 hover:shadow-xl">
+              <div className="w-14 h-14 sm:w-16 sm:h-16 mx-auto mb-4 rounded-full bg-gradient-to-br from-rh-pink to-rh-purple-dark flex items-center justify-center">
+                <FaUniversity size={28} className="text-white sm:w-8 sm:h-8" />
               </div>
-              <h3 className={`${terminal.className} text-xl mb-4 text-rh-pink text-center`}>
+              <h3 className={`${terminal.className} text-lg sm:text-xl mb-3 sm:mb-4 text-rh-pink text-center`}>
                 CAMPUS TOUR
               </h3>
-              <p className="text-rh-white/80 text-sm leading-relaxed">
+              <p className="text-rh-white/80 text-xs sm:text-sm leading-relaxed">
                 Guided exploration of the College of Engineering, featuring research labs, student organizations, 
                 and demonstrations by the Rocketry Club and Formula SAE Team.
               </p>
             </div>
 
             {/* Programming Workshop */}
-            <div className="glass rounded-2xl p-6 hover:scale-105 transition-all duration-500">
-              <div className="w-16 h-16 mx-auto mb-4 rounded-full bg-gradient-to-br from-rh-purple-light to-rh-navy-light flex items-center justify-center">
-                <FaCode size={32} className="text-white" />
+            <div className="glass rounded-2xl p-5 sm:p-6 hover:scale-105 transition-all duration-500 hover:shadow-xl">
+              <div className="w-14 h-14 sm:w-16 sm:h-16 mx-auto mb-4 rounded-full bg-gradient-to-br from-rh-purple-light to-rh-navy-light flex items-center justify-center">
+                <FaCode size={28} className="text-white sm:w-8 sm:h-8" />
               </div>
-              <h3 className={`${terminal.className} text-xl mb-4 text-rh-purple-light text-center`}>
+              <h3 className={`${terminal.className} text-lg sm:text-xl mb-3 sm:mb-4 text-rh-purple-light text-center`}>
                 CODING WORKSHOP
               </h3>
-              <p className="text-rh-white/80 text-sm leading-relaxed">
+              <p className="text-rh-white/80 text-xs sm:text-sm leading-relaxed">
                 Partnering with KoolKatScience, students learned programming through Scratch, 
                 covering logic, loops, and interactivity in a creative, beginner-friendly way.
               </p>
             </div>
 
             {/* Project Development */}
-            <div className="glass rounded-2xl p-6 hover:scale-105 transition-all duration-500">
-              <div className="w-16 h-16 mx-auto mb-4 rounded-full bg-gradient-to-br from-green-400 to-emerald-600 flex items-center justify-center">
-                <PiTerminalWindow size={32} className="text-white" />
+            <div className="glass rounded-2xl p-5 sm:p-6 hover:scale-105 transition-all duration-500 hover:shadow-xl">
+              <div className="w-14 h-14 sm:w-16 sm:h-16 mx-auto mb-4 rounded-full bg-gradient-to-br from-green-400 to-emerald-600 flex items-center justify-center">
+                <PiTerminalWindow size={28} className="text-white sm:w-8 sm:h-8" />
               </div>
-              <h3 className={`${terminal.className} text-xl mb-4 text-green-400 text-center`}>
+              <h3 className={`${terminal.className} text-lg sm:text-xl mb-3 sm:mb-4 text-green-400 text-center`}>
                 PROJECT BUILD
               </h3>
-              <p className="text-rh-white/80 text-sm leading-relaxed">
+              <p className="text-rh-white/80 text-xs sm:text-sm leading-relaxed">
                 Students brainstormed and built interactive projects using Scratch. 
                 The RocketHacks Tech Team provided one-on-one mentorship for debugging and refinement.
               </p>
             </div>
 
             {/* Mentorship */}
-            <div className="glass rounded-2xl p-6 hover:scale-105 transition-all duration-500">
-              <div className="w-16 h-16 mx-auto mb-4 rounded-full bg-gradient-to-br from-blue-400 to-indigo-600 flex items-center justify-center">
-                <FaHandshake size={32} className="text-white" />
+            <div className="glass rounded-2xl p-5 sm:p-6 hover:scale-105 transition-all duration-500 hover:shadow-xl">
+              <div className="w-14 h-14 sm:w-16 sm:h-16 mx-auto mb-4 rounded-full bg-gradient-to-br from-blue-400 to-indigo-600 flex items-center justify-center">
+                <FaHandshake size={28} className="text-white sm:w-8 sm:h-8" />
               </div>
-              <h3 className={`${terminal.className} text-xl mb-4 text-blue-400 text-center`}>
+              <h3 className={`${terminal.className} text-lg sm:text-xl mb-3 sm:mb-4 text-blue-400 text-center`}>
                 MENTORSHIP
               </h3>
-              <p className="text-rh-white/80 text-sm leading-relaxed">
+              <p className="text-rh-white/80 text-xs sm:text-sm leading-relaxed">
                 University mentors provided guidance and support throughout the development process, 
                 helping participants debug, refine, and polish their creative ideas.
               </p>
             </div>
 
             {/* Awards Ceremony */}
-            <div className="glass rounded-2xl p-6 hover:scale-105 transition-all duration-500">
-              <div className="w-16 h-16 mx-auto mb-4 rounded-full bg-gradient-to-br from-orange-400 to-yellow-600 flex items-center justify-center">
-                <FaTrophy size={32} className="text-white" />
+            <div className="glass rounded-2xl p-5 sm:p-6 hover:scale-105 transition-all duration-500 hover:shadow-xl">
+              <div className="w-14 h-14 sm:w-16 sm:h-16 mx-auto mb-4 rounded-full bg-gradient-to-br from-orange-400 to-yellow-600 flex items-center justify-center">
+                <FaTrophy size={28} className="text-white sm:w-8 sm:h-8" />
               </div>
-              <h3 className={`${terminal.className} text-xl mb-4 text-orange-400 text-center`}>
+              <h3 className={`${terminal.className} text-lg sm:text-xl mb-3 sm:mb-4 text-orange-400 text-center`}>
                 AWARDS CEREMONY
               </h3>
-              <p className="text-rh-white/80 text-sm leading-relaxed">
+              <p className="text-rh-white/80 text-xs sm:text-sm leading-relaxed">
                 Students presented final projects to judges. Dr. Sammy Spann congratulated participants, 
                 with Nehemia winning for a multi-level interactive game with over 40 stages!
               </p>
@@ -259,29 +261,29 @@ export default function CodeCreatePage() {
 
             {/* Right Column - Registration CTA */}
             <div className="animate-fade-scale">
-              <div className="glass-strong rounded-3xl p-8 text-center">
-                <div className="w-20 h-20 mx-auto mb-6 rounded-full bg-gradient-to-br from-rh-yellow to-rh-orange flex items-center justify-center">
-                  <FaUsers size={40} className="text-rh-navy-dark" />
+              <div className="glass-strong rounded-3xl p-6 sm:p-8 text-center">
+                <div className="w-16 h-16 sm:w-20 sm:h-20 mx-auto mb-6 rounded-full bg-gradient-to-br from-rh-yellow to-rh-orange flex items-center justify-center">
+                  <FaUsers size={32} className="text-rh-navy-dark sm:w-10 sm:h-10" />
                 </div>
-                <h3 className={`${terminal.className} text-2xl text-rh-yellow mb-4`}>
+                <h3 className={`${terminal.className} text-xl sm:text-2xl text-rh-yellow mb-4`}>
                   Join Us Next Year!
                 </h3>
-                <p className="text-rh-white/90 mb-6 leading-relaxed">
+                <p className="text-sm sm:text-base text-rh-white/90 mb-6 leading-relaxed">
                   Code & Create 2026 is in development! Fill out our interest form to be the first to know when registration opens 
                   for another amazing day of learning, building, and celebrating creativity.
                 </p>
-                <div className="space-y-4">
+                <div className="space-y-3 sm:space-y-4">
                   <a
                     href="https://docs.google.com/forms/d/17Mm4UXiSANYwftmRhaUssHJhZSQli6Qt3hgtIRFKThE/edit"
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="btn-primary w-full px-6 py-3 inline-block text-center"
+                    className="btn-primary w-full px-4 sm:px-6 py-2 sm:py-3 inline-block text-center text-sm sm:text-base"
                   >
                     Fill Interest Form
                   </a>
                   <Link
                     href="/"
-                    className="btn-secondary w-full px-6 py-3"
+                    className="btn-secondary w-full px-4 sm:px-6 py-2 sm:py-3 block text-sm sm:text-base"
                   >
                     Learn About RocketHacks
                   </Link>
@@ -305,35 +307,35 @@ export default function CodeCreatePage() {
             </p>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 animate-fade-scale">
-            <div className="glass rounded-2xl p-6 text-center">
-              <h4 className={`${terminal.className} text-lg text-rh-yellow mb-3`}>Hands-On Experience</h4>
-              <p className="text-rh-white/80 text-sm">Solid introduction to programming and logical thinking through project-based learning.</p>
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 lg:gap-8 animate-fade-scale">
+            <div className="glass rounded-2xl p-5 sm:p-6 text-center">
+              <h4 className={`${terminal.className} text-base sm:text-lg text-rh-yellow mb-3`}>Hands-On Experience</h4>
+              <p className="text-rh-white/80 text-xs sm:text-sm">Solid introduction to programming and logical thinking through project-based learning.</p>
             </div>
 
-            <div className="glass rounded-2xl p-6 text-center">
-              <h4 className={`${terminal.className} text-lg text-rh-orange mb-3`}>Creative Problem Solving</h4>
-              <p className="text-rh-white/80 text-sm">Learned to turn imaginative ideas into functional digital projects.</p>
+            <div className="glass rounded-2xl p-5 sm:p-6 text-center">
+              <h4 className={`${terminal.className} text-base sm:text-lg text-rh-orange mb-3`}>Creative Problem Solving</h4>
+              <p className="text-rh-white/80 text-xs sm:text-sm">Learned to turn imaginative ideas into functional digital projects.</p>
             </div>
 
-            <div className="glass rounded-2xl p-6 text-center">
-              <h4 className={`${terminal.className} text-lg text-rh-pink mb-3`}>Innovation Mindset</h4>
-              <p className="text-rh-white/80 text-sm">Understanding how technology enables innovation and exploration.</p>
+            <div className="glass rounded-2xl p-5 sm:p-6 text-center">
+              <h4 className={`${terminal.className} text-base sm:text-lg text-rh-pink mb-3`}>Innovation Mindset</h4>
+              <p className="text-rh-white/80 text-xs sm:text-sm">Understanding how technology enables innovation and exploration.</p>
             </div>
 
-            <div className="glass rounded-2xl p-6 text-center">
-              <h4 className={`${terminal.className} text-lg text-rh-purple-light mb-3`}>Mentorship & Collaboration</h4>
-              <p className="text-rh-white/80 text-sm">Direct guidance from university mentors throughout the process.</p>
+            <div className="glass rounded-2xl p-5 sm:p-6 text-center">
+              <h4 className={`${terminal.className} text-base sm:text-lg text-rh-purple-light mb-3`}>Mentorship & Collaboration</h4>
+              <p className="text-rh-white/80 text-xs sm:text-sm">Direct guidance from university mentors throughout the process.</p>
             </div>
 
-            <div className="glass rounded-2xl p-6 text-center">
-              <h4 className={`${terminal.className} text-lg text-green-400 mb-3`}>College Preparation</h4>
-              <p className="text-rh-white/80 text-sm">Exposure to student organizations, labs, and research opportunities.</p>
+            <div className="glass rounded-2xl p-5 sm:p-6 text-center">
+              <h4 className={`${terminal.className} text-base sm:text-lg text-green-400 mb-3`}>College Preparation</h4>
+              <p className="text-rh-white/80 text-xs sm:text-sm">Exposure to student organizations, labs, and research opportunities.</p>
             </div>
 
-            <div className="glass rounded-2xl p-6 text-center">
-              <h4 className={`${terminal.className} text-lg text-blue-400 mb-3`}>Presentation Skills</h4>
-              <p className="text-rh-white/80 text-sm">Practice articulating technical ideas to judges and peers.</p>
+            <div className="glass rounded-2xl p-5 sm:p-6 text-center">
+              <h4 className={`${terminal.className} text-base sm:text-lg text-blue-400 mb-3`}>Presentation Skills</h4>
+              <p className="text-rh-white/80 text-xs sm:text-sm">Practice articulating technical ideas to judges and peers.</p>
             </div>
           </div>
         </div>

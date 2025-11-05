@@ -1,5 +1,5 @@
 "use client";
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useMemo } from "react";
 import Image from "next/image";
 import { terminal } from "../../app/fonts/fonts";
 import { GlassCard } from "../ui/glass-card";
@@ -235,16 +235,19 @@ const Gallery: React.FC<GalleryProps> = ({ images = projectImages }) => {
   const [filter, setFilter] = useState<string>("all");
   const [isAutoPlaying, setIsAutoPlaying] = useState(true);
 
-  const categories = {
+  const categories = useMemo(() => ({
     all: { name: "All Moments", icon: FaCalendar },
     rockethacks2025: { name: "RocketHacks 2025", icon: FaTrophy },
     githubworkshop: { name: "GitHub Workshop", icon: FaCode },
     workshop: { name: "Workshops", icon: FaUsers },
     teamphoto: { name: "Team Photos", icon: FaUsers },
     awards: { name: "Awards", icon: FaTrophy }
-  };
+  }), []);
 
-  const filteredImages = filter === "all" ? images : images.filter(img => img.category === filter);
+  const filteredImages = useMemo(() => 
+    filter === "all" ? images : images.filter(img => img.category === filter),
+    [filter, images]
+  );
 
   // Reset currentIndex when filter changes or when filteredImages becomes empty
   useEffect(() => {
@@ -262,33 +265,33 @@ const Gallery: React.FC<GalleryProps> = ({ images = projectImages }) => {
     }
   }, [filteredImages, currentIndex]);
 
-  // Auto-play functionality
+  // Auto-play functionality with performance optimization
   useEffect(() => {
     if (!isAutoPlaying || filteredImages.length === 0) return;
     
     const interval = setInterval(() => {
       setCurrentIndex((prev) => (prev + 1) % filteredImages.length);
-    }, 4000);
+    }, 5000); // Increased to 5 seconds to reduce re-renders
 
     return () => clearInterval(interval);
   }, [isAutoPlaying, filteredImages.length]);
 
 
 
-  const nextImage = () => {
+  const nextImage = React.useCallback(() => {
     setCurrentIndex((prev) => (prev + 1) % filteredImages.length);
     setIsAutoPlaying(false);
-  };
+  }, [filteredImages.length]);
 
-  const prevImage = () => {
+  const prevImage = React.useCallback(() => {
     setCurrentIndex((prev) => (prev - 1 + filteredImages.length) % filteredImages.length);
     setIsAutoPlaying(false);
-  };
+  }, [filteredImages.length]);
 
-  const goToImage = (index: number) => {
+  const goToImage = React.useCallback((index: number) => {
     setCurrentIndex(index);
     setIsAutoPlaying(false);
-  };
+  }, []);
 
   if (filteredImages.length === 0) return null;
 
@@ -353,6 +356,9 @@ const Gallery: React.FC<GalleryProps> = ({ images = projectImages }) => {
                   fill
                   className="object-cover transition-transform duration-500 hover:scale-105"
                   sizes="(max-width: 768px) 100vw, (max-width: 1200px) 80vw, 70vw"
+                  priority={currentIndex === 0}
+                  loading={currentIndex === 0 ? "eager" : "lazy"}
+                  quality={85}
                 />
               
               {/* Navigation Arrows */}
@@ -386,28 +392,38 @@ const Gallery: React.FC<GalleryProps> = ({ images = projectImages }) => {
             </div>
 
             {/* Thumbnail Navigation */}
-            <div className="flex justify-center gap-2 mb-6 overflow-x-auto pb-2">
-              {filteredImages.map((image, index) => (
-                <button
-                  key={image.index}
-                  onClick={() => goToImage(index)}
-                  className={`
-                    relative flex-shrink-0 w-20 h-12 rounded-lg overflow-hidden transition-all duration-200
-                    ${currentIndex === index 
-                      ? 'ring-2 ring-rh-yellow scale-110' 
-                      : 'opacity-60 hover:opacity-100'
-                    }
-                  `}
-                >
-                  <Image
-                    src={image.src}
-                    alt={image.alt}
-                    fill
-                    className="object-cover"
-                    sizes="80px"
-                  />
-                </button>
-              ))}
+            <div className="flex justify-center gap-2 mb-6 overflow-x-auto pb-2 scroll-smooth">
+              {filteredImages.map((image, index) => {
+                // Only load thumbnails that are close to the current index for better performance
+                const shouldLoad = Math.abs(index - currentIndex) <= 5;
+                return (
+                  <button
+                    key={image.index}
+                    onClick={() => goToImage(index)}
+                    className={`
+                      relative flex-shrink-0 w-20 h-12 rounded-lg overflow-hidden transition-all duration-200
+                      ${currentIndex === index 
+                        ? 'ring-2 ring-rh-yellow scale-110' 
+                        : 'opacity-60 hover:opacity-100'
+                      }
+                    `}
+                  >
+                    {shouldLoad ? (
+                      <Image
+                        src={image.src}
+                        alt={image.alt}
+                        fill
+                        className="object-cover"
+                        sizes="80px"
+                        loading="lazy"
+                        quality={60}
+                      />
+                    ) : (
+                      <div className="w-full h-full bg-rh-navy-light/30" />
+                    )}
+                  </button>
+                );
+              })}
             </div>
 
             {/* Controls */}

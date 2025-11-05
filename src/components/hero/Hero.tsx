@@ -5,10 +5,16 @@ import { terminal } from "../../app/fonts/fonts";
 
 export default function Hero() {
   return (
-    <div>
+    <div className="pt-20">
+      {/* Spacer for fixed navbar - 80px (h-20) */}
       <section
         id="home"
-        className="home text-white relative text-center min-h-screen min-h-[100dvh] overflow-hidden flex items-center justify-center"
+        className="home text-white relative text-center overflow-hidden flex items-center justify-center"
+        style={{
+          minHeight: 'calc(100dvh - 80px)', // Dynamic viewport minus navbar
+          paddingTop: 'max(2rem, 5vh)',
+          paddingBottom: 'max(2rem, 5vh)'
+        }}
       >
         {/* Background Image with improved overlay */}
         <div className="absolute inset-0">
@@ -27,36 +33,76 @@ export default function Hero() {
           <div className="absolute inset-0 bg-gradient-to-b from-black/40 via-transparent to-black/60"></div>
         </div>
 
-        {/* Content */}
-        <div className="relative z-10 w-full max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        {/* Content - Viewport-aware spacing */}
+        <div className="relative z-10 w-full max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
           {/* Centered Content */}
-          <div className="text-center space-y-6 animate-slide-up">
-            {/* Main Heading */}
-            <div className="space-y-0 mt-4">
-              <h1 className={`${terminal.className} text-4xl sm:text-5xl md:text-6xl lg:text-7xl xl:text-8xl gradient-text uppercase tracking-wider font-bold`}>
+          <div className="text-center space-y-[clamp(1rem,3vh,2rem)] animate-slide-up">
+            {/* Main Heading - Aggressive scaling prevention */}
+            <div className="space-y-2">
+              <h1 
+                className={`${terminal.className} gradient-text uppercase tracking-wider font-bold`}
+                style={{
+                  fontSize: 'clamp(2rem, 6vw, 5rem)', // Reduced max from 6rem to 5rem
+                  lineHeight: '1',
+                  marginBottom: '0.5rem'
+                }}
+              >
                 RocketHacks 2026
               </h1>
               
-              <h2 className={`${terminal.className} text-lg sm:text-xl md:text-2xl lg:text-3xl xl:text-4xl text-rh-white font-light uppercase tracking-wide`}>
+              <h2 
+                className={`${terminal.className} text-rh-white font-light uppercase tracking-wide`}
+                style={{
+                  fontSize: 'clamp(0.875rem, 2.5vw, 1.75rem)', // Reduced from 2rem to 1.75rem
+                  lineHeight: '1.2',
+                  marginTop: '0.5rem'
+                }}
+              >
                 The Biggest Hackathon in the Midwest
               </h2>
             </div>
 
-            {/* Coming Soon Message */}
-            <div className="glass rounded-2xl p-4 sm:p-6 lg:p-8 max-w-2xl mx-auto">
-              <h3 className={`${terminal.className} text-xl sm:text-2xl md:text-3xl lg:text-4xl text-rh-yellow mb-3`}>
+            {/* Coming Soon Message - Compact on small screens */}
+            <div 
+              className="glass rounded-2xl max-w-2xl mx-auto"
+              style={{
+                padding: 'clamp(1rem, 3vw, 2rem)'
+              }}
+            >
+              <h3 
+                className={`${terminal.className} text-rh-yellow`}
+                style={{
+                  fontSize: 'clamp(1.125rem, 4vw, 2.25rem)',
+                  marginBottom: 'clamp(0.5rem, 1.5vh, 1rem)'
+                }}
+              >
                 Coming Spring 2026
               </h3>
-              <p className="text-base sm:text-lg md:text-xl lg:text-2xl text-rh-white/90 leading-relaxed">
+              <p 
+                className="text-rh-white/90 leading-relaxed"
+                style={{
+                  fontSize: 'clamp(0.875rem, 2.5vw, 1.25rem)'
+                }}
+              >
                 Join us for an incredible 24-hour journey of innovation, collaboration, and problem-solving.
               </p>
             </div>
 
-            {/* Call to Action Buttons */}
-            <div className="flex flex-col sm:flex-row gap-4 items-center justify-center">
+            {/* Call to Action Buttons - Responsive sizing */}
+            <div 
+              className="flex flex-col sm:flex-row items-center justify-center"
+              style={{
+                gap: 'clamp(0.75rem, 2vw, 1rem)'
+              }}
+            >
               <Link
                 href="#about"
-                className="btn-primary px-8 py-4 text-base sm:text-lg md:text-xl font-semibold inline-flex items-center justify-center min-h-[48px] sm:min-h-[52px]"
+                className="btn-primary font-semibold inline-flex items-center justify-center w-full sm:w-auto"
+                style={{
+                  padding: 'clamp(0.75rem, 2vh, 1rem) clamp(1.5rem, 4vw, 2rem)',
+                  fontSize: 'clamp(0.875rem, 2vw, 1.125rem)',
+                  minHeight: '44px'
+                }}
               >
                 Learn More
               </Link>
@@ -64,25 +110,38 @@ export default function Hero() {
                 href="/documents/sponsorship-packet.pdf"
                 target="_blank"
                 rel="noopener noreferrer"
-                className="btn-secondary px-8 py-4 text-base sm:text-lg md:text-xl font-semibold inline-flex items-center justify-center min-h-[48px] sm:min-h-[52px]"
+                className="btn-secondary font-semibold inline-flex items-center justify-center w-full sm:w-auto"
+                style={{
+                  padding: 'clamp(0.75rem, 2vh, 1rem) clamp(1.5rem, 4vw, 2rem)',
+                  fontSize: 'clamp(0.875rem, 2vw, 1.125rem)',
+                  minHeight: '44px'
+                }}
               >
                 Sponsor Us
               </Link>
             </div>
 
-            {/* Location */}
-            <div className="mb-16">
+            {/* Location - Compact */}
+            <div style={{ marginTop: 'clamp(1rem, 2vh, 2rem)' }}>
               <Link
                 href="https://maps.app.goo.gl/xC2YjujFcZfS65PF8"
                 target="_blank"
                 rel="noopener noreferrer"
-                className="inline-flex items-center space-x-3 text-lg sm:text-xl md:text-2xl text-rh-white/80 hover:text-rh-yellow transition-colors duration-300 group"
+                className="inline-flex items-center text-rh-white/80 hover:text-rh-yellow transition-colors duration-300 group"
+                style={{
+                  gap: 'clamp(0.5rem, 1vw, 0.75rem)',
+                  fontSize: 'clamp(0.875rem, 2.5vw, 1.25rem)'
+                }}
                 aria-label="View location on Google Maps"
               >
                 <svg 
-                  className="w-6 h-6 sm:w-7 sm:h-7 md:w-8 md:h-8 group-hover:scale-110 transition-transform" 
+                  className="group-hover:scale-110 transition-transform flex-shrink-0" 
                   fill="currentColor" 
                   viewBox="0 0 20 20"
+                  style={{
+                    width: 'clamp(1.25rem, 3vw, 2rem)',
+                    height: 'clamp(1.25rem, 3vw, 2rem)'
+                  }}
                 >
                   <path fillRule="evenodd" d="M5.05 4.05a7 7 0 119.9 9.9L10 18.9l-4.95-4.95a7 7 0 010-9.9zM10 11a2 2 0 100-4 2 2 0 000 4z" clipRule="evenodd" />
                 </svg>
@@ -92,19 +151,19 @@ export default function Hero() {
               </Link>
             </div>
 
-            {/* Scroll Indicator */}
-            <div className="flex justify-center">
+            {/* Scroll Indicator - Hidden on very small screens */}
+            <div className="hidden sm:flex justify-center" style={{ marginTop: 'clamp(1rem, 2vh, 1.5rem)' }}>
               <div className="w-6 h-10 border-2 border-rh-white/50 rounded-full flex justify-center animate-bounce">
                 <div className="w-1 h-3 bg-rh-yellow rounded-full mt-2 animate-pulse"></div>
               </div>
             </div>
           </div>
 
-          {/* Floating Elements */}
-          <div className="absolute top-20 left-10 w-4 h-4 bg-rh-yellow rounded-full animate-float opacity-60"></div>
-          <div className="absolute top-40 right-20 w-6 h-6 bg-rh-orange rounded-full animate-float opacity-40" style={{ animationDelay: '1s' }}></div>
-          <div className="absolute bottom-32 left-20 w-3 h-3 bg-rh-purple-light rounded-full animate-float opacity-70" style={{ animationDelay: '2s' }}></div>
-          <div className="absolute bottom-20 right-10 w-5 h-5 bg-rh-pink rounded-full animate-float opacity-50" style={{ animationDelay: '0.5s' }}></div>
+          {/* Floating Elements - Viewport aware positioning */}
+          <div className="absolute left-[5%] w-4 h-4 bg-rh-yellow rounded-full animate-float opacity-60" style={{ top: 'max(120px, 12vh)' }}></div>
+          <div className="absolute right-[10%] w-6 h-6 bg-rh-orange rounded-full animate-float opacity-40" style={{ top: 'max(160px, 18vh)', animationDelay: '1s' }}></div>
+          <div className="absolute left-[10%] w-3 h-3 bg-rh-purple-light rounded-full animate-float opacity-70 hidden md:block" style={{ bottom: 'max(120px, 12vh)', animationDelay: '2s' }}></div>
+          <div className="absolute right-[5%] w-5 h-5 bg-rh-pink rounded-full animate-float opacity-50 hidden md:block" style={{ bottom: 'max(80px, 8vh)', animationDelay: '0.5s' }}></div>
         </div>
       </section>
     </div>

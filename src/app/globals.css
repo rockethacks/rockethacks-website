@@ -340,6 +340,15 @@ body {
   }
 }
 
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
 .animate-float {
   animation: float 3s ease-in-out infinite;
 }
@@ -354,6 +363,10 @@ body {
 
 .animate-fade-scale {
   animation: fadeInScale 0.5s ease-out forwards;
+}
+
+.animate-fade-in {
+  animation: fadeIn 0.3s ease-out forwards;
 }
 
 /* Responsive design utilities */
@@ -429,6 +442,76 @@ body {
   .btn-secondary {
     padding: 0.75rem 1rem;
     font-size: 0.875rem;
+  }
+}
+
+/* Viewport-aware spacing system */
+:root {
+  --navbar-height: 80px;
+  --hero-top-padding: max(var(--navbar-height), 5vh);
+}
+
+/* Ensure navbar stays above all content */
+nav[class*="fixed"] {
+  z-index: 9999 !important;
+}
+
+/* Hero section optimization for all screen sizes */
+.home {
+  /* Ensure content doesn't touch navbar */
+  padding-top: var(--hero-top-padding);
+  /* Prevent content overflow */
+  max-height: 100vh;
+  max-height: 100dvh;
+}
+
+/* Responsive font smoothing for better readability on any display */
+@media screen and (max-width: 640px) {
+  .home h1,
+  .home h2 {
+    /* Improve rendering on small displays */
+    text-rendering: optimizeLegibility;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    /* Tighter line height for compact displays */
+    line-height: 1.1;
+  }
+}
+
+/* Ultra-compact mode for very small screens */
+@media screen and (max-height: 667px) {
+  .home {
+    padding-top: max(70px, 8vh);
+    padding-bottom: max(20px, 2vh);
+  }
+  
+  .home .space-y-6 {
+    gap: clamp(0.75rem, 2vh, 1.5rem);
+  }
+}
+
+/* Landscape mode optimization for phones */
+@media screen and (max-height: 500px) and (orientation: landscape) {
+  .home {
+    padding-top: 70px;
+    padding-bottom: 20px;
+  }
+  
+  .home h1 {
+    font-size: clamp(1.75rem, 6vw, 3rem) !important;
+  }
+  
+  .home h2 {
+    font-size: clamp(0.75rem, 2.5vw, 1.25rem) !important;
+  }
+  
+  .home .glass {
+    padding: 0.75rem 1rem !important;
+  }
+  
+  /* Hide scroll indicator in landscape */
+  .home .animate-bounce {
+    display: none;
   }
 }
 

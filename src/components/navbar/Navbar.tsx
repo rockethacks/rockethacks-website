@@ -28,6 +28,8 @@ export default function Navbar() {
   }, []);
 
   const toggleMenu = () => setMenuOpen(!menuOpen);
+  
+  const closeMenu = () => setMenuOpen(false);
 
   const navLinks = [
     { href: "#about", label: "ABOUT" },
@@ -71,6 +73,7 @@ export default function Navbar() {
               <Link
                 key={link.href}
                 href={link.href}
+                onClick={closeMenu}
                 className={`
                   ${terminal.className} text-sm font-medium tracking-wider
                   text-rh-white/90 hover:text-rh-yellow transition-colors duration-200
@@ -85,6 +88,7 @@ export default function Navbar() {
             {/* Special CTA Button */}
             <Link
               href="/code-create"
+              onClick={closeMenu}
               className="btn-primary px-4 py-2 text-xs"
             >
               CODE & CREATE
@@ -92,11 +96,12 @@ export default function Navbar() {
           </div>
 
           {/* Mobile menu button */}
-          <div className="md:hidden">
+          <div className="md:hidden ml-auto">
             <button
               onClick={toggleMenu}
-              className="text-rh-white hover:text-rh-yellow transition-colors duration-200 p-2"
+              className="text-rh-white hover:text-rh-yellow transition-colors duration-200 p-2 relative z-[101]"
               aria-label="Toggle menu"
+              aria-expanded={menuOpen}
             >
               {menuOpen ? <FiX size={24} /> : <FiMenu size={24} />}
             </button>
@@ -106,8 +111,8 @@ export default function Navbar() {
 
       {/* Mobile Full-Screen Navigation Menu */}
       {menuOpen && (
-        <div className="md:hidden fixed inset-0 z-40 bg-rh-navy-dark/95 backdrop-blur-lg">
-          <div className="flex flex-col items-center justify-center h-full space-y-8 text-center px-6">
+        <div className="md:hidden fixed inset-0 z-[100] bg-rh-navy-dark/95 backdrop-blur-lg animate-fade-in">
+          <div className="flex flex-col items-center justify-center h-full space-y-8 text-center px-6 overflow-y-auto">
             <div className="mb-8">
               <Image
                 src="/assets/rh_26/rh_26_folder/rh_26_bundle_png/rh_26_logo_color_transparent.png"
@@ -122,7 +127,7 @@ export default function Navbar() {
               <Link
                 key={link.href}
                 href={link.href}
-                onClick={toggleMenu}
+                onClick={closeMenu}
                 className={`
                   ${terminal.className} text-2xl font-medium tracking-wider
                   text-rh-white hover:text-rh-yellow transition-all duration-300
@@ -136,7 +141,7 @@ export default function Navbar() {
             
             <Link
               href="/code-create"
-              onClick={toggleMenu}
+              onClick={closeMenu}
               className="btn-primary px-8 py-3 text-lg mt-4 animate-fade-scale"
               style={{ animationDelay: '0.6s' }}
             >
