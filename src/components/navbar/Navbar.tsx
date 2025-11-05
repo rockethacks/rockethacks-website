@@ -103,7 +103,7 @@ export default function Navbar() {
               aria-label="Toggle menu"
               aria-expanded={menuOpen}
             >
-              {menuOpen ? <FiX size={24} /> : <FiMenu size={24} />}
+              <FiMenu size={28} />
             </button>
           </div>
         </div>
@@ -111,45 +111,74 @@ export default function Navbar() {
 
       {/* Mobile Full-Screen Navigation Menu */}
       {menuOpen && (
-        <div className="md:hidden fixed inset-0 z-[100] bg-rh-navy-dark/95 backdrop-blur-lg animate-fade-in">
-          <div className="flex flex-col items-center justify-center h-full space-y-8 text-center px-6 overflow-y-auto">
-            <div className="mb-8">
+        <div 
+          className="md:hidden fixed inset-0 z-[9999] animate-fade-in"
+          style={{
+            backgroundColor: 'rgba(10, 0, 55, 0.98)', // Direct color value
+            backdropFilter: 'blur(12px)',
+            WebkitBackdropFilter: 'blur(12px)'
+          }}
+        >
+          {/* Close button area - ensure it's visible */}
+          <div className="absolute top-4 right-4 z-[10001]">
+            <button
+              onClick={closeMenu}
+              className="text-white hover:text-yellow-400 transition-colors duration-200 p-3 bg-white/10 rounded-full"
+              aria-label="Close menu"
+            >
+              <FiX size={28} strokeWidth={2.5} />
+            </button>
+          </div>
+
+          {/* Menu content - properly spaced */}
+          <div className="flex flex-col h-full pt-20 pb-8 px-6 overflow-y-auto">
+            {/* Logo at top */}
+            <div className="flex justify-center mb-10">
               <Image
                 src="/assets/rh_26/rh_26_folder/rh_26_bundle_png/rh_26_logo_color_transparent.png"
                 alt="RocketHacks 2026"
                 width={150}
                 height={75}
-                className="h-16 w-auto"
+                className="h-14 w-auto"
+                priority
               />
             </div>
             
-            {navLinks.map((link, index) => (
+            {/* Navigation links - vertically stacked */}
+            <nav className="flex flex-col items-stretch space-y-1 flex-1">
+              {navLinks.map((link) => (
+                <Link
+                  key={link.href}
+                  href={link.href}
+                  onClick={closeMenu}
+                  className={`
+                    ${terminal.className}
+                    text-xl font-medium tracking-wider
+                    text-white hover:text-yellow-400
+                    transition-all duration-200
+                    py-4 px-6 text-center
+                    border-b border-white/10
+                    hover:bg-white/5
+                    active:bg-white/10
+                  `}
+                >
+                  {link.label}
+                </Link>
+              ))}
+              
+              {/* CTA Button */}
               <Link
-                key={link.href}
-                href={link.href}
+                href="/code-create"
                 onClick={closeMenu}
-                className={`
-                  ${terminal.className} text-2xl font-medium tracking-wider
-                  text-rh-white hover:text-rh-yellow transition-all duration-300
-                  transform hover:scale-110 animate-slide-up
-                `}
-                style={{ animationDelay: `${index * 0.1}s` }}
+                className="btn-primary px-6 py-4 text-base mt-8 mx-auto w-11/12 max-w-sm text-center block"
               >
-                {link.label}
+                CODE & CREATE
               </Link>
-            ))}
+            </nav>
             
-            <Link
-              href="/code-create"
-              onClick={closeMenu}
-              className="btn-primary px-8 py-3 text-lg mt-4 animate-fade-scale"
-              style={{ animationDelay: '0.6s' }}
-            >
-              CODE & CREATE
-            </Link>
-            
-            <div className="absolute bottom-8 left-0 right-0 text-center">
-              <p className="text-rh-white/60 text-sm">
+            {/* Footer at bottom */}
+            <div className="text-center mt-6 pt-6 border-t border-white/10">
+              <p className="text-white/60 text-xs">
                 © 2026 RocketHacks - University of Toledo
               </p>
             </div>

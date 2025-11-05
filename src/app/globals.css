@@ -1,9 +1,9 @@
+/* Import fonts FIRST - before any other rules */
+@import url('https://fonts.googleapis.com/css2?family=Gotham:wght@300;400;500;700;900&display=swap');
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
-
-/* Import Gotham and Agrandir Wide fonts */
-@import url('https://fonts.googleapis.com/css2?family=Gotham:wght@300;400;500;700;900&display=swap');
 
 /* CSS variables for RH26 color palette */
 :root {
