@@ -1,5 +1,5 @@
 "use client";
-import React, { useState, useEffect, useMemo } from "react";
+import React, { useState, useEffect, useMemo, useCallback, useRef, memo } from "react";
 import Image from "next/image";
 import { terminal } from "../../app/fonts/fonts";
 import { GlassCard } from "../ui/glass-card";
@@ -230,10 +230,98 @@ const projectImages: ProjectImage[] = [
   }
 ];
 
+// Memoized FilterButton component (React equivalent of *ngFor optimization)
+const FilterButton = memo(({ 
+  category, 
+  isActive, 
+  count, 
+  onClick 
+}: { 
+  category: { name: string; icon: React.ComponentType<{ size?: number }> }; 
+  isActive: boolean; 
+  count: number; 
+  onClick: () => void;
+}) => {
+  const IconComponent = category.icon;
+  return (
+    <button
+      onClick={onClick}
+      className={`
+        inline-flex items-center space-x-2 px-4 py-2 rounded-lg text-sm font-medium transition-all duration-200
+        ${isActive 
+          ? 'bg-rh-yellow text-rh-navy-dark' 
+          : 'bg-rh-white/10 text-rh-white hover:bg-rh-white/20'
+        }
+      `}
+    >
+      <IconComponent size={16} />
+      <span>{category.name}</span>
+      <span className="text-xs opacity-70">({count})</span>
+    </button>
+  );
+});
+FilterButton.displayName = 'FilterButton';
+
+// Memoized Thumbnail component (React equivalent of *ngIf + trackBy optimization)
+const ThumbnailImage = memo(({ 
+  image, 
+  index, 
+  isActive, 
+  shouldLoad, 
+  onClick 
+}: { 
+  image: ProjectImage; 
+  index: number; 
+  isActive: boolean; 
+  shouldLoad: boolean; 
+  onClick: () => void;
+}) => {
+  if (!shouldLoad) {
+    // Virtual scrolling placeholder (like Angular's *ngIf false)
+    return (
+      <div
+        className="w-20 h-12 bg-rh-navy-light/30 rounded-lg cursor-pointer flex-shrink-0 animate-pulse"
+      />
+    );
+  }
+
+  return (
+    <button
+      onClick={onClick}
+      className={`
+        relative flex-shrink-0 w-20 h-12 rounded-lg overflow-hidden transition-all duration-200
+        ${isActive 
+          ? 'ring-2 ring-rh-yellow scale-110' 
+          : 'opacity-60 hover:opacity-100'
+        }
+      `}
+      aria-label={`View image ${index + 1}`}
+    >
+      <Image
+        src={image.src}
+        alt={image.alt}
+        fill
+        className="object-cover"
+        sizes="80px"
+        quality={60}
+        loading="lazy"
+      />
+    </button>
+  );
+}, (prevProps, nextProps) => {
+  // Custom comparison (like Angular's trackBy function)
+  return prevProps.index === nextProps.index && 
+         prevProps.isActive === nextProps.isActive &&
+         prevProps.shouldLoad === nextProps.shouldLoad;
+});
+ThumbnailImage.displayName = 'ThumbnailImage';
+
 const Gallery: React.FC<GalleryProps> = ({ images = projectImages }) => {
   const [currentIndex, setCurrentIndex] = useState(0);
   const [filter, setFilter] = useState<string>("all");
   const [isAutoPlaying, setIsAutoPlaying] = useState(true);
+  const [isVisible, setIsVisible] = useState(false);
+  const galleryRef = useRef<HTMLElement>(null);
 
   const categories = useMemo(() => ({
     all: { name: "All Moments", icon: FaCalendar },
@@ -244,10 +332,39 @@ const Gallery: React.FC<GalleryProps> = ({ images = projectImages }) => {
     awards: { name: "Awards", icon: FaTrophy }
   }), []);
 
+  // Memoized filtered images (Angular pipe equivalent)
   const filteredImages = useMemo(() => 
     filter === "all" ? images : images.filter(img => img.category === filter),
     [filter, images]
   );
+
+  // Memoized category counts (prevent recalculation on every render)
+  const categoryCounts = useMemo(() => {
+    const counts: Record<string, number> = { all: images.length };
+    images.forEach(img => {
+      counts[img.category] = (counts[img.category] || 0) + 1;
+    });
+    return counts;
+  }, [images]);
+
+  // Intersection Observer for lazy component mounting (React equivalent of Angular's viewport detection)
+  useEffect(() => {
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        if (entry.isIntersecting) {
+          setIsVisible(true);
+          observer.disconnect(); // Stop observing once visible
+        }
+      },
+      { rootMargin: '200px' } // Load 200px before component enters viewport
+    );
+
+    if (galleryRef.current) {
+      observer.observe(galleryRef.current);
+    }
+
+    return () => observer.disconnect();
+  }, []);
 
   // Reset currentIndex when filter changes or when filteredImages becomes empty
   useEffect(() => {
@@ -265,38 +382,52 @@ const Gallery: React.FC<GalleryProps> = ({ images = projectImages }) => {
     }
   }, [filteredImages, currentIndex]);
 
-  // Auto-play functionality with performance optimization
+  // Auto-play functionality (only when component is visible)
   useEffect(() => {
-    if (!isAutoPlaying || filteredImages.length === 0) return;
+    if (!isAutoPlaying || filteredImages.length === 0 || !isVisible) return;
     
     const interval = setInterval(() => {
       setCurrentIndex((prev) => (prev + 1) % filteredImages.length);
-    }, 5000); // Increased to 5 seconds to reduce re-renders
+    }, 5000);
 
     return () => clearInterval(interval);
-  }, [isAutoPlaying, filteredImages.length]);
+  }, [isAutoPlaying, filteredImages.length, isVisible]);
 
-
-
-  const nextImage = React.useCallback(() => {
+  // Memoized navigation callbacks (prevent unnecessary re-renders)
+  const nextImage = useCallback(() => {
     setCurrentIndex((prev) => (prev + 1) % filteredImages.length);
     setIsAutoPlaying(false);
   }, [filteredImages.length]);
 
-  const prevImage = React.useCallback(() => {
+  const prevImage = useCallback(() => {
     setCurrentIndex((prev) => (prev - 1 + filteredImages.length) % filteredImages.length);
     setIsAutoPlaying(false);
   }, [filteredImages.length]);
 
-  const goToImage = React.useCallback((index: number) => {
+  const goToImage = useCallback((index: number) => {
     setCurrentIndex(index);
     setIsAutoPlaying(false);
   }, []);
 
+  const toggleAutoPlay = useCallback(() => {
+    setIsAutoPlaying(prev => !prev);
+  }, []);
+
+  const handleFilterChange = useCallback((newFilter: string) => {
+    setFilter(newFilter);
+    setCurrentIndex(0);
+    setIsAutoPlaying(true);
+  }, []);
+
+  // Early return optimization (React equivalent of *ngIf on component level)
   if (filteredImages.length === 0) return null;
 
   return (
-    <section id="gallery" className="relative bg-gradient-to-b from-rh-navy-dark to-rh-background text-white py-16 px-5 md:px-10">
+    <section 
+      ref={galleryRef}
+      id="gallery" 
+      className="relative bg-gradient-to-b from-rh-navy-dark to-rh-background text-white py-16 px-5 md:px-10"
+    >
       {/* Background Pattern */}
       <div className="absolute inset-0 opacity-5">
         <div className="absolute inset-0" style={{
@@ -318,35 +449,33 @@ const Gallery: React.FC<GalleryProps> = ({ images = projectImages }) => {
           </p>
         </div>
 
-        {/* Filter Buttons */}
+        {/* Filter Buttons - Optimized with memoization */}
         <div className="flex flex-wrap justify-center gap-3 mb-8">
-          {Object.entries(categories).map(([key, category]) => {
-            const IconComponent = category.icon;
-            return (
-              <button
-                key={key}
-                onClick={() => setFilter(key)}
-                className={`
-                  inline-flex items-center space-x-2 px-4 py-2 rounded-lg text-sm font-medium transition-all duration-200
-                  ${filter === key 
-                    ? 'bg-rh-yellow text-rh-navy-dark' 
-                    : 'bg-rh-white/10 text-rh-white hover:bg-rh-white/20'
-                  }
-                `}
-              >
-                <IconComponent size={16} />
-                <span>{category.name}</span>
-                <span className="text-xs opacity-70">
-                  ({key === "all" ? images.length : images.filter(img => img.category === key).length})
-                </span>
-              </button>
-            );
-          })}
+          {Object.entries(categories).map(([key, category]) => (
+            <FilterButton
+              key={key}
+              category={category}
+              isActive={filter === key}
+              count={categoryCounts[key] || 0}
+              onClick={() => handleFilterChange(key)}
+            />
+          ))}
         </div>
 
-        {/* Main Carousel */}
+        {/* Main Carousel - Conditional rendering optimized */}
         <GlassCard variant="strong" className="p-6 sm:p-8">
-          {filteredImages.length > 0 && filteredImages[currentIndex] ? (
+          {!isVisible ? (
+            // Loading skeleton (shown until Intersection Observer triggers)
+            <div className="relative animate-pulse">
+              <div className="relative aspect-[16/9] lg:aspect-[21/9] bg-rh-navy-light/30 rounded-xl mb-6" />
+              <div className="flex justify-center gap-2 mb-6">
+                {[...Array(8)].map((_, i) => (
+                  <div key={i} className="w-20 h-12 bg-rh-navy-light/30 rounded-lg" />
+                ))}
+              </div>
+              <div className="h-8 bg-rh-navy-light/30 rounded w-1/3" />
+            </div>
+          ) : filteredImages.length > 0 && filteredImages[currentIndex] ? (
             <div className="relative">
               {/* Main Image Display */}
               <div className="relative aspect-[16/9] lg:aspect-[21/9] overflow-hidden rounded-xl mb-6">
@@ -356,8 +485,8 @@ const Gallery: React.FC<GalleryProps> = ({ images = projectImages }) => {
                   fill
                   className="object-cover transition-transform duration-500 hover:scale-105"
                   sizes="(max-width: 768px) 100vw, (max-width: 1200px) 80vw, 70vw"
-                  priority={currentIndex === 0}
-                  loading={currentIndex === 0 ? "eager" : "lazy"}
+                  priority={currentIndex === 0 && filter === "all"}
+                  loading={currentIndex === 0 && filter === "all" ? "eager" : "lazy"}
                   quality={85}
                 />
               
@@ -391,37 +520,19 @@ const Gallery: React.FC<GalleryProps> = ({ images = projectImages }) => {
 
             </div>
 
-            {/* Thumbnail Navigation */}
+            {/* Thumbnail Navigation - Optimized with memoized components */}
             <div className="flex justify-center gap-2 mb-6 overflow-x-auto pb-2 scroll-smooth">
               {filteredImages.map((image, index) => {
-                // Only load thumbnails that are close to the current index for better performance
                 const shouldLoad = Math.abs(index - currentIndex) <= 5;
                 return (
-                  <button
+                  <ThumbnailImage
                     key={image.index}
+                    image={image}
+                    index={index}
+                    isActive={currentIndex === index}
+                    shouldLoad={shouldLoad}
                     onClick={() => goToImage(index)}
-                    className={`
-                      relative flex-shrink-0 w-20 h-12 rounded-lg overflow-hidden transition-all duration-200
-                      ${currentIndex === index 
-                        ? 'ring-2 ring-rh-yellow scale-110' 
-                        : 'opacity-60 hover:opacity-100'
-                      }
-                    `}
-                  >
-                    {shouldLoad ? (
-                      <Image
-                        src={image.src}
-                        alt={image.alt}
-                        fill
-                        className="object-cover"
-                        sizes="80px"
-                        loading="lazy"
-                        quality={60}
-                      />
-                    ) : (
-                      <div className="w-full h-full bg-rh-navy-light/30" />
-                    )}
-                  </button>
+                  />
                 );
               })}
             </div>
@@ -430,7 +541,7 @@ const Gallery: React.FC<GalleryProps> = ({ images = projectImages }) => {
             <div className="flex items-center justify-between">
               <div className="flex items-center space-x-4">
                 <button
-                  onClick={() => setIsAutoPlaying(!isAutoPlaying)}
+                  onClick={toggleAutoPlay}
                   className={`
                     inline-flex items-center space-x-2 px-4 py-2 rounded-lg text-sm font-medium transition-all duration-200
                     ${isAutoPlaying 
