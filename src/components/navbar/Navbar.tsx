@@ -37,6 +37,7 @@ export default function Navbar() {
     { href: "#sponsor", label: "SPONSORS" },
     { href: "#contact", label: "CONTACT" },
     { href: "#faq", label: "FAQ" },
+    { href: "/login", label: "APPLY", highlight: true },
     // Temporarily hidden - uncomment to enable team page
     // { href: "/team", label: "TEAM" }
   ];
@@ -76,7 +77,11 @@ export default function Navbar() {
                 onClick={closeMenu}
                 className={`
                   ${terminal.className} text-sm font-medium tracking-wider
-                  text-rh-white/90 hover:text-rh-yellow transition-colors duration-200
+                  ${link.highlight 
+                    ? 'text-rh-yellow hover:text-rh-yellow/80 font-bold' 
+                    : 'text-rh-white/90 hover:text-rh-yellow'
+                  }
+                  transition-colors duration-200
                   relative group
                 `}
               >
@@ -154,7 +159,10 @@ export default function Navbar() {
                   className={`
                     ${terminal.className}
                     text-xl font-medium tracking-wider
-                    text-white hover:text-yellow-400
+                    ${link.highlight 
+                      ? 'text-yellow-400 hover:text-yellow-300 font-bold' 
+                      : 'text-white hover:text-yellow-400'
+                    }
                     transition-all duration-200
                     py-4 px-6 text-center
                     border-b border-white/10
