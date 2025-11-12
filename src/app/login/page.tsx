@@ -69,7 +69,7 @@ export default function LoginPage() {
           {/* Header */}
           <div className="text-center space-y-2">
             <h1 className={`${terminal.className} text-4xl font-bold gradient-text uppercase tracking-wider`}>
-              Welcome Back
+              Welcome
             </h1>
             <p className="text-rh-white/70 text-sm">
               Sign in to access your RocketHacks dashboard

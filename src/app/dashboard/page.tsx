@@ -24,10 +24,6 @@ export default function DashboardPage() {
         return
       }
       setUser(user)
-      
-      // DEBUG: Log the current user ID
-      console.log('🔍 Dashboard - Current user ID:', user.id)
-      console.log('🔍 Dashboard - Current user email:', user.email)
 
       // Check if user is admin
       const adminResponse = await fetch('/api/auth/user')
@@ -42,13 +38,8 @@ export default function DashboardPage() {
         .maybeSingle()
 
       if (error) {
-        console.error('❌ Dashboard - Error loading application:', error)
+        console.error('Error loading application:', error)
       } else {
-        console.log('📋 Dashboard - Application found:', app ? 'YES' : 'NO')
-        if (app) {
-          console.log('📋 Dashboard - Application ID:', app.id)
-          console.log('📋 Dashboard - Application user_id:', app.user_id)
-        }
         setApplication(app)
       }
 
