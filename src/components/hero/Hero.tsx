@@ -58,7 +58,7 @@ export default function Hero() {
                   marginTop: '0.5rem'
                 }}
               >
-                The Biggest Hackathon in the Midwest
+                Hack the Horizon
               </h2>
             </div>
 
