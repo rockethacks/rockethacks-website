@@ -47,3 +47,5 @@ __queuestorage__/
 
 # Supabase local development
 .supabase/
+
+supabase/fix_rls_policies.sql

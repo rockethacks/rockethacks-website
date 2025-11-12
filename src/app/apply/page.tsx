@@ -91,7 +91,7 @@ export default function ApplyPage() {
     const schoolsList = await loadSchoolsList()
     setSchools(schoolsList)
 
-    // Load existing application
+    // Load existing application (if any)
     const { data: existingApp, error: loadError } = await supabase
       .from('applicants')
       .select('*')
@@ -100,7 +100,7 @@ export default function ApplyPage() {
 
     if (loadError) {
       console.error('Error loading application:', loadError)
-      setError('Unable to load your application. Please try refreshing the page.')
+      // Don't show error to user - they might not have an application yet
     }
 
     if (existingApp) {

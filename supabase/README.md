@@ -6,10 +6,8 @@ This folder contains SQL scripts for managing the RocketHacks application databa
 
 ### Production Scripts
 - **`schema.sql`** - Complete database schema including tables, indexes, RLS policies, and triggers
-- **`fix_corrupted_schools.sql`** - Fixes corrupted school names in the applicants table
-- **`fix_rls_policies.sql`** - Updates RLS (Row Level Security) policies for the applicants table
-- **`fix_rls_complete.sql`** - Complete RLS policy rebuild
-- **`fix_rls_final.sql`** - Simplified RLS policies with combined user/admin access
+- **`fix_rls_policies.sql`** - Safely drops and recreates RLS (Row Level Security) policies for the applicants table
+- **`fix_corrupted_schools.sql`** - Fixes corrupted school names in the applicants table (if needed)
 
 ## Usage
 
@@ -17,7 +15,10 @@ This folder contains SQL scripts for managing the RocketHacks application databa
 Run `schema.sql` in your Supabase SQL Editor to create the complete database structure.
 
 ### RLS Policy Updates
-If you need to fix or update RLS policies, use `fix_rls_final.sql` as it contains the most streamlined approach.
+If you need to fix or update RLS policies, run `fix_rls_policies.sql`. This script:
+- Safely drops all existing policies (using IF EXISTS)
+- Creates a clean set of combined policies to avoid conflicts
+- Verifies the policies were created successfully
 
 ## Important Security Notes
 
