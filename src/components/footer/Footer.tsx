@@ -156,14 +156,8 @@ export default function Footer() {
               © 2026 RocketHacks. All rights reserved. Made with ❤️ by the RocketHacks team.
             </div>
             <div className="flex items-center space-x-6 text-sm text-rh-white/60">
-              <Link href="/privacy" className="hover:text-rh-yellow transition-colors">
-                Privacy Policy
-              </Link>
-              <Link href="/terms" className="hover:text-rh-yellow transition-colors">
-                Terms of Service
-              </Link>
-              <Link 
-                href="https://mlh.io/code-of-conduct" 
+              <Link
+                href="https://mlh.io/code-of-conduct"
                 target="_blank"
                 rel="noopener noreferrer"
                 className="hover:text-rh-yellow transition-colors"

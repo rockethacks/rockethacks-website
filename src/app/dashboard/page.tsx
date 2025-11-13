@@ -297,22 +297,17 @@ export default function DashboardPage() {
             <p className="text-rh-white/60 text-sm">Return to the main website</p>
           </Link>
           <Link
-            href="/#schedule"
+            href="/#faq"
+            target="_blank"
+            rel="noopener noreferrer"
             className="glass rounded-xl p-6 hover:border-rh-yellow/50 transition-all duration-300 group animate-slide-up"
             style={{ animationDelay: '0.4s' }}
           >
-            <h3 className={`${terminal.className} text-lg font-semibold text-rh-yellow group-hover:text-rh-orange transition-colors mb-2 uppercase tracking-wide`}>
-              Event Schedule
-            </h3>
-            <p className="text-rh-white/60 text-sm">View the hackathon timeline</p>
-          </Link>
-          <Link
-            href="/#faq"
-            className="glass rounded-xl p-6 hover:border-rh-yellow/50 transition-all duration-300 group animate-slide-up"
-            style={{ animationDelay: '0.5s' }}
-          >
-            <h3 className={`${terminal.className} text-lg font-semibold text-rh-yellow group-hover:text-rh-orange transition-colors mb-2 uppercase tracking-wide`}>
+            <h3 className={`${terminal.className} text-lg font-semibold text-rh-yellow group-hover:text-rh-orange transition-colors mb-2 uppercase tracking-wide flex items-center gap-2`}>
               FAQs
+              <svg className="w-4 h-4 opacity-60" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
+              </svg>
             </h3>
             <p className="text-rh-white/60 text-sm">Get answers to common questions</p>
           </Link>
