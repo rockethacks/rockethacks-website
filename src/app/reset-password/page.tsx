@@ -76,6 +76,15 @@ function ResetPasswordForm() {
         return
       }
 
+      // Mark password setup as completed in applicants table
+      const { data: { user } } = await supabase.auth.getUser()
+      if (user) {
+        await supabase
+          .from('applicants')
+          .update({ password_setup_completed: true })
+          .eq('user_id', user.id)
+      }
+
       // Success - redirect to login
       router.push('/login?message=password-reset-success')
     } catch (err) {

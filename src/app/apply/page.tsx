@@ -258,11 +258,22 @@ export default function ApplyPage() {
         special_accommodations: formData.special_accommodations || null,
       }
 
+      // Check if user has password setup completed metadata from signup
+      // If user signed up with password, this will be true
+      // If user used magic link originally, this will be false/undefined
+      const hasPasswordMetadata = user.user_metadata?.password_setup_completed === true
+      
+      // Add password_setup_completed to application data
+      const finalApplicationData = {
+        ...applicationData,
+        password_setup_completed: hasPasswordMetadata
+      }
+
       // Use upsert to handle both insert and update in one operation
       // This avoids issues with checking for existing records
       const { error: upsertError } = await supabase
         .from('applicants')
-        .upsert(applicationData, {
+        .upsert(finalApplicationData, {
           onConflict: 'user_id', // Handle conflict on user_id (unique constraint)
           ignoreDuplicates: false, // Update existing record if conflict
         })
