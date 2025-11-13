@@ -39,25 +39,3 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
-
-# azurite local storage emulator
-__azurite_db_queue__.json
-__azurite_db_queue_extent__.json
-__queuestorage__/
-
-# Supabase local development
-.supabase/
-
-supabase/fix_rls_policies.sql
-
-# Deployment documentation (contains sensitive info)
-*_README.md
-*_GUIDE.md
-*_CHECKLIST.md
-*_SUMMARY.md
-*_FAQ.md
-*_AUDIT.md
-*_DIAGRAM.md
-*_FIXES*.md
-*_SETUP.md
-BRANCHING_STRATEGY.md
