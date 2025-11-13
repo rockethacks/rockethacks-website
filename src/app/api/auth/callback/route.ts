@@ -5,14 +5,20 @@ import { type NextRequest } from 'next/server'
 export async function GET(request: NextRequest) {
   const requestUrl = new URL(request.url)
   const code = requestUrl.searchParams.get('code')
+  const type = requestUrl.searchParams.get('type')
   const origin = requestUrl.origin
   const redirect = requestUrl.searchParams.get('redirect') || '/dashboard'
 
   if (code) {
     const supabase = await createClient()
     const { error } = await supabase.auth.exchangeCodeForSession(code)
-    
+
     if (!error) {
+      // If this is a password recovery, always go to reset-password
+      if (type === 'recovery') {
+        return NextResponse.redirect(`${origin}/reset-password`)
+      }
+
       // Get user data to check if they have an application
       const { data: { user } } = await supabase.auth.getUser()
       
