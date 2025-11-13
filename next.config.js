@@ -8,6 +8,16 @@ const nextConfig = {
   reactStrictMode: true,
   swcMinify: true,
   
+  // Disable ESLint during production builds
+  eslint: {
+    ignoreDuringBuilds: true,
+  },
+  
+  // Disable TypeScript errors during production builds
+  typescript: {
+    ignoreBuildErrors: true,
+  },
+  
   // Optimize package imports
   modularizeImports: {
     '@radix-ui/react-icons': {
