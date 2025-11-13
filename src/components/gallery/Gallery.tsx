@@ -489,32 +489,30 @@ const Gallery: React.FC<GalleryProps> = ({ images = projectImages }) => {
                   loading={currentIndex === 0 && filter === "all" ? "eager" : "lazy"}
                   quality={85}
                 />
-
-              {/* Navigation Arrows - Fixed z-index and touch-friendly */}
+              
+              {/* Navigation Arrows */}
               <button
                 onClick={prevImage}
-                className="absolute left-2 sm:left-4 top-1/2 -translate-y-1/2 z-20 p-2 sm:p-3 rounded-full bg-black/60 hover:bg-black/80 active:bg-black/90 text-white transition-all duration-200 shadow-lg hover:scale-110 active:scale-95 touch-manipulation"
+                className="absolute left-4 top-1/2 -translate-y-1/2 p-3 rounded-full bg-black/50 hover:bg-black/70 text-white transition-all duration-200"
                 aria-label="Previous image"
-                type="button"
               >
-                <ChevronLeft size={24} className="sm:w-6 sm:h-6" />
+                <ChevronLeft size={24} />
               </button>
-
+              
               <button
                 onClick={nextImage}
-                className="absolute right-2 sm:right-4 top-1/2 -translate-y-1/2 z-20 p-2 sm:p-3 rounded-full bg-black/60 hover:bg-black/80 active:bg-black/90 text-white transition-all duration-200 shadow-lg hover:scale-110 active:scale-95 touch-manipulation"
+                className="absolute right-4 top-1/2 -translate-y-1/2 p-3 rounded-full bg-black/50 hover:bg-black/70 text-white transition-all duration-200"
                 aria-label="Next image"
-                type="button"
               >
-                <ChevronRight size={24} className="sm:w-6 sm:h-6" />
+                <ChevronRight size={24} />
               </button>
 
               {/* Image Info Overlay */}
-              <div className="absolute bottom-0 left-0 right-0 z-10 bg-gradient-to-t from-black/80 to-transparent p-4 sm:p-6 pointer-events-none">
-                <h3 className={`${terminal.className} text-lg sm:text-xl text-white mb-1 sm:mb-2`}>
+              <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/80 to-transparent p-6">
+                <h3 className={`${terminal.className} text-xl text-white mb-2`}>
                   {filteredImages[currentIndex]?.title || 'Loading...'}
                 </h3>
-                <p className="text-white/80 text-xs sm:text-sm">
+                <p className="text-white/80 text-sm">
                   {filteredImages[currentIndex]?.description || 'Loading image description...'}
                 </p>
               </div>
