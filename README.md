@@ -60,7 +60,47 @@ The website currently has three pages: **Home/Landing Page**, **About Us Page**,
    git clone https://github.com/rockethacks/rockethacks.github.io.git
    cd rockethacks.github.io/front-end
 
+## 📚 Documentation
+
+### Quick Start Guides
+- **DEV_VERCEL_SETUP.md** - Quick guide to set up dev Vercel project
+- **DEPLOYMENT_GUIDE.md** - Comprehensive deployment guide with load testing
+- **DEV_ENVIRONMENT_SETUP.md** - Detailed step-by-step setup with screenshots
+- **SECURITY_FAQ.md** - Security questions and best practices
+
+### Development Workflow
+
+**Daily Development:**
+```bash
+# 1. Create feature branch from dev
+git checkout dev
+git pull origin dev
+git checkout -b feature/your-feature
+
+# 2. Make changes and test locally
+npm run dev
+
+# 3. Push and create PR to dev branch
+git push origin feature/your-feature
+gh pr create --base dev --head feature/your-feature
+
+# 4. After merge, dev site auto-deploys
+```
+
+**Deploying to Production:**
+```bash
+# After testing on dev site for 24-48 hours
+gh pr create --base main --head dev --title "Release: [date]"
+# After approval, production auto-deploys
+```
+
+## Architecture
+
+- **dev branch** → Dev Vercel Project (rockethacks-dev.vercel.app)
+- **main branch** → Production Vercel Project (www.rockethacks.org)
+- Both connect to shared Supabase database (secured by RLS)
+
 ## TO DO 
-1) Fix the Sponsor Button in the Navigation Panel
-2) Add the new registration portal link
-3) Get more design ideas
+1) Set up dev Vercel project (see DEV_VERCEL_SETUP.md)
+2) Test authentication and application flow on dev site
+3) Deploy to production after 24-48 hours of testing
