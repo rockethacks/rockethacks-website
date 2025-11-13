@@ -1,5 +1,5 @@
-/* Import fonts FIRST - before any other rules */
-@import url('https://fonts.googleapis.com/css2?family=Gotham:wght@300;400;500;700;900&display=swap');
+/* Note: Fonts should be loaded via next/font for better performance */
+/* See fonts/fonts.tsx for font configuration */
 
 @tailwind base;
 @tailwind components;
