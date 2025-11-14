@@ -4,10 +4,15 @@ import Link from "next/link";
 import Image from "next/image";
 import { FiMenu, FiX } from "react-icons/fi";
 import { terminal } from "../../app/fonts/fonts";
+import UserProfileDropdown from "./UserProfileDropdown";
+import { createClient } from "@/lib/supabase/client";
+import type { User } from "@supabase/supabase-js";
 
 export default function Navbar() {
   const [menuOpen, setMenuOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
+  const [user, setUser] = useState<User | null>(null);
+  const supabase = createClient();
 
   useEffect(() => {
     if (menuOpen) {
@@ -26,6 +31,23 @@ export default function Navbar() {
     window.addEventListener('scroll', handleScroll);
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
+
+  useEffect(() => {
+    // Get initial user
+    const getUser = async () => {
+      const { data: { user } } = await supabase.auth.getUser();
+      setUser(user);
+    };
+
+    getUser();
+
+    // Listen for auth changes
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
+      setUser(session?.user ?? null);
+    });
+
+    return () => subscription.unsubscribe();
+  }, [supabase]);
 
   const toggleMenu = () => setMenuOpen(!menuOpen);
   
@@ -77,8 +99,8 @@ export default function Navbar() {
                 onClick={closeMenu}
                 className={`
                   ${terminal.className} text-sm font-medium tracking-wider
-                  ${link.highlight 
-                    ? 'text-rh-yellow hover:text-rh-yellow/80 font-bold' 
+                  ${link.highlight
+                    ? 'text-rh-yellow hover:text-rh-yellow/80 font-bold'
                     : 'text-rh-white/90 hover:text-rh-yellow'
                   }
                   transition-colors duration-200
@@ -89,7 +111,7 @@ export default function Navbar() {
                 <span className="absolute -bottom-1 left-0 w-0 h-0.5 bg-rh-yellow transition-all duration-200 group-hover:w-full"></span>
               </Link>
             ))}
-            
+
             {/* Special CTA Button */}
             <Link
               href="/code-create"
@@ -100,16 +122,24 @@ export default function Navbar() {
             </Link>
           </div>
 
-          {/* Mobile menu button */}
-          <div className="md:hidden ml-auto">
-            <button
-              onClick={toggleMenu}
-              className="text-rh-white hover:text-rh-yellow transition-colors duration-200 p-2 relative z-[101]"
-              aria-label="Toggle menu"
-              aria-expanded={menuOpen}
-            >
-              <FiMenu size={28} />
-            </button>
+          {/* Desktop User Profile & Mobile menu button */}
+          <div className="flex items-center gap-4 ml-auto">
+            {/* User Profile Dropdown - Always visible */}
+            <div>
+              <UserProfileDropdown />
+            </div>
+
+            {/* Mobile menu button */}
+            <div className="md:hidden">
+              <button
+                onClick={toggleMenu}
+                className="text-rh-white hover:text-rh-yellow transition-colors duration-200 p-2 relative z-[101]"
+                aria-label="Toggle menu"
+                aria-expanded={menuOpen}
+              >
+                <FiMenu size={28} />
+              </button>
+            </div>
           </div>
         </div>
       </div>
@@ -159,8 +189,8 @@ export default function Navbar() {
                   className={`
                     ${terminal.className}
                     text-xl font-medium tracking-wider
-                    ${link.highlight 
-                      ? 'text-yellow-400 hover:text-yellow-300 font-bold' 
+                    ${link.highlight
+                      ? 'text-yellow-400 hover:text-yellow-300 font-bold'
                       : 'text-white hover:text-yellow-400'
                     }
                     transition-all duration-200
@@ -173,7 +203,10 @@ export default function Navbar() {
                   {link.label}
                 </Link>
               ))}
-              
+
+              {/* User Profile Menu Items - Mobile */}
+              {user && <UserProfileDropdown isMobile={true} onMenuClose={closeMenu} />}
+
               {/* CTA Button */}
               <Link
                 href="/code-create"

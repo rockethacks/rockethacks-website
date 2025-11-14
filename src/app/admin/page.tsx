@@ -14,6 +14,7 @@ export default function AdminPage() {
   const [filter, setFilter] = useState('all')
   const [searchTerm, setSearchTerm] = useState('')
   const [selectedApp, setSelectedApp] = useState<any>(null)
+  const [updatingRole, setUpdatingRole] = useState<string | null>(null)
 
   useEffect(() => {
     async function checkAdminAndLoadData() {
@@ -72,6 +73,33 @@ export default function AdminPage() {
       await loadStats()
       setSelectedApp(null)
     }
+  }
+
+  const updateRole = async (applicantId: string, newRole: string) => {
+    setUpdatingRole(applicantId)
+
+    const response = await fetch('/api/admin/roles', {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        applicant_id: applicantId,
+        new_role: newRole
+      })
+    })
+
+    if (response.ok) {
+      await loadApplications()
+      // Update selected app if it's the one being modified
+      if (selectedApp && selectedApp.id === applicantId) {
+        const updated = applications.find(app => app.id === applicantId)
+        if (updated) setSelectedApp(updated)
+      }
+    } else {
+      const error = await response.json()
+      alert(`Error: ${error.error}`)
+    }
+
+    setUpdatingRole(null)
   }
 
   const handleLogout = async () => {
@@ -158,6 +186,12 @@ export default function AdminPage() {
             <p className="text-gray-400">Manage RocketHacks 2026 applications</p>
           </div>
           <div className="flex gap-4">
+            <Link
+              href="/organizer"
+              className="px-6 py-3 bg-white/5 hover:bg-white/10 border border-white/10 text-white font-semibold rounded-lg transition-all duration-200"
+            >
+              Check-In Portal
+            </Link>
             <Link
               href="/dashboard"
               className="px-6 py-3 bg-white/5 hover:bg-white/10 border border-white/10 text-white font-semibold rounded-lg transition-all duration-200"
@@ -287,6 +321,24 @@ export default function AdminPage() {
                 <div>
                   <h2 className="text-3xl font-bold text-white">{selectedApp.first_name} {selectedApp.last_name}</h2>
                   <p className="text-gray-400">{selectedApp.email}</p>
+
+                  {/* Role Management */}
+                  <div className="mt-4 flex items-center gap-3">
+                    <label className="text-sm font-semibold text-gray-400 uppercase">User Role:</label>
+                    <select
+                      value={selectedApp.role || 'participant'}
+                      onChange={(e) => updateRole(selectedApp.id, e.target.value)}
+                      disabled={updatingRole === selectedApp.id}
+                      className="px-3 py-1 bg-white/5 border border-white/10 rounded-lg text-white text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 [&>option]:bg-[#0a1628]"
+                    >
+                      <option value="participant">Participant</option>
+                      <option value="organizer">Organizer</option>
+                      <option value="admin">Admin</option>
+                    </select>
+                    {updatingRole === selectedApp.id && (
+                      <span className="text-xs text-yellow-400">Updating...</span>
+                    )}
+                  </div>
                 </div>
                 <button
                   onClick={() => setSelectedApp(null)}

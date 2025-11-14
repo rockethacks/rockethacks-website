@@ -43,9 +43,39 @@ export async function updateSession(request: NextRequest) {
       return NextResponse.redirect(redirectUrl)
     }
 
-    // Check if user is admin
-    const adminEmails = process.env.ADMIN_EMAILS?.split(',').map(email => email.trim()) || []
-    if (!adminEmails.includes(user.email || '')) {
+    // Check if user is admin (database role only)
+    const { data: userData } = await supabase
+      .from('applicants')
+      .select('role')
+      .eq('user_id', user.id)
+      .single()
+
+    const isAdmin = userData?.role === 'admin'
+
+    if (!isAdmin) {
+      return NextResponse.redirect(new URL('/dashboard', request.url))
+    }
+  }
+
+  // Protect organizer routes
+  if (request.nextUrl.pathname.startsWith('/organizer')) {
+    if (!user) {
+      const redirectUrl = request.nextUrl.clone()
+      redirectUrl.pathname = '/login'
+      redirectUrl.searchParams.set('redirect', '/organizer')
+      return NextResponse.redirect(redirectUrl)
+    }
+
+    // Check if user is organizer or admin (database role only)
+    const { data: userData } = await supabase
+      .from('applicants')
+      .select('role')
+      .eq('user_id', user.id)
+      .single()
+
+    const isAuthorized = userData?.role === 'admin' || userData?.role === 'organizer'
+
+    if (!isAuthorized) {
       return NextResponse.redirect(new URL('/dashboard', request.url))
     }
   }
