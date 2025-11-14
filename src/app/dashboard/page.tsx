@@ -6,6 +6,7 @@ import { createClient } from '@/lib/supabase/client'
 import Link from 'next/link'
 import Image from 'next/image'
 import { terminal } from '../fonts/fonts'
+import { checkApplicationCompleteness, groupMissingFieldsByCategory, getCategoryDisplayName, type CompletenessResult } from '@/lib/utils/applicationCompleteness'
 
 export default function DashboardPage() {
   const router = useRouter()
@@ -14,6 +15,9 @@ export default function DashboardPage() {
   const [user, setUser] = useState<any>(null)
   const [application, setApplication] = useState<any>(null)
   const [isAdmin, setIsAdmin] = useState(false)
+  const [isOrganizer, setIsOrganizer] = useState(false)
+  const [completeness, setCompleteness] = useState<CompletenessResult | null>(null)
+  const [showMissingFields, setShowMissingFields] = useState(false)
 
   useEffect(() => {
     async function loadData() {
@@ -25,10 +29,11 @@ export default function DashboardPage() {
       }
       setUser(user)
 
-      // Check if user is admin
-      const adminResponse = await fetch('/api/auth/user')
-      const adminData = await adminResponse.json()
-      setIsAdmin(adminData.isAdmin)
+      // Check if user is admin or organizer
+      const authResponse = await fetch('/api/auth/user')
+      const authData = await authResponse.json()
+      setIsAdmin(authData.isAdmin)
+      setIsOrganizer(authData.isOrganizer)
 
       // Get application
       const { data: app, error } = await supabase
@@ -41,6 +46,11 @@ export default function DashboardPage() {
         console.error('Error loading application:', error)
       } else {
         setApplication(app)
+        // Check completeness if application exists
+        if (app) {
+          const completenessResult = checkApplicationCompleteness(app)
+          setCompleteness(completenessResult)
+        }
       }
 
       setLoading(false)
@@ -126,6 +136,14 @@ export default function DashboardPage() {
                   Admin Portal
                 </Link>
               )}
+              {(isOrganizer || isAdmin) && (
+                <Link
+                  href="/organizer"
+                  className="btn-primary px-6 py-2 text-sm font-semibold"
+                >
+                  Check-In Portal
+                </Link>
+              )}
               <button
                 onClick={handleLogout}
                 className="btn-secondary px-6 py-2 text-sm font-semibold"
@@ -139,6 +157,92 @@ export default function DashboardPage() {
         {/* Application Status */}
         {application ? (
           <div className="space-y-6 animate-slide-up" style={{ animationDelay: '0.1s' }}>
+            {/* Application Completeness Card */}
+            {completeness && (
+              <div className="glass rounded-2xl p-6">
+                <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-4">
+                  <div className="flex-1">
+                    <div className="flex items-center gap-3 mb-2">
+                      <h3 className={`${terminal.className} text-xl font-semibold uppercase tracking-wide ${completeness.isComplete ? 'text-green-400' : 'text-yellow-400'}`}>
+                        {completeness.isComplete ? '✓ Application Complete' : '⚠️ Application Incomplete'}
+                      </h3>
+                      {!completeness.isComplete && (
+                        <span className="text-sm text-rh-white/60">
+                          ({completeness.filledFields}/{completeness.totalFields} fields)
+                        </span>
+                      )}
+                    </div>
+                    <p className="text-sm text-rh-white/70">
+                      {completeness.isComplete
+                        ? 'Great! Your application is 100% complete.'
+                        : `You're ${completeness.percentage}% complete. Fill out all fields to improve your chances!`}
+                    </p>
+                  </div>
+                  <div className="flex items-center gap-4">
+                    <div className="text-right">
+                      <div className={`text-3xl font-bold ${completeness.isComplete ? 'text-green-400' : 'text-yellow-400'}`}>
+                        {completeness.percentage}%
+                      </div>
+                    </div>
+                    {!completeness.isComplete && (
+                      <button
+                        onClick={() => setShowMissingFields(!showMissingFields)}
+                        className="btn-secondary px-4 py-2 text-sm font-semibold whitespace-nowrap"
+                      >
+                        {showMissingFields ? 'Hide' : 'Show'} Missing Fields
+                      </button>
+                    )}
+                  </div>
+                </div>
+
+                {/* Progress Bar */}
+                <div className="relative w-full h-3 bg-white/10 rounded-full overflow-hidden">
+                  <div
+                    className={`absolute inset-y-0 left-0 rounded-full transition-all duration-500 ${
+                      completeness.isComplete
+                        ? 'bg-gradient-to-r from-green-500 to-green-400'
+                        : 'bg-gradient-to-r from-yellow-500 to-yellow-400'
+                    }`}
+                    style={{ width: `${completeness.percentage}%` }}
+                  />
+                </div>
+
+                {/* Missing Fields Dropdown */}
+                {!completeness.isComplete && showMissingFields && (
+                  <div className="mt-6 space-y-4 animate-slide-down">
+                    <div className="border-t border-white/10 pt-4">
+                      <h4 className={`${terminal.className} text-sm font-semibold text-rh-orange uppercase tracking-wide mb-3`}>
+                        Missing Fields ({completeness.missingFields.length})
+                      </h4>
+                      <div className="space-y-3">
+                        {Object.entries(groupMissingFieldsByCategory(completeness.missingFields)).map(([category, fields]) => (
+                          <div key={category} className="bg-white/5 rounded-lg p-4 border border-white/10">
+                            <h5 className="text-sm font-semibold text-rh-yellow mb-2">{getCategoryDisplayName(category)}</h5>
+                            <ul className="space-y-1">
+                              {fields.map((field) => (
+                                <li key={field.field} className="text-sm text-rh-white/70 flex items-start gap-2">
+                                  <span className="text-rh-orange mt-0.5">•</span>
+                                  <span>{field.label}</span>
+                                </li>
+                              ))}
+                            </ul>
+                          </div>
+                        ))}
+                      </div>
+                      <div className="mt-4">
+                        <Link
+                          href="/apply"
+                          className="btn-primary px-6 py-2 text-sm font-semibold inline-block"
+                        >
+                          Complete Your Application →
+                        </Link>
+                      </div>
+                    </div>
+                  </div>
+                )}
+              </div>
+            )}
+
             {/* Status Card */}
             <div className="glass rounded-2xl p-8">
               <div className="flex flex-col md:flex-row md:justify-between md:items-start gap-4 mb-6">

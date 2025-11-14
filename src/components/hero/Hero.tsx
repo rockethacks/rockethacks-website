@@ -1,9 +1,32 @@
-import React from "react";
+"use client";
+import React, { useState, useEffect } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { terminal } from "../../app/fonts/fonts";
+import { createClient } from "@/lib/supabase/client";
+import type { User } from "@supabase/supabase-js";
 
 export default function Hero() {
+  const [user, setUser] = useState<User | null>(null);
+  const [loading, setLoading] = useState(true);
+  const supabase = createClient();
+
+  useEffect(() => {
+    const getUser = async () => {
+      const { data: { user } } = await supabase.auth.getUser();
+      setUser(user);
+      setLoading(false);
+    };
+
+    getUser();
+
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
+      setUser(session?.user ?? null);
+    });
+
+    return () => subscription.unsubscribe();
+  }, [supabase]);
+
   return (
     <div className="pt-20">
       {/* Spacer for fixed navbar - 80px (h-20) */}
@@ -62,69 +85,56 @@ export default function Hero() {
               </h2>
             </div>
 
-            {/* Coming Soon Message - Compact on small screens */}
-            <div 
+            {/* Event Details - Compact on small screens */}
+            <div
               className="glass rounded-2xl max-w-2xl mx-auto"
               style={{
-                padding: 'clamp(1rem, 3vw, 2rem)'
+                padding: 'clamp(1.25rem, 3vw, 2.5rem)'
               }}
             >
-              <h3 
-                className={`${terminal.className} text-rh-yellow`}
+              <h3
+                className={`${terminal.className} text-rh-yellow font-bold`}
                 style={{
-                  fontSize: 'clamp(1.125rem, 4vw, 2.25rem)',
-                  marginBottom: 'clamp(0.5rem, 1.5vh, 1rem)'
+                  fontSize: 'clamp(1.25rem, 4vw, 2.5rem)',
+                  marginBottom: 'clamp(0.75rem, 1.5vh, 1.25rem)'
                 }}
               >
-                Coming Spring 2026
+                Register NOW for RocketHacks!
               </h3>
-              <p 
-                className="text-rh-white/90 leading-relaxed"
+              <div
+                className="text-rh-white/90 leading-relaxed space-y-2"
                 style={{
-                  fontSize: 'clamp(0.875rem, 2.5vw, 1.25rem)'
+                  fontSize: 'clamp(1rem, 2.5vw, 1.5rem)'
                 }}
               >
-                Join us for an incredible 24-hour journey of innovation, collaboration, and problem-solving.
-              </p>
+                <p className="font-semibold text-rh-yellow/90">
+                  March 15th & 16th, 2026
+                </p>
+                <p className="text-rh-white/80" style={{ fontSize: 'clamp(0.875rem, 2.5vw, 1.25rem)' }}>
+                  University of Toledo<br />College of Engineering
+                </p>
+              </div>
             </div>
 
-            {/* Call to Action Buttons - Responsive sizing */}
-            <div 
-              className="flex flex-col sm:flex-row items-center justify-center"
-              style={{
-                gap: 'clamp(0.75rem, 2vw, 1rem)'
-              }}
-            >
+            {/* Call to Action Button - Responsive sizing */}
+            <div className="flex items-center justify-center">
               <Link
-                href="#about"
+                href={user ? "/dashboard" : "/login"}
                 className="btn-primary font-semibold inline-flex items-center justify-center w-full sm:w-auto"
                 style={{
-                  padding: 'clamp(0.75rem, 2vh, 1rem) clamp(1.5rem, 4vw, 2rem)',
+                  padding: 'clamp(0.75rem, 2vh, 1rem) clamp(1.5rem, 4vw, 2.5rem)',
                   fontSize: 'clamp(0.875rem, 2vw, 1.125rem)',
                   minHeight: '44px'
                 }}
               >
-                Learn More
-              </Link>
-              <Link
-                href="/documents/sponsorship-packet.pdf"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="btn-secondary font-semibold inline-flex items-center justify-center w-full sm:w-auto"
-                style={{
-                  padding: 'clamp(0.75rem, 2vh, 1rem) clamp(1.5rem, 4vw, 2rem)',
-                  fontSize: 'clamp(0.875rem, 2vw, 1.125rem)',
-                  minHeight: '44px'
-                }}
-              >
-                Sponsor Us
+                {loading ? "Loading..." : user ? "Go to Dashboard" : "Apply Now"}
               </Link>
             </div>
 
             {/* Location - Compact */}
             <div style={{ marginTop: 'clamp(1rem, 2vh, 2rem)' }}>
               <Link
-                href="https://maps.app.goo.gl/xC2YjujFcZfS65PF8"
+                href="https://www.google.com/maps/place/University+of+Toledo+College+of+Engineering/@41.6562443,-83.6111421,17.04z/data=!4m10!1m2!2m1!1suniversity+of+toledo+engineering!3m6!1s0x883c78b11a8e7c21:0x94cf93f50c1b110f!8m2!3d41.6557317!4d-83.6063728!15sCiB1bml2ZXJzaXR5IG9mIHRvbGVkbyBlbmdpbmVlcmluZ1oiIiB1bml2ZXJzaXR5IG9mIHRvbGVkbyBlbmdpbmVlcmluZ5IBFXVuaXZlcnNpdHlfZGVwYXJ0bWVudJoBJENoZERTVWhOTUc5blMwVkpRMEZuU1VSYWMwNUhkREpuUlJBQqoBVAoJL20vMDJrbG55EAEyHxABIhuAkM289MsT1UCrbBdJG1-sfW28zZ-RFzOAfsAyJBACIiB1bml2ZXJzaXR5IG9mIHRvbGVkbyBlbmdpbmVlcmluZ-ABAPoBBAgAED4!16s%2Fg%2F11c555sm9s?entry=ttu&g_ep=EgoyMDI1MTExMS4wIKXMDSoASAFQAw%3D%3D"
                 target="_blank"
                 rel="noopener noreferrer"
                 className="inline-flex items-center text-rh-white/80 hover:text-rh-yellow transition-colors duration-300 group"
@@ -134,9 +144,9 @@ export default function Hero() {
                 }}
                 aria-label="View location on Google Maps"
               >
-                <svg 
-                  className="group-hover:scale-110 transition-transform flex-shrink-0" 
-                  fill="currentColor" 
+                <svg
+                  className="group-hover:scale-110 transition-transform flex-shrink-0"
+                  fill="currentColor"
                   viewBox="0 0 20 20"
                   style={{
                     width: 'clamp(1.25rem, 3vw, 2rem)',

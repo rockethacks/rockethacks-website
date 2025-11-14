@@ -2,7 +2,7 @@ import { createClient } from '@/lib/supabase/server'
 import { NextResponse } from 'next/server'
 
 /**
- * Get current user with role information
+ * Debug endpoint to check user role information
  */
 export async function GET() {
   const supabase = await createClient()
@@ -11,33 +11,36 @@ export async function GET() {
 
   if (error || !user) {
     return NextResponse.json({
-      isAdmin: false,
-      isOrganizer: false,
-      role: 'participant',
-      user: null
+      error: 'Not authenticated',
+      user: null,
+      applicantData: null
     })
   }
 
-  // Get user's role from database (single source of truth)
-  const { data: applicantData } = await supabase
+  // Get user's full applicant record
+  const { data: applicantData, error: dbError } = await supabase
     .from('applicants')
-    .select('role')
+    .select('*')
     .eq('user_id', user.id)
     .single()
 
   const dbRole = applicantData?.role || 'participant'
-
-  // Determine permissions based on database role only
   const isAdmin = dbRole === 'admin'
   const isOrganizer = dbRole === 'organizer' || isAdmin
 
   return NextResponse.json({
-    isAdmin,
-    isOrganizer,
-    role: dbRole,
+    authenticated: true,
     user: {
       id: user.id,
       email: user.email,
+      created_at: user.created_at
+    },
+    applicantData: applicantData,
+    dbError: dbError,
+    computed: {
+      role: dbRole,
+      isAdmin,
+      isOrganizer
     }
-  })
+  }, { status: 200 })
 }

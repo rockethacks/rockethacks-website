@@ -34,8 +34,13 @@ export async function POST(request: Request) {
   })
 
   if (error) {
-    // Check for duplicate email
-    if (error.message.includes('already registered')) {
+    // Check for duplicate email - Supabase returns different error messages for existing users
+    if (
+      error.message.includes('already registered') ||
+      error.message.includes('User already registered') ||
+      error.code === 'user_already_exists' ||
+      error.status === 422
+    ) {
       return NextResponse.json(
         { error: 'An account with this email already exists. Please sign in instead.' },
         { status: 409 }
