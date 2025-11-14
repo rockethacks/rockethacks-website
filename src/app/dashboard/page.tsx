@@ -265,9 +265,40 @@ export default function DashboardPage() {
               )}
 
               {application.status === 'accepted' && (
-                <div className="bg-green-500/10 border border-green-500/50 text-green-400 px-6 py-4 rounded-xl backdrop-blur-sm">
-                  <p className={`${terminal.className} font-semibold mb-2 text-lg`}>🎉 Congratulations! You've been accepted!</p>
-                  <p className="text-sm text-rh-white/80">Check your email for next steps and important information about the event.</p>
+                <div className="space-y-4">
+                  <div className="bg-green-500/10 border border-green-500/50 text-green-400 px-6 py-4 rounded-xl backdrop-blur-sm">
+                    <p className={`${terminal.className} font-semibold mb-2 text-lg`}>🎉 Congratulations! You've been accepted!</p>
+                    <p className="text-sm text-rh-white/80">Check your email for next steps and important information about the event.</p>
+                  </div>
+
+                  {/* Check-In Status */}
+                  <div className={`px-6 py-4 rounded-xl backdrop-blur-sm border ${
+                    application.checked_in
+                      ? 'bg-blue-500/10 border-blue-500/50 text-blue-400'
+                      : 'bg-yellow-500/10 border-yellow-500/50 text-yellow-400'
+                  }`}>
+                    <div className="flex items-start justify-between gap-4">
+                      <div className="flex-1">
+                        <p className={`${terminal.className} font-semibold mb-2 text-lg`}>
+                          {application.checked_in ? '✅ Checked In!' : '⏳ Not Checked In Yet'}
+                        </p>
+                        <p className="text-sm text-rh-white/80">
+                          {application.checked_in
+                            ? `You were checked in on ${new Date(application.checked_in_at).toLocaleDateString()} at ${new Date(application.checked_in_at).toLocaleTimeString()}.`
+                            : 'You will be checked in when you arrive at the event. See you there!'}
+                        </p>
+                      </div>
+                      {application.checked_in && (
+                        <div className="flex-shrink-0">
+                          <div className="w-12 h-12 rounded-full bg-blue-400/20 flex items-center justify-center">
+                            <svg className="w-7 h-7 text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                            </svg>
+                          </div>
+                        </div>
+                      )}
+                    </div>
+                  </div>
                 </div>
               )}
 
