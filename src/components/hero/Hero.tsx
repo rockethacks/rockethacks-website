@@ -96,7 +96,9 @@ export default function Hero() {
               }}
             >
               <Link
-                href="#about"
+                href="https://forms.gle/Wukbx4i2rFehEuTV8"
+                target="_blank"
+                rel="noopener noreferrer"
                 className="btn-primary font-semibold inline-flex items-center justify-center w-full sm:w-auto"
                 style={{
                   padding: 'clamp(0.75rem, 2vh, 1rem) clamp(1.5rem, 4vw, 2rem)',
@@ -104,7 +106,7 @@ export default function Hero() {
                   minHeight: '44px'
                 }}
               >
-                Learn More
+                Interested?
               </Link>
               <Link
                 href="/documents/sponsorship-packet.pdf"
