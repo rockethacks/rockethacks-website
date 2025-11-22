@@ -4,6 +4,7 @@ import { IoDiamond } from "react-icons/io5";
 import { FaHandshake } from "react-icons/fa6";
 import { terminal } from "../../app/fonts/fonts";
 import Link from "next/link";
+import Image from "next/image";
 
 export default function About() {
   return (
@@ -11,8 +12,22 @@ export default function About() {
       <section
         id="about"
         aria-label="About RocketHacks"
-        className="relative bg-gradient-to-b from-rh-background via-rh-navy-dark to-rh-navy-light text-white py-20 px-5 md:px-10 xl:py-28"
+        className="relative text-white py-20 px-5 md:px-10 xl:py-28 overflow-hidden"
       >
+        {/* Background Image */}
+        <div className="absolute inset-0">
+          <Image
+            src="/assets/rh_26/rh_26_folder/rh_bg_1.jpg"
+            alt="About Background"
+            fill
+            className="object-cover object-center"
+            quality={85}
+            sizes="100vw"
+          />
+          {/* Gradient overlay */}
+          <div className="absolute inset-0 bg-gradient-to-b from-rh-background/85 via-rh-navy-dark/75 to-rh-navy-light/85"></div>
+        </div>
+        
         {/* Background Pattern */}
         <div className="absolute inset-0 opacity-5">
           <div className="absolute inset-0" style={{
