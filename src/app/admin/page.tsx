@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import { createClient } from '@/lib/supabase/client'
 import Link from 'next/link'
+import * as XLSX from 'xlsx'
 
 export default function AdminPage() {
   const router = useRouter()
@@ -133,39 +134,76 @@ export default function AdminPage() {
     }
   }
 
-  const exportToCSV = () => {
-    const headers = ['First Name', 'Last Name', 'Email', 'Age', 'Phone', 'School', 'Level of Study', 'Country', 'Major', 'Status', 'First Hackathon', 'T-Shirt Size', 'Dietary Restrictions', 'Gender', 'Pronouns', 'Submitted At']
-    const rows = filteredApplications.map(app => [
-      app.first_name || '',
-      app.last_name || '',
-      app.email,
-      app.age || '',
-      app.phone_number || '',
-      app.school,
-      app.level_of_study || '',
-      app.country_of_residence || '',
-      app.major || '',
-      app.status,
-      app.first_hackathon ? 'Yes' : 'No',
-      app.tshirt_size || '',
-      Array.isArray(app.dietary_restrictions) ? app.dietary_restrictions.join('; ') : app.dietary_restrictions || '',
-      app.gender || '',
-      app.pronouns || '',
-      new Date(app.submitted_at).toLocaleString()
-    ])
+  const exportToExcel = () => {
+    // Prepare data with headers
+    const data = filteredApplications.map(app => ({
+      'First Name': app.first_name || '',
+      'Last Name': app.last_name || '',
+      'Email': app.email,
+      'Phone': app.phone_number || '',
+      'Age': app.age || '',
+      'School': app.school,
+      'Major': app.major || '',
+      'Level of Study': app.level_of_study || '',
+      'Country': app.country_of_residence || '',
+      'Gender': app.gender || '',
+      'Pronouns': app.pronouns || '',
+      'Status': app.status,
+      'Role': app.role || 'participant',
+      'First Hackathon': app.first_hackathon ? 'Yes' : 'No',
+      'T-Shirt Size': app.tshirt_size || '',
+      'Dietary Restrictions': Array.isArray(app.dietary_restrictions) 
+        ? app.dietary_restrictions.join('; ') 
+        : app.dietary_restrictions || '',
+      'Race/Ethnicity': Array.isArray(app.race_ethnicity) 
+        ? app.race_ethnicity.join('; ') 
+        : app.race_ethnicity || '',
+      'Team Name': app.team_name || '',
+      'GitHub': app.github_url || '',
+      'LinkedIn': app.linkedin_url || '',
+      'Portfolio': app.portfolio_url || '',
+      'Special Accommodations': app.special_accommodations || '',
+      'Submitted At': new Date(app.submitted_at).toLocaleString()
+    }))
 
-    const csvContent = [
-      headers.join(','),
-      ...rows.map(row => row.map(cell => `"${cell}"`).join(','))
-    ].join('\n')
+    // Create worksheet
+    const worksheet = XLSX.utils.json_to_sheet(data)
+    
+    // Set column widths for better readability
+    const columnWidths = [
+      { wch: 15 }, // First Name
+      { wch: 15 }, // Last Name
+      { wch: 30 }, // Email
+      { wch: 15 }, // Phone
+      { wch: 8 },  // Age
+      { wch: 35 }, // School
+      { wch: 25 }, // Major
+      { wch: 15 }, // Level of Study
+      { wch: 20 }, // Country
+      { wch: 12 }, // Gender
+      { wch: 12 }, // Pronouns
+      { wch: 12 }, // Status
+      { wch: 12 }, // Role
+      { wch: 15 }, // First Hackathon
+      { wch: 12 }, // T-Shirt Size
+      { wch: 25 }, // Dietary Restrictions
+      { wch: 25 }, // Race/Ethnicity
+      { wch: 20 }, // Team Name
+      { wch: 30 }, // GitHub
+      { wch: 30 }, // LinkedIn
+      { wch: 30 }, // Portfolio
+      { wch: 40 }, // Special Accommodations
+      { wch: 20 }  // Submitted At
+    ]
+    worksheet['!cols'] = columnWidths
 
-    const blob = new Blob([csvContent], { type: 'text/csv' })
-    const url = URL.createObjectURL(blob)
-    const a = document.createElement('a')
-    a.href = url
-    a.download = `rockethacks_applications_${new Date().toISOString().split('T')[0]}.csv`
-    a.click()
-    URL.revokeObjectURL(url)
+    // Create workbook and add worksheet
+    const workbook = XLSX.utils.book_new()
+    XLSX.utils.book_append_sheet(workbook, worksheet, 'Applications')
+
+    // Generate Excel file and trigger download
+    const fileName = `RocketHacks_2026_Applications_${new Date().toISOString().split('T')[0]}.xlsx`
+    XLSX.writeFile(workbook, fileName)
   }
 
   if (loading) {
@@ -246,10 +284,10 @@ export default function AdminPage() {
               <option value="waitlisted">Waitlisted</option>
             </select>
             <button
-              onClick={exportToCSV}
+              onClick={exportToExcel}
               className="px-6 py-2 bg-green-600 hover:bg-green-700 text-white font-semibold rounded-lg transition-all duration-200"
             >
-              Export CSV
+              Export Excel
             </button>
           </div>
           <div className="mt-4 text-sm text-gray-400">
