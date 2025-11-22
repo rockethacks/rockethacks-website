@@ -107,10 +107,10 @@ const Sponsor: React.FC<SponsorProps> = ({ sponsors }) => {
               </div>
             </div>
             
-            <div className="space-y-6 md:space-y-8 overflow-hidden px-4 md:px-0">
+            <div className="space-y-8 overflow-hidden -mx-4 sm:-mx-5 md:-mx-10">
               {/* Row 1: Main Sponsors - Left to Right */}
               <div className="group relative">
-                <div className="flex gap-4 md:gap-10 animate-scroll-left group-hover:pause-animation">
+                <div className="flex gap-8 animate-scroll-left group-hover:pause-animation px-4">
                   {duplicateArray(mainSponsors).map((sponsor, index) => (
                     <Link
                       key={`main-${index}`}
@@ -119,17 +119,17 @@ const Sponsor: React.FC<SponsorProps> = ({ sponsors }) => {
                       rel="noopener noreferrer"
                       className="flex-shrink-0"
                     >
-                      <div className="glass-card p-4 md:p-8 h-24 md:h-40 w-40 md:w-64 flex items-center justify-center hover:border-rh-yellow/50 transition-all duration-300 hover:scale-105 rounded-xl bg-rh-navy-light/30">
+                      <div className="glass-card p-6 h-32 w-56 flex items-center justify-center hover:border-rh-yellow/50 transition-all duration-300 hover:scale-105 rounded-xl bg-rh-navy-light/30">
                         {sponsor.type === "image" && sponsor.src ? (
                           <Image
                             src={sponsor.src}
                             alt={sponsor.alt}
-                            width={220}
-                            height={110}
+                            width={200}
+                            height={100}
                             className="object-contain max-w-full max-h-full w-auto h-auto transition-all duration-300 hover:brightness-110"
                           />
                         ) : sponsor.type === "icon" && sponsor.icon === "github" ? (
-                          <DiGithubFull className="h-12 w-12 md:h-20 md:w-20 text-rh-white transition-all duration-300 hover:scale-110" />
+                          <DiGithubFull className="h-16 w-16 text-rh-white transition-all duration-300 hover:scale-110" />
                         ) : null}
                       </div>
                     </Link>
@@ -139,7 +139,7 @@ const Sponsor: React.FC<SponsorProps> = ({ sponsors }) => {
 
               {/* Row 2: Intermediate Sponsors - Right to Left */}
               <div className="group relative">
-                <div className="flex gap-4 md:gap-8 animate-scroll-right group-hover:pause-animation">
+                <div className="flex gap-6 animate-scroll-right group-hover:pause-animation px-4">
                   {duplicateArray(intermediateSponsors).map((sponsor, index) => (
                     <Link
                       key={`intermediate-${index}`}
@@ -148,7 +148,7 @@ const Sponsor: React.FC<SponsorProps> = ({ sponsors }) => {
                       rel="noopener noreferrer"
                       className="flex-shrink-0"
                     >
-                      <div className="glass-card p-3 md:p-5 h-20 md:h-28 w-32 md:w-40 flex items-center justify-center hover:border-rh-yellow/50 transition-all duration-300 hover:scale-105 rounded-xl bg-rh-navy-light/30">
+                      <div className="glass-card p-4 h-24 w-40 flex items-center justify-center hover:border-rh-yellow/50 transition-all duration-300 hover:scale-105 rounded-xl bg-rh-navy-light/30">
                         {sponsor.type === "image" && sponsor.src ? (
                           <Image
                             src={sponsor.src}
@@ -158,7 +158,7 @@ const Sponsor: React.FC<SponsorProps> = ({ sponsors }) => {
                             className="object-contain max-w-full max-h-full w-auto h-auto transition-all duration-300 hover:brightness-110"
                           />
                         ) : sponsor.type === "icon" && sponsor.icon === "aws" ? (
-                          <FaAws className="h-10 w-10 md:h-14 md:w-14 text-rh-white transition-all duration-300 hover:scale-110" />
+                          <FaAws className="h-12 w-12 text-rh-white transition-all duration-300 hover:scale-110" />
                         ) : null}
                       </div>
                     </Link>
@@ -168,7 +168,7 @@ const Sponsor: React.FC<SponsorProps> = ({ sponsors }) => {
 
               {/* Row 3: Main In-Kind Sponsors - Left to Right */}
               <div className="group relative">
-                <div className="flex gap-4 md:gap-8 animate-scroll-left group-hover:pause-animation">
+                <div className="flex gap-6 animate-scroll-left group-hover:pause-animation px-4">
                   {duplicateArray(mainInKindSponsors).map((sponsor, index) => (
                     <Link
                       key={`inkind-${index}`}
@@ -177,7 +177,7 @@ const Sponsor: React.FC<SponsorProps> = ({ sponsors }) => {
                       rel="noopener noreferrer"
                       className="flex-shrink-0"
                     >
-                      <div className="glass-card p-3 md:p-5 h-20 md:h-28 w-32 md:w-40 flex items-center justify-center hover:border-rh-yellow/50 transition-all duration-300 hover:scale-105 rounded-xl bg-rh-navy-light/30">
+                      <div className="glass-card p-4 h-24 w-40 flex items-center justify-center hover:border-rh-yellow/50 transition-all duration-300 hover:scale-105 rounded-xl bg-rh-navy-light/30">
                         <Image
                           src={sponsor.src!}
                           alt={sponsor.alt}
@@ -193,7 +193,7 @@ const Sponsor: React.FC<SponsorProps> = ({ sponsors }) => {
 
               {/* Row 4: Less Important Sponsors - Right to Left */}
               <div className="group relative">
-                <div className="flex gap-3 md:gap-6 animate-scroll-right group-hover:pause-animation">
+                <div className="flex gap-5 animate-scroll-right group-hover:pause-animation px-4">
                   {duplicateArray(lessImportantSponsors).map((sponsor, index) => (
                     <Link
                       key={`less-${index}`}
@@ -202,7 +202,7 @@ const Sponsor: React.FC<SponsorProps> = ({ sponsors }) => {
                       rel="noopener noreferrer"
                       className="flex-shrink-0"
                     >
-                      <div className="glass-card p-3 md:p-4 h-18 md:h-24 w-28 md:w-32 flex items-center justify-center hover:border-rh-yellow/50 transition-all duration-300 hover:scale-105 rounded-xl bg-rh-navy-light/30">
+                      <div className="glass-card p-3 h-20 w-32 flex items-center justify-center hover:border-rh-yellow/50 transition-all duration-300 hover:scale-105 rounded-xl bg-rh-navy-light/30">
                         <Image
                           src={sponsor.src!}
                           alt={sponsor.alt}
