@@ -50,8 +50,22 @@ const Sponsor: React.FC<SponsorProps> = ({ sponsors }) => {
     <div>
       <section
         id="sponsor"
-        className="relative bg-gradient-to-b from-rh-navy-light via-rh-navy-dark to-rh-background text-white pt-4 sm:pt-6 md:pt-8 pb-16 sm:pb-20 md:pb-24 px-4 sm:px-5 md:px-10"
+        className="relative text-white pt-4 sm:pt-6 md:pt-8 pb-16 sm:pb-20 md:pb-24 px-4 sm:px-5 md:px-10 overflow-hidden"
       >
+        {/* Background Image */}
+        <div className="absolute inset-0">
+          <Image
+            src="/assets/rh_26/rh_26_folder/rh_bg_2.png"
+            alt="Sponsor Background"
+            fill
+            className="object-cover object-center"
+            quality={85}
+            sizes="100vw"
+          />
+          {/* Gradient overlay */}
+          <div className="absolute inset-0 bg-gradient-to-b from-rh-navy-light/85 via-rh-navy-dark/75 to-rh-background/85"></div>
+        </div>
+        
         {/* Background Pattern */}
         <div className="absolute inset-0 opacity-5">
           <div className="absolute inset-0" style={{
@@ -61,56 +75,37 @@ const Sponsor: React.FC<SponsorProps> = ({ sponsors }) => {
         </div>
 
         <div className="relative max-w-7xl mx-auto">
-          {/* Sponsorship CTA Section */}
-          <div className="mb-16 md:mb-20 px-4 md:px-0 animate-fade-scale">
-            <GlassCard variant="strong" gradient className="max-w-4xl mx-auto p-6 sm:p-8 text-center">
-              <div className="flex flex-col items-center space-y-6">
-                <AnimatedIcon 
-                  icon={<FaHandshake size={40} />}
-                  size="xl"
-                  color="yellow"
-                  animation="float"
-                />
-                <div>
-                  <h3 className={`${terminal.className} text-xl sm:text-2xl text-rh-yellow mb-3 sm:mb-4 px-2`}>
-                    Partner With RocketHacks 2026
-                  </h3>
-                  <p className="text-rh-white/90 text-sm sm:text-base mb-4 sm:mb-6 max-w-2xl mx-auto px-2">
-                    Join us in fostering innovation and supporting the next generation of tech leaders. 
-                    Discover how your organization can make a meaningful impact.
-                  </p>
-                </div>
-                
-                <div className="flex flex-col sm:flex-row gap-4 w-full sm:w-auto justify-center">
+          {/* Past Sponsors Carousel Section */}
+          <div id="past-sponsors" className="animate-fade-scale">
+            <div className="text-center mb-8 md:mb-12">
+              <h3 className={`${terminal.className} heading-lg gradient-text mb-6 uppercase tracking-wider`}>
+                Past Sponsors
+              </h3>
+              <div className="w-24 h-1 bg-gradient-to-r from-rh-yellow to-rh-orange mx-auto mb-6 rounded-full"></div>
+              
+              {/* Sponsorship CTA - Minimalistic Text Block */}
+              <div className="px-4">
+                <p className="text-rh-white/80 text-sm md:text-base max-w-2xl mx-auto">
+                  Interested in partnering with us?{" "}
                   <Link
                     href="/documents/sponsorship-packet.pdf"
                     target="_blank"
                     rel="noopener noreferrer"
+                    className="text-rh-yellow hover:text-rh-orange transition-colors duration-300 underline decoration-rh-yellow/50 hover:decoration-rh-orange underline-offset-4 font-medium"
                   >
-                    <ModernButton variant="primary" size="lg" className="w-full sm:w-auto">
-                      <FaRocket className="mr-2" size={18} />
-                      View Sponsorship Packet
-                    </ModernButton>
+                    View our sponsorship opportunities
                   </Link>
-                  
+                  {" "}or{" "}
                   <Link
-                    href="mailto:rockethacks@utoledo.edu?subject=Sponsorship Inquiry - RocketHacks 2026&body=Dear RocketHacks Team,%0A%0AI hope this message finds you well. I am reaching out on behalf of [Company Name] to express our interest in sponsoring RocketHacks 2026.%0A%0AAfter reviewing your event details, we believe this aligns perfectly with our commitment to supporting innovation and empowering the next generation of tech talent. We would love to explore potential partnership opportunities.%0A%0ACould we schedule a time to discuss:%0A• Available sponsorship tiers and benefits%0A• Custom partnership opportunities%0A• How we can best support your event and participants%0A%0APlease let me know your availability for a brief call or meeting.%0A%0AThank you for your time and consideration.%0A%0ABest regards,%0A[Your Name]%0A[Your Title]%0A[Company Name]%0A[Email Address]%0A[Phone Number]"
+                    href="mailto:rockethacks@utoledo.edu?subject=Sponsorship Inquiry - RocketHacks 2026"
+                    className="text-rh-yellow hover:text-rh-orange transition-colors duration-300 underline decoration-rh-yellow/50 hover:decoration-rh-orange underline-offset-4 font-medium"
                   >
-                    <ModernButton variant="secondary" size="lg" className="w-full sm:w-auto">
-                      <HiMail className="mr-2" size={18} />
-                      Contact Us
-                    </ModernButton>
+                    contact us
                   </Link>
-                </div>
+                  {" "}to learn more.
+                </p>
               </div>
-            </GlassCard>
-          </div>
-
-          {/* Past Sponsors Carousel Section */}
-          <div id="past-sponsors" className="animate-fade-scale">
-            <h3 className={`${terminal.className} text-3xl md:text-4xl text-rh-yellow text-center mb-8 md:mb-12 uppercase tracking-wider font-bold px-4`}>
-              Past Sponsors
-            </h3>
+            </div>
             
             <div className="space-y-6 md:space-y-8 overflow-hidden px-4 md:px-0">
               {/* Row 1: Main Sponsors - Left to Right */}
