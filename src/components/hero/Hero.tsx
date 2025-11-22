@@ -28,14 +28,14 @@ export default function Hero() {
   }, [supabase]);
 
   return (
-    <div className="pt-20">
-      {/* Spacer for fixed navbar - 80px (h-20) */}
+    <div className="pt-24 sm:pt-20">
+      {/* Spacer for fixed navbar - increased for smaller screens */}
       <section
         id="home"
         className="home text-white relative text-center overflow-hidden flex items-center justify-center"
         style={{
           minHeight: 'calc(100dvh - 80px)', // Dynamic viewport minus navbar
-          paddingTop: 'max(2rem, 5vh)',
+          paddingTop: 'max(3rem, 8vh)', // Increased from 2rem/5vh to 3rem/8vh
           paddingBottom: 'max(2rem, 5vh)'
         }}
       >
@@ -108,7 +108,7 @@ export default function Hero() {
                 }}
               >
                 <p className="font-semibold text-rh-yellow/90">
-                  March 15th & 16th, 2026
+                  March 14th & 15th, 2026
                 </p>
                 <p className="text-rh-white/80" style={{ fontSize: 'clamp(0.875rem, 2.5vw, 1.25rem)' }}>
                   University of Toledo<br />College of Engineering

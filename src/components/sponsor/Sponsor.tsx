@@ -24,29 +24,33 @@ interface SponsorProps {
 }
 
 const Sponsor: React.FC<SponsorProps> = ({ sponsors }) => {
-  // Group sponsors by tier for better organization
-  // const sponsorsByTier = sponsors.reduce((acc, sponsor) => {
-  //   const tier = sponsor.tier || 'partner';
-  //   if (!acc[tier]) {
-  //     acc[tier] = [];
-  //   }
-  //   acc[tier].push(sponsor);
-  //   return acc;
-  // }, {} as Record<string, SponsorType[]>);
+  // Organize sponsors by tier
+  const mainSponsors = sponsors.filter(s => 
+    ['College-of-engineering', 'eecs', 'spoke', 'Nysus', 'actual-tech'].some(name => s.src?.includes(name)) ||
+    s.icon === 'github'
+  );
+  
+  const intermediateSponsors = sponsors.filter(s => 
+    ['mercy', 'firstsolar', 'cdw', 'codeecho'].some(name => s.src?.includes(name)) ||
+    s.icon === 'aws'
+  );
+  
+  const mainInKindSponsors = sponsors.filter(s => 
+    ['Perplexity', 'Mistral', 'vercel', 'warp', 'sprint', 'Hugging'].some(name => s.src?.includes(name))
+  );
+  
+  const lessImportantSponsors = sponsors.filter(s => 
+    ['xyz', 'photoroom', 'orielly', 'standout'].some(name => s.src?.includes(name))
+  );
 
-  // const tierConfig = {
-  //   platinum: { name: 'Platinum Partners', size: 'large', cols: 'grid-cols-1 md:grid-cols-2' },
-  //   gold: { name: 'Gold Sponsors', size: 'medium', cols: 'grid-cols-2 md:grid-cols-3' },
-  //   silver: { name: 'Silver Sponsors', size: 'medium', cols: 'grid-cols-2 md:grid-cols-3 lg:grid-cols-4' },
-  //   bronze: { name: 'Bronze Sponsors', size: 'small', cols: 'grid-cols-3 md:grid-cols-4 lg:grid-cols-6' },
-  //   partner: { name: 'Community Partners', size: 'small', cols: 'grid-cols-2 md:grid-cols-3 lg:grid-cols-5' }
-  // };
+  // Duplicate sponsors for seamless infinite scroll
+  const duplicateArray = (arr: SponsorType[]) => [...arr, ...arr, ...arr];
 
   return (
     <div>
       <section
         id="sponsor"
-        className="relative bg-gradient-to-b from-rh-navy-light via-rh-navy-dark to-rh-background text-white py-20 px-5 md:px-10 xl:py-28"
+        className="relative bg-gradient-to-b from-rh-navy-light via-rh-navy-dark to-rh-background text-white pt-4 sm:pt-6 md:pt-8 pb-16 sm:pb-20 md:pb-24 px-4 sm:px-5 md:px-10"
       >
         {/* Background Pattern */}
         <div className="absolute inset-0 opacity-5">
@@ -57,21 +61,9 @@ const Sponsor: React.FC<SponsorProps> = ({ sponsors }) => {
         </div>
 
         <div className="relative max-w-7xl mx-auto">
-          {/* Section Header */}
-          <div className="text-center mb-16 animate-slide-up">
-            <h2 className={`${terminal.className} heading-lg gradient-text mb-6 uppercase tracking-wider`}>
-              Our Sponsors
-            </h2>
-            <div className="w-24 h-1 bg-gradient-to-r from-rh-yellow to-rh-orange mx-auto mb-8 rounded-full"></div>
-            <p className="text-lg leading-relaxed text-rh-white/90 max-w-3xl mx-auto">
-              We&apos;re grateful to our incredible sponsors who make RocketHacks possible. 
-              Together, we&apos;re empowering the next generation of innovators.
-            </p>
-          </div>
-
           {/* Sponsorship CTA Section */}
-          <div className="mb-16 animate-fade-scale">
-            <GlassCard variant="strong" gradient className="max-w-4xl mx-auto p-8 text-center">
+          <div className="mb-16 md:mb-20 px-4 md:px-0 animate-fade-scale">
+            <GlassCard variant="strong" gradient className="max-w-4xl mx-auto p-6 sm:p-8 text-center">
               <div className="flex flex-col items-center space-y-6">
                 <AnimatedIcon 
                   icon={<FaHandshake size={40} />}
@@ -80,10 +72,10 @@ const Sponsor: React.FC<SponsorProps> = ({ sponsors }) => {
                   animation="float"
                 />
                 <div>
-                  <h3 className={`${terminal.className} text-2xl text-rh-yellow mb-4`}>
+                  <h3 className={`${terminal.className} text-xl sm:text-2xl text-rh-yellow mb-3 sm:mb-4 px-2`}>
                     Partner With RocketHacks 2026
                   </h3>
-                  <p className="text-rh-white/90 mb-6 max-w-2xl">
+                  <p className="text-rh-white/90 text-sm sm:text-base mb-4 sm:mb-6 max-w-2xl mx-auto px-2">
                     Join us in fostering innovation and supporting the next generation of tech leaders. 
                     Discover how your organization can make a meaningful impact.
                   </p>
@@ -113,54 +105,165 @@ const Sponsor: React.FC<SponsorProps> = ({ sponsors }) => {
               </div>
             </GlassCard>
           </div>
-          {/* Unified Sponsors Grid */}
-          <div className="animate-fade-scale">
-            <h3 className={`${terminal.className} text-3xl md:text-4xl text-rh-yellow text-center mb-12 uppercase tracking-wider font-bold`}>
-              Our Amazing Sponsors
+
+          {/* Past Sponsors Carousel Section */}
+          <div id="past-sponsors" className="animate-fade-scale">
+            <h3 className={`${terminal.className} text-3xl md:text-4xl text-rh-yellow text-center mb-8 md:mb-12 uppercase tracking-wider font-bold px-4`}>
+              Past Sponsors
             </h3>
             
-            <GlassCard variant="strong" gradient className="p-8 md:p-12">
-              <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-8 justify-items-center items-center">
-                {sponsors.map((sponsor, index) => (
-                  <Link
-                    key={index}
-                    href={sponsor.link}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="group block w-full"
-                  >
-                    <div className="glass-card p-4 h-24 w-full flex items-center justify-center hover:border-rh-yellow/50 transition-all duration-300 group-hover:scale-105 rounded-xl">
-                      {sponsor.type === "image" && sponsor.src ? (
-                        <Image
-                          src={sponsor.src}
-                          alt={sponsor.alt}
-                          width={120}
-                          height={60}
-                          className={`
-                            object-contain transition-all duration-300 group-hover:brightness-110
-                            max-w-full max-h-full w-auto h-auto
-                            ${sponsor.src?.includes("spoke") ? "bg-white p-1 rounded" : ""}
-                          `}
-                        />
-                      ) : sponsor.type === "icon" ? (
-                        <div className="flex items-center justify-center">
-                          {sponsor.icon === "github" ? (
-                            <DiGithubFull 
-                              className="h-12 w-12 transition-all duration-300 group-hover:scale-110 text-rh-white group-hover:text-rh-yellow" 
-                            />
-                          ) : sponsor.icon === "aws" ? (
-                            <FaAws 
-                              className="h-12 w-12 transition-all duration-300 group-hover:scale-110 text-rh-white group-hover:text-rh-yellow" 
-                            />
-                          ) : null}
-                        </div>
-                      ) : null}
-                    </div>
-                  </Link>
-                ))}
+            <div className="space-y-6 md:space-y-8 overflow-hidden px-4 md:px-0">
+              {/* Row 1: Main Sponsors - Left to Right */}
+              <div className="group relative">
+                <div className="flex gap-4 md:gap-10 animate-scroll-left group-hover:pause-animation">
+                  {duplicateArray(mainSponsors).map((sponsor, index) => (
+                    <Link
+                      key={`main-${index}`}
+                      href={sponsor.link}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="flex-shrink-0"
+                    >
+                      <div className="glass-card p-4 md:p-8 h-24 md:h-40 w-40 md:w-64 flex items-center justify-center hover:border-rh-yellow/50 transition-all duration-300 hover:scale-105 rounded-xl bg-rh-navy-light/30">
+                        {sponsor.type === "image" && sponsor.src ? (
+                          <Image
+                            src={sponsor.src}
+                            alt={sponsor.alt}
+                            width={220}
+                            height={110}
+                            className="object-contain max-w-full max-h-full w-auto h-auto transition-all duration-300 hover:brightness-110"
+                          />
+                        ) : sponsor.type === "icon" && sponsor.icon === "github" ? (
+                          <DiGithubFull className="h-12 w-12 md:h-20 md:w-20 text-rh-white transition-all duration-300 hover:scale-110" />
+                        ) : null}
+                      </div>
+                    </Link>
+                  ))}
+                </div>
               </div>
-            </GlassCard>
+
+              {/* Row 2: Intermediate Sponsors - Right to Left */}
+              <div className="group relative">
+                <div className="flex gap-4 md:gap-8 animate-scroll-right group-hover:pause-animation">
+                  {duplicateArray(intermediateSponsors).map((sponsor, index) => (
+                    <Link
+                      key={`intermediate-${index}`}
+                      href={sponsor.link}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="flex-shrink-0"
+                    >
+                      <div className="glass-card p-3 md:p-5 h-20 md:h-28 w-32 md:w-40 flex items-center justify-center hover:border-rh-yellow/50 transition-all duration-300 hover:scale-105 rounded-xl bg-rh-navy-light/30">
+                        {sponsor.type === "image" && sponsor.src ? (
+                          <Image
+                            src={sponsor.src}
+                            alt={sponsor.alt}
+                            width={140}
+                            height={70}
+                            className="object-contain max-w-full max-h-full w-auto h-auto transition-all duration-300 hover:brightness-110"
+                          />
+                        ) : sponsor.type === "icon" && sponsor.icon === "aws" ? (
+                          <FaAws className="h-10 w-10 md:h-14 md:w-14 text-rh-white transition-all duration-300 hover:scale-110" />
+                        ) : null}
+                      </div>
+                    </Link>
+                  ))}
+                </div>
+              </div>
+
+              {/* Row 3: Main In-Kind Sponsors - Left to Right */}
+              <div className="group relative">
+                <div className="flex gap-4 md:gap-8 animate-scroll-left group-hover:pause-animation">
+                  {duplicateArray(mainInKindSponsors).map((sponsor, index) => (
+                    <Link
+                      key={`inkind-${index}`}
+                      href={sponsor.link}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="flex-shrink-0"
+                    >
+                      <div className="glass-card p-3 md:p-5 h-20 md:h-28 w-32 md:w-40 flex items-center justify-center hover:border-rh-yellow/50 transition-all duration-300 hover:scale-105 rounded-xl bg-rh-navy-light/30">
+                        <Image
+                          src={sponsor.src!}
+                          alt={sponsor.alt}
+                          width={140}
+                          height={70}
+                          className="object-contain max-w-full max-h-full w-auto h-auto transition-all duration-300 hover:brightness-110"
+                        />
+                      </div>
+                    </Link>
+                  ))}
+                </div>
+              </div>
+
+              {/* Row 4: Less Important Sponsors - Right to Left */}
+              <div className="group relative">
+                <div className="flex gap-3 md:gap-6 animate-scroll-right group-hover:pause-animation">
+                  {duplicateArray(lessImportantSponsors).map((sponsor, index) => (
+                    <Link
+                      key={`less-${index}`}
+                      href={sponsor.link}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="flex-shrink-0"
+                    >
+                      <div className="glass-card p-3 md:p-4 h-18 md:h-24 w-28 md:w-32 flex items-center justify-center hover:border-rh-yellow/50 transition-all duration-300 hover:scale-105 rounded-xl bg-rh-navy-light/30">
+                        <Image
+                          src={sponsor.src!}
+                          alt={sponsor.alt}
+                          width={110}
+                          height={55}
+                          className="object-contain max-w-full max-h-full w-auto h-auto transition-all duration-300 hover:brightness-110"
+                        />
+                      </div>
+                    </Link>
+                  ))}
+                </div>
+              </div>
+            </div>
           </div>
+
+          <style jsx>{`
+            @keyframes scroll-left {
+              0% {
+                transform: translateX(0);
+              }
+              100% {
+                transform: translateX(-33.333%);
+              }
+            }
+
+            @keyframes scroll-right {
+              0% {
+                transform: translateX(-33.333%);
+              }
+              100% {
+                transform: translateX(0);
+              }
+            }
+
+            .animate-scroll-left {
+              animation: scroll-left 40s linear infinite;
+              will-change: transform;
+            }
+
+            .animate-scroll-right {
+              animation: scroll-right 40s linear infinite;
+              will-change: transform;
+            }
+
+            .pause-animation {
+              animation-play-state: paused !important;
+            }
+
+            /* GPU acceleration for smooth animations */
+            .animate-scroll-left,
+            .animate-scroll-right {
+              transform: translateZ(0);
+              backface-visibility: hidden;
+              perspective: 1000px;
+            }
+          `}</style>
 
           {/* If no sponsors, show fallback */}
           {sponsors.length === 0 && (

@@ -39,13 +39,7 @@ export const SponsorData: SponsorType[] = [
   },
   {
     type: "image",
-    src: "/assets/sponsors/Koolkat-Science.svg",
-    alt: "Koolkat Science",
-    link: "https://koolkatscience.net/",
-  },
-  {
-    type: "image",
-    src: "/assets/sponsors/mercy.svg",
+    src: "/assets/sponsors/mercy.png",
     alt: "Mercy Health",
     link: "https://www.mercy.com/",
   },
@@ -76,7 +70,7 @@ export const SponsorData: SponsorType[] = [
   },
   {
     type: "image",
-    src: "/assets/sponsors/codeecho.svg",
+    src: "/assets/sponsors/codeecho.png",
     alt: "Code Echo",
     link: "https://codeecho.com/",
   },
@@ -106,7 +100,7 @@ export const SponsorData: SponsorType[] = [
   },
   {
     type: "image",
-    src: "/assets/sponsors/orielly.svg",
+    src: "/assets/sponsors/orielly.png",
     alt: "O'Reilly",
     link: "https://www.oreilly.com/",
   },
@@ -118,19 +112,19 @@ export const SponsorData: SponsorType[] = [
   },
   {
     type: "image",
-    src: "/assets/sponsors/xyz.svg",
+    src: "/assets/sponsors/xyz.png",
     alt: ".XYZ",
     link: "https://www.gen.xyz/",
   },
   {
     type: "image",
-    src: "/assets/sponsors/photoroom.svg",
+    src: "/assets/sponsors/photoroom.png",
     alt: "Photoroom",
     link: "https://www.photoroom.com/",
   },
   {
     type: "image",
-    src: "/assets/sponsors/standout-stickers.svg",
+    src: "/assets/sponsors/standout-stickers.png",
     alt: "Standout Stickers",
     link: "https://www.standoutstickers.com/",
   },

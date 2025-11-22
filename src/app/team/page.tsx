@@ -166,7 +166,7 @@ export default function TeamPage() {
       </div>
 
       {/* Header */}
-      <div className="relative pt-20 pb-12 px-6">
+      <div className="relative pt-24 sm:pt-20 pb-12 px-6">
         <div className="max-w-7xl mx-auto text-center">
           <h1 className={`${terminal.className} heading-xl gradient-text mb-6 uppercase tracking-wider`}>
             Meet the Team
