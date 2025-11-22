@@ -37,7 +37,7 @@ export default function CodeCreatePage() {
       </nav>
 
       {/* Hero Section */}
-      <section className="relative text-center min-h-screen flex items-center justify-center pt-20">
+      <section className="relative text-center min-h-screen flex items-center justify-center pt-24 sm:pt-20">
         {/* Background Pattern */}
         <div className="absolute inset-0 opacity-5">
           <div className="absolute inset-0" style={{

@@ -435,7 +435,7 @@ export default function ApplyPage() {
 
             {/* Shipping Address */}
             <section>
-              <h2 className="text-2xl font-semibold text-white mb-4">Shipping Address (Optional)</h2>
+              <h2 className="text-2xl font-semibold text-white mb-4">Address</h2>
               <p className="text-gray-400 text-sm mb-4">For sending you swag and prizes if accepted!</p>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div className="md:col-span-2">
@@ -468,9 +468,9 @@ export default function ApplyPage() {
               </div>
             </section>
 
-            {/* Optional Information */}
+            {/* Additional Information */}
             <section>
-              <h2 className="text-2xl font-semibold text-white mb-4">Optional Information</h2>
+              <h2 className="text-2xl font-semibold text-white mb-4">Additional Information</h2>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
                   <label className="block text-sm font-medium text-gray-300 mb-2">Major</label>

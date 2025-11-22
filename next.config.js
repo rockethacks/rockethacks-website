@@ -28,11 +28,21 @@ const nextConfig = {
     },
   },
   
-  // Image optimizations
+  // Image optimizations - CRITICAL FOR PERFORMANCE
   images: {
-    unoptimized: true,
-    domains: ['rockethacks.org'],
-    formats: ['image/webp'],
+    unoptimized: false, // Enable Next.js image optimization
+    remotePatterns: [
+      {
+        protocol: 'https',
+        hostname: 'rockethacks.org',
+      },
+    ],
+    formats: ['image/avif', 'image/webp'], // Modern formats for better compression
+    deviceSizes: [640, 750, 828, 1080, 1200, 1920], // Responsive image sizes
+    imageSizes: [16, 32, 48, 64, 96, 128, 256, 384], // Icon and small image sizes
+    minimumCacheTTL: 60 * 60 * 24 * 365, // Cache images for 1 year
+    dangerouslyAllowSVG: true,
+    contentSecurityPolicy: "default-src 'self'; script-src 'none'; sandbox;",
   },
   
   // Environment variables

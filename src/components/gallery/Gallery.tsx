@@ -1,5 +1,5 @@
 "use client";
-import React, { useState, useEffect, useMemo, useCallback, useRef, memo } from "react";
+import React, { useState, useEffect, useMemo, useCallback, memo } from "react";
 import Image from "next/image";
 import { terminal } from "../../app/fonts/fonts";
 import { GlassCard } from "../ui/glass-card";
@@ -230,7 +230,7 @@ const projectImages: ProjectImage[] = [
   }
 ];
 
-// Memoized FilterButton component (React equivalent of *ngFor optimization)
+// Memoized FilterButton component
 const FilterButton = memo(({ 
   category, 
   isActive, 
@@ -262,66 +262,10 @@ const FilterButton = memo(({
 });
 FilterButton.displayName = 'FilterButton';
 
-// Memoized Thumbnail component (React equivalent of *ngIf + trackBy optimization)
-const ThumbnailImage = memo(({ 
-  image, 
-  index, 
-  isActive, 
-  shouldLoad, 
-  onClick 
-}: { 
-  image: ProjectImage; 
-  index: number; 
-  isActive: boolean; 
-  shouldLoad: boolean; 
-  onClick: () => void;
-}) => {
-  if (!shouldLoad) {
-    // Virtual scrolling placeholder (like Angular's *ngIf false)
-    return (
-      <div
-        className="w-20 h-12 bg-rh-navy-light/30 rounded-lg cursor-pointer flex-shrink-0 animate-pulse"
-      />
-    );
-  }
-
-  return (
-    <button
-      onClick={onClick}
-      className={`
-        relative flex-shrink-0 w-20 h-12 rounded-lg overflow-hidden transition-all duration-200
-        ${isActive 
-          ? 'ring-2 ring-rh-yellow scale-110' 
-          : 'opacity-60 hover:opacity-100'
-        }
-      `}
-      aria-label={`View image ${index + 1}`}
-    >
-      <Image
-        src={image.src}
-        alt={image.alt}
-        fill
-        className="object-cover"
-        sizes="80px"
-        quality={60}
-        loading="lazy"
-      />
-    </button>
-  );
-}, (prevProps, nextProps) => {
-  // Custom comparison (like Angular's trackBy function)
-  return prevProps.index === nextProps.index && 
-         prevProps.isActive === nextProps.isActive &&
-         prevProps.shouldLoad === nextProps.shouldLoad;
-});
-ThumbnailImage.displayName = 'ThumbnailImage';
-
 const Gallery: React.FC<GalleryProps> = ({ images = projectImages }) => {
   const [currentIndex, setCurrentIndex] = useState(0);
   const [filter, setFilter] = useState<string>("all");
-  const [isAutoPlaying, setIsAutoPlaying] = useState(true);
-  const [isVisible, setIsVisible] = useState(false);
-  const galleryRef = useRef<HTMLElement>(null);
+  const [isAutoPlaying, setIsAutoPlaying] = useState(false); // Disabled by default for performance
 
   const categories = useMemo(() => ({
     all: { name: "All Moments", icon: FaCalendar },
@@ -332,13 +276,13 @@ const Gallery: React.FC<GalleryProps> = ({ images = projectImages }) => {
     awards: { name: "Awards", icon: FaTrophy }
   }), []);
 
-  // Memoized filtered images (Angular pipe equivalent)
+  // Memoized filtered images
   const filteredImages = useMemo(() => 
     filter === "all" ? images : images.filter(img => img.category === filter),
     [filter, images]
   );
 
-  // Memoized category counts (prevent recalculation on every render)
+  // Memoized category counts
   const categoryCounts = useMemo(() => {
     const counts: Record<string, number> = { all: images.length };
     images.forEach(img => {
@@ -347,66 +291,35 @@ const Gallery: React.FC<GalleryProps> = ({ images = projectImages }) => {
     return counts;
   }, [images]);
 
-  // Intersection Observer for lazy component mounting (React equivalent of Angular's viewport detection)
-  useEffect(() => {
-    const observer = new IntersectionObserver(
-      ([entry]) => {
-        if (entry.isIntersecting) {
-          setIsVisible(true);
-          observer.disconnect(); // Stop observing once visible
-        }
-      },
-      { rootMargin: '200px' } // Load 200px before component enters viewport
-    );
-
-    if (galleryRef.current) {
-      observer.observe(galleryRef.current);
-    }
-
-    return () => observer.disconnect();
-  }, []);
-
-  // Reset currentIndex when filter changes or when filteredImages becomes empty
-  useEffect(() => {
-    if (filteredImages.length === 0) {
-      setCurrentIndex(0);
-    } else if (currentIndex >= filteredImages.length || currentIndex < 0) {
-      setCurrentIndex(0);
-    }
-  }, [filter, filteredImages.length, currentIndex]);
-
-  // Additional safety check for currentIndex
+  // Reset currentIndex when filter changes
   useEffect(() => {
     if (filteredImages.length > 0 && (currentIndex >= filteredImages.length || currentIndex < 0)) {
       setCurrentIndex(0);
     }
-  }, [filteredImages, currentIndex]);
+  }, [filter, filteredImages.length, currentIndex]);
 
-  // Auto-play functionality (only when component is visible)
+  // Auto-play functionality (optional, disabled by default)
   useEffect(() => {
-    if (!isAutoPlaying || filteredImages.length === 0 || !isVisible) return;
+    if (!isAutoPlaying || filteredImages.length === 0) return;
     
     const interval = setInterval(() => {
       setCurrentIndex((prev) => (prev + 1) % filteredImages.length);
     }, 5000);
 
     return () => clearInterval(interval);
-  }, [isAutoPlaying, filteredImages.length, isVisible]);
+  }, [isAutoPlaying, filteredImages.length]);
 
-  // Memoized navigation callbacks (prevent unnecessary re-renders)
+  // Navigation callbacks
   const nextImage = useCallback(() => {
     setCurrentIndex((prev) => (prev + 1) % filteredImages.length);
-    setIsAutoPlaying(false);
   }, [filteredImages.length]);
 
   const prevImage = useCallback(() => {
     setCurrentIndex((prev) => (prev - 1 + filteredImages.length) % filteredImages.length);
-    setIsAutoPlaying(false);
   }, [filteredImages.length]);
 
   const goToImage = useCallback((index: number) => {
     setCurrentIndex(index);
-    setIsAutoPlaying(false);
   }, []);
 
   const toggleAutoPlay = useCallback(() => {
@@ -416,15 +329,14 @@ const Gallery: React.FC<GalleryProps> = ({ images = projectImages }) => {
   const handleFilterChange = useCallback((newFilter: string) => {
     setFilter(newFilter);
     setCurrentIndex(0);
-    setIsAutoPlaying(true);
   }, []);
 
-  // Early return optimization (React equivalent of *ngIf on component level)
   if (filteredImages.length === 0) return null;
+
+  const currentImage = filteredImages[currentIndex];
 
   return (
     <section 
-      ref={galleryRef}
       id="gallery" 
       className="relative bg-gradient-to-b from-rh-navy-dark to-rh-background text-white py-16 px-5 md:px-10"
     >
@@ -438,18 +350,17 @@ const Gallery: React.FC<GalleryProps> = ({ images = projectImages }) => {
 
       <div className="relative max-w-7xl mx-auto">
         {/* Section Header */}
-        <div className="text-center mb-12 animate-slide-up">
+        <div className="text-center mb-12">
           <h2 className={`${terminal.className} heading-lg gradient-text mb-6 uppercase tracking-wider`}>
             Gallery
           </h2>
           <div className="w-24 h-1 bg-gradient-to-r from-rh-yellow to-rh-orange mx-auto mb-8 rounded-full"></div>
           <p className="text-lg leading-relaxed text-rh-white/90 max-w-3xl mx-auto">
-            Relive the incredible moments from RocketHacks 2025. Each image tells a story 
-            of innovation, collaboration, and breakthrough discoveries.
+            Relive the incredible moments from RocketHacks 2025.
           </p>
         </div>
 
-        {/* Filter Buttons - Optimized with memoization */}
+        {/* Filter Buttons */}
         <div className="flex flex-wrap justify-center gap-3 mb-8">
           {Object.entries(categories).map(([key, category]) => (
             <FilterButton
@@ -462,85 +373,72 @@ const Gallery: React.FC<GalleryProps> = ({ images = projectImages }) => {
           ))}
         </div>
 
-        {/* Main Carousel - Conditional rendering optimized */}
+        {/* Main Carousel */}
         <GlassCard variant="strong" className="p-6 sm:p-8">
-          {!isVisible ? (
-            // Loading skeleton (shown until Intersection Observer triggers)
-            <div className="relative animate-pulse">
-              <div className="relative aspect-[16/9] lg:aspect-[21/9] bg-rh-navy-light/30 rounded-xl mb-6" />
-              <div className="flex justify-center gap-2 mb-6">
-                {[...Array(8)].map((_, i) => (
-                  <div key={i} className="w-20 h-12 bg-rh-navy-light/30 rounded-lg" />
-                ))}
-              </div>
-              <div className="h-8 bg-rh-navy-light/30 rounded w-1/3" />
-            </div>
-          ) : filteredImages.length > 0 && filteredImages[currentIndex] ? (
-            <div className="relative">
-              {/* Main Image Display */}
-              <div className="relative aspect-[16/9] lg:aspect-[21/9] overflow-hidden rounded-xl mb-6">
-                <Image
-                  src={filteredImages[currentIndex].src}
-                  alt={filteredImages[currentIndex].alt}
-                  fill
-                  className="object-cover transition-transform duration-500 hover:scale-105"
-                  sizes="(max-width: 768px) 100vw, (max-width: 1200px) 80vw, 70vw"
-                  priority={currentIndex === 0 && filter === "all"}
-                  loading={currentIndex === 0 && filter === "all" ? "eager" : "lazy"}
-                  quality={85}
-                />
+          <div className="relative">
+            {/* Main Image Display */}
+            <div className="relative aspect-[16/9] lg:aspect-[21/9] overflow-hidden rounded-xl mb-6 bg-rh-navy-light/30">
+              <Image
+                key={currentImage.index} // Force remount on change for smooth transitions
+                src={currentImage.src}
+                alt={currentImage.alt}
+                fill
+                className="object-cover"
+                sizes="(max-width: 768px) 100vw, (max-width: 1200px) 80vw, 70vw"
+                priority={currentIndex === 0 && filter === "all"}
+                quality={75} // Reduced from 85 for faster loading
+                placeholder="blur"
+                blurDataURL="data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNzAwIiBoZWlnaHQ9IjQ3NSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIiB2ZXJzaW9uPSIxLjEiLz4="
+              />
 
-              {/* Navigation Arrows - Fixed z-index and touch-friendly */}
+              {/* Navigation Arrows */}
               <button
                 onClick={prevImage}
-                className="absolute left-2 sm:left-4 top-1/2 -translate-y-1/2 z-20 p-2 sm:p-3 rounded-full bg-black/60 hover:bg-black/80 active:bg-black/90 text-white transition-all duration-200 shadow-lg hover:scale-110 active:scale-95 touch-manipulation"
+                className="absolute left-2 sm:left-4 top-1/2 -translate-y-1/2 z-10 p-2 sm:p-3 rounded-full bg-black/70 hover:bg-black/90 text-white transition-colors duration-200 backdrop-blur-sm"
                 aria-label="Previous image"
-                type="button"
               >
-                <ChevronLeft size={24} className="sm:w-6 sm:h-6" />
+                <ChevronLeft size={24} />
               </button>
 
               <button
                 onClick={nextImage}
-                className="absolute right-2 sm:right-4 top-1/2 -translate-y-1/2 z-20 p-2 sm:p-3 rounded-full bg-black/60 hover:bg-black/80 active:bg-black/90 text-white transition-all duration-200 shadow-lg hover:scale-110 active:scale-95 touch-manipulation"
+                className="absolute right-2 sm:right-4 top-1/2 -translate-y-1/2 z-10 p-2 sm:p-3 rounded-full bg-black/70 hover:bg-black/90 text-white transition-colors duration-200 backdrop-blur-sm"
                 aria-label="Next image"
-                type="button"
               >
-                <ChevronRight size={24} className="sm:w-6 sm:h-6" />
+                <ChevronRight size={24} />
               </button>
 
               {/* Image Info Overlay */}
-              <div className="absolute bottom-0 left-0 right-0 z-10 bg-gradient-to-t from-black/80 to-transparent p-4 sm:p-6 pointer-events-none">
+              <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/90 via-black/60 to-transparent p-4 sm:p-6">
                 <h3 className={`${terminal.className} text-lg sm:text-xl text-white mb-1 sm:mb-2`}>
-                  {filteredImages[currentIndex]?.title || 'Loading...'}
+                  {currentImage.title}
                 </h3>
-                <p className="text-white/80 text-xs sm:text-sm">
-                  {filteredImages[currentIndex]?.description || 'Loading image description...'}
+                <p className="text-white/90 text-xs sm:text-sm">
+                  {currentImage.description}
                 </p>
               </div>
-
-
             </div>
 
-            {/* Thumbnail Navigation - Optimized with memoized components */}
-            <div className="flex justify-center gap-2 mb-6 overflow-x-auto pb-2 scroll-smooth">
-              {filteredImages.map((image, index) => {
-                const shouldLoad = Math.abs(index - currentIndex) <= 5;
-                return (
-                  <ThumbnailImage
-                    key={image.index}
-                    image={image}
-                    index={index}
-                    isActive={currentIndex === index}
-                    shouldLoad={shouldLoad}
-                    onClick={() => goToImage(index)}
-                  />
-                );
-              })}
+            {/* Simplified Dot Navigation (no thumbnails for performance) */}
+            <div className="flex justify-center gap-2 mb-6 flex-wrap">
+              {filteredImages.map((_, index) => (
+                <button
+                  key={index}
+                  onClick={() => goToImage(index)}
+                  className={`
+                    w-2 h-2 rounded-full transition-all duration-200
+                    ${currentIndex === index 
+                      ? 'bg-rh-yellow w-8' 
+                      : 'bg-rh-white/30 hover:bg-rh-white/50'
+                    }
+                  `}
+                  aria-label={`Go to image ${index + 1}`}
+                />
+              ))}
             </div>
 
             {/* Controls */}
-            <div className="flex items-center justify-between">
+            <div className="flex items-center justify-between flex-wrap gap-4">
               <div className="flex items-center space-x-4">
                 <button
                   onClick={toggleAutoPlay}
@@ -553,42 +451,35 @@ const Gallery: React.FC<GalleryProps> = ({ images = projectImages }) => {
                   `}
                 >
                   {isAutoPlaying ? <Pause size={16} /> : <Play size={16} />}
-                  <span>{isAutoPlaying ? 'Pause' : 'Play'}</span>
+                  <span className="hidden sm:inline">{isAutoPlaying ? 'Pause' : 'Play'}</span>
                 </button>
                 
                 <span className="text-rh-white/70 text-sm">
-                  {currentIndex + 1} of {filteredImages.length}
+                  {currentIndex + 1} / {filteredImages.length}
                 </span>
               </div>
 
-              <div className="flex space-x-2">
-                {filteredImages.map((_, index) => (
-                  <button
-                    key={index}
-                    onClick={() => goToImage(index)}
-                    className={`
-                      w-2 h-2 rounded-full transition-all duration-200
-                      ${currentIndex === index ? 'bg-rh-yellow' : 'bg-rh-white/30 hover:bg-rh-white/50'}
-                    `}
-                  />
-                ))}
+              {/* Arrow Navigation for Mobile */}
+              <div className="flex items-center space-x-2">
+                <button
+                  onClick={prevImage}
+                  className="p-2 rounded-lg bg-rh-white/10 text-rh-white hover:bg-rh-white/20 transition-all duration-200"
+                  aria-label="Previous"
+                >
+                  <ChevronLeft size={20} />
+                </button>
+                <button
+                  onClick={nextImage}
+                  className="p-2 rounded-lg bg-rh-white/10 text-rh-white hover:bg-rh-white/20 transition-all duration-200"
+                  aria-label="Next"
+                >
+                  <ChevronRight size={20} />
+                </button>
               </div>
             </div>
           </div>
-          ) : (
-            <div className="text-center py-16">
-              <h3 className={`${terminal.className} text-xl text-rh-white/60 mb-4`}>
-                No images found for this category
-              </h3>
-              <p className="text-rh-white/40">
-                Please select a different category or check back later.
-              </p>
-            </div>
-          )}
         </GlassCard>
       </div>
-
-
     </section>
   );
 };

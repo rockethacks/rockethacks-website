@@ -265,38 +265,176 @@ export default function DashboardPage() {
               )}
 
               {application.status === 'accepted' && (
-                <div className="space-y-4">
-                  <div className="bg-green-500/10 border border-green-500/50 text-green-400 px-6 py-4 rounded-xl backdrop-blur-sm">
-                    <p className={`${terminal.className} font-semibold mb-2 text-lg`}>🎉 Congratulations! You've been accepted!</p>
-                    <p className="text-sm text-rh-white/80">Check your email for next steps and important information about the event.</p>
-                  </div>
-
-                  {/* Check-In Status */}
-                  <div className={`px-6 py-4 rounded-xl backdrop-blur-sm border ${
-                    application.checked_in
-                      ? 'bg-blue-500/10 border-blue-500/50 text-blue-400'
-                      : 'bg-yellow-500/10 border-yellow-500/50 text-yellow-400'
-                  }`}>
-                    <div className="flex items-start justify-between gap-4">
-                      <div className="flex-1">
-                        <p className={`${terminal.className} font-semibold mb-2 text-lg`}>
-                          {application.checked_in ? '✅ Checked In!' : '⏳ Not Checked In Yet'}
-                        </p>
-                        <p className="text-sm text-rh-white/80">
-                          {application.checked_in
-                            ? `You were checked in on ${new Date(application.checked_in_at).toLocaleDateString()} at ${new Date(application.checked_in_at).toLocaleTimeString()}.`
-                            : 'You will be checked in when you arrive at the event. See you there!'}
-                        </p>
+                <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                  {/* Acceptance Card */}
+                  <div className="relative rounded-2xl backdrop-blur-xl overflow-hidden border-2 border-green-500/40 shadow-2xl" style={{ background: 'linear-gradient(135deg, rgba(16, 185, 129, 0.15) 0%, rgba(5, 150, 105, 0.08) 100%)' }}>
+                    {/* Decorative gradient overlay */}
+                    <div className="absolute inset-0 bg-gradient-to-br from-green-400/5 via-transparent to-green-600/10 pointer-events-none"></div>
+                    
+                    <div className="relative p-6 sm:p-8">
+                      {/* Icon Badge */}
+                      <div className="inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-green-500/20 border-2 border-green-400/40 mb-4 shadow-lg">
+                        <svg className="w-9 h-9 text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                        </svg>
                       </div>
-                      {application.checked_in && (
-                        <div className="flex-shrink-0">
-                          <div className="w-12 h-12 rounded-full bg-blue-400/20 flex items-center justify-center">
-                            <svg className="w-7 h-7 text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+
+                      {/* Content */}
+                      <div className="space-y-3">
+                        <div>
+                          <h3 className={`${terminal.className} text-2xl sm:text-3xl font-bold text-green-400 uppercase tracking-wide mb-2`}>
+                            Accepted!
+                          </h3>
+                          <p className="text-green-300/90 text-base sm:text-lg font-semibold">
+                            🎉 Congratulations! You're in!
+                          </p>
+                        </div>
+                        
+                        <div className="pt-2 pb-1">
+                          <div className="h-1 w-20 bg-gradient-to-r from-green-400 to-green-600 rounded-full"></div>
+                        </div>
+
+                        <p className="text-sm sm:text-base text-rh-white/80 leading-relaxed">
+                          Check your email for next steps and important information about the event.
+                        </p>
+
+                        {/* Stats */}
+                        <div className="pt-4 flex items-center gap-4 text-xs sm:text-sm text-green-300/70">
+                          <div className="flex items-center gap-2">
+                            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
                             </svg>
+                            <span>{new Date(application.submitted_at).toLocaleDateString()}</span>
                           </div>
                         </div>
-                      )}
+                      </div>
+
+                      {/* Decorative corner accent */}
+                      <div className="absolute top-0 right-0 w-32 h-32 bg-gradient-to-bl from-green-400/10 to-transparent rounded-bl-full"></div>
+                    </div>
+                  </div>
+
+                  {/* Check-In Badge Card */}
+                  <div className={`relative rounded-2xl backdrop-blur-xl overflow-hidden border-2 shadow-2xl ${
+                    application.checked_in
+                      ? 'border-blue-500/40'
+                      : 'border-yellow-500/40'
+                  }`} style={{ 
+                    background: application.checked_in 
+                      ? 'linear-gradient(135deg, rgba(59, 130, 246, 0.15) 0%, rgba(37, 99, 235, 0.08) 100%)'
+                      : 'linear-gradient(135deg, rgba(245, 158, 11, 0.15) 0%, rgba(217, 119, 6, 0.08) 100%)'
+                  }}>
+                    {/* Decorative gradient overlay */}
+                    <div className={`absolute inset-0 pointer-events-none ${
+                      application.checked_in
+                        ? 'bg-gradient-to-br from-blue-400/5 via-transparent to-blue-600/10'
+                        : 'bg-gradient-to-br from-yellow-400/5 via-transparent to-yellow-600/10'
+                    }`}></div>
+                    
+                    <div className="relative p-6 sm:p-8">
+                      {/* Badge Icon */}
+                      <div className={`inline-flex items-center justify-center w-16 h-16 rounded-2xl border-2 mb-4 shadow-lg ${
+                        application.checked_in
+                          ? 'bg-blue-500/20 border-blue-400/40'
+                          : 'bg-yellow-500/20 border-yellow-400/40'
+                      }`}>
+                        {application.checked_in ? (
+                          <svg className="w-9 h-9 text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
+                          </svg>
+                        ) : (
+                          <svg className="w-9 h-9 text-yellow-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                          </svg>
+                        )}
+                      </div>
+
+                      {/* Content */}
+                      <div className="space-y-3">
+                        <div>
+                          <h3 className={`${terminal.className} text-2xl sm:text-3xl font-bold uppercase tracking-wide mb-2 ${
+                            application.checked_in ? 'text-blue-400' : 'text-yellow-400'
+                          }`}>
+                            Check-In Badge
+                          </h3>
+                          <p className={`text-base sm:text-lg font-semibold ${
+                            application.checked_in ? 'text-blue-300/90' : 'text-yellow-300/90'
+                          }`}>
+                            {application.checked_in ? '✓ Verified & Active' : '⏳ Pending Check-In'}
+                          </p>
+                        </div>
+                        
+                        <div className="pt-2 pb-1">
+                          <div className={`h-1 w-20 rounded-full ${
+                            application.checked_in
+                              ? 'bg-gradient-to-r from-blue-400 to-blue-600'
+                              : 'bg-gradient-to-r from-yellow-400 to-yellow-600'
+                          }`}></div>
+                        </div>
+
+                        {application.checked_in ? (
+                          <>
+                            <p className="text-sm sm:text-base text-rh-white/80 leading-relaxed">
+                              Show this badge to organizers at the event for verification.
+                            </p>
+
+                            {/* Badge Display */}
+                            <div className="mt-6 p-6 rounded-xl bg-white/5 border border-blue-400/30 backdrop-blur-sm">
+                              <div className="flex flex-col items-center justify-center space-y-3">
+                                {/* Large Check Icon */}
+                                <div className="w-20 h-20 rounded-full bg-blue-500/30 border-4 border-blue-400 flex items-center justify-center shadow-lg">
+                                  <svg className="w-12 h-12 text-blue-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M5 13l4 4L19 7" />
+                                  </svg>
+                                </div>
+                                
+                                {/* User Info */}
+                                <div className="text-center">
+                                  <p className={`${terminal.className} text-xl font-bold text-blue-300 uppercase tracking-wider`}>
+                                    {application.first_name} {application.last_name}
+                                  </p>
+                                  <p className="text-sm text-blue-200/70 mt-1">{application.school}</p>
+                                </div>
+
+                                {/* Check-in Time */}
+                                <div className="pt-2 text-center">
+                                  <p className="text-xs text-blue-300/60 uppercase tracking-wide mb-1">Checked In</p>
+                                  <p className="text-sm text-blue-200/80 font-mono">
+                                    {new Date(application.checked_in_at).toLocaleString()}
+                                  </p>
+                                </div>
+                              </div>
+                            </div>
+                          </>
+                        ) : (
+                          <>
+                            <p className="text-sm sm:text-base text-rh-white/80 leading-relaxed">
+                              You will be checked in when you arrive at the event. See you there!
+                            </p>
+
+                            {/* Placeholder Badge */}
+                            <div className="mt-6 p-6 rounded-xl bg-white/5 border border-yellow-400/30 backdrop-blur-sm">
+                              <div className="flex flex-col items-center justify-center space-y-3 opacity-50">
+                                <div className="w-20 h-20 rounded-full bg-yellow-500/20 border-4 border-yellow-400/40 flex items-center justify-center">
+                                  <svg className="w-12 h-12 text-yellow-300/60" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
+                                  </svg>
+                                </div>
+                                <p className="text-sm text-yellow-200/60 text-center">
+                                  Badge will activate upon check-in
+                                </p>
+                              </div>
+                            </div>
+                          </>
+                        )}
+                      </div>
+
+                      {/* Decorative corner accent */}
+                      <div className={`absolute top-0 right-0 w-32 h-32 rounded-bl-full ${
+                        application.checked_in
+                          ? 'bg-gradient-to-bl from-blue-400/10 to-transparent'
+                          : 'bg-gradient-to-bl from-yellow-400/10 to-transparent'
+                      }`}></div>
                     </div>
                   </div>
                 </div>

@@ -53,10 +53,27 @@ export default function Navbar() {
   
   const closeMenu = () => setMenuOpen(false);
 
+  const handleSmoothScroll = (e: React.MouseEvent<HTMLAnchorElement>, href: string) => {
+    // Only handle smooth scroll for anchor links (starting with #)
+    if (href.startsWith('#')) {
+      e.preventDefault();
+      const targetId = href.substring(1);
+      const targetElement = document.getElementById(targetId);
+      
+      if (targetElement) {
+        closeMenu();
+        targetElement.scrollIntoView({
+          behavior: 'smooth',
+          block: 'start',
+        });
+      }
+    }
+  };
+
   const navLinks = [
     { href: "#about", label: "ABOUT" },
     { href: "#gallery", label: "2025" },
-    { href: "#sponsor", label: "SPONSORS" },
+    { href: "#past-sponsors", label: "SPONSORS" },
     { href: "#contact", label: "CONTACT" },
     { href: "#faq", label: "FAQ" },
     { href: "/login", label: "APPLY", highlight: true },
@@ -96,7 +113,7 @@ export default function Navbar() {
               <Link
                 key={link.href}
                 href={link.href}
-                onClick={closeMenu}
+                onClick={(e) => handleSmoothScroll(e, link.href)}
                 className={`
                   ${terminal.className} text-sm font-medium tracking-wider
                   ${link.highlight
@@ -185,7 +202,7 @@ export default function Navbar() {
                 <Link
                   key={link.href}
                   href={link.href}
-                  onClick={closeMenu}
+                  onClick={(e) => handleSmoothScroll(e, link.href)}
                   className={`
                     ${terminal.className}
                     text-xl font-medium tracking-wider
