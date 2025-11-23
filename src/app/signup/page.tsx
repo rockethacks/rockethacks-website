@@ -21,10 +21,12 @@ function SignupForm() {
   const [showConfirmPassword, setShowConfirmPassword] = useState(false)
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
+  const [success, setSuccess] = useState(false)
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     setError(null)
+    setSuccess(false)
     setLoading(true)
 
     try {
@@ -57,8 +59,10 @@ function SignupForm() {
       const data = await response.json()
 
       if (response.ok) {
-        // Success - redirect to application page
-        router.push(redirectPath)
+        // Success - show verification message
+        setSuccess(true)
+        setLoading(false)
+        // Note: User will be redirected after clicking the verification link in their email
       } else {
         setError(data.error || 'Failed to create account')
         setLoading(false)
@@ -113,8 +117,24 @@ function SignupForm() {
             </div>
           )}
 
+          {success && (
+            <div className="bg-green-500/10 border border-green-500/50 text-green-400 px-4 py-3 rounded-lg text-sm backdrop-blur-sm">
+              <div className="flex items-start gap-3">
+                <svg className="w-5 h-5 mt-0.5 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                  <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
+                </svg>
+                <div>
+                  <p className="font-semibold mb-1">Account created successfully!</p>
+                  <p className="text-green-300/90">
+                    Please check your email inbox for a verification link. Click the link to verify your account and complete the signup process.
+                  </p>
+                </div>
+              </div>
+            </div>
+          )}
+
           {/* Signup Form */}
-          <form onSubmit={handleSubmit} className="space-y-4">
+          <form onSubmit={handleSubmit} className="space-y-4" style={{ display: success ? 'none' : 'block' }}>
             {/* Email Input */}
             <div>
               <label htmlFor="email" className="block text-sm font-medium text-rh-white/80 mb-2">
@@ -289,17 +309,37 @@ function SignupForm() {
           </form>
 
           {/* Login Link */}
-          <div className="text-center pt-2">
-            <p className="text-sm text-rh-white/60">
-              Already have an account?{' '}
-              <Link
-                href="/login"
-                className="text-rh-yellow hover:text-rh-orange transition-colors font-medium"
-              >
-                Sign in
-              </Link>
-            </p>
-          </div>
+          {!success && (
+            <div className="text-center pt-2">
+              <p className="text-sm text-rh-white/60">
+                Already have an account?{' '}
+                <Link
+                  href="/login"
+                  className="text-rh-yellow hover:text-rh-orange transition-colors font-medium"
+                >
+                  Sign in
+                </Link>
+              </p>
+            </div>
+          )}
+
+          {/* Success Actions */}
+          {success && (
+            <div className="text-center pt-2 space-y-3">
+              <p className="text-sm text-rh-white/70">
+                Didn't receive the email?{' '}
+                <button
+                  onClick={() => setSuccess(false)}
+                  className="text-rh-yellow hover:text-rh-orange transition-colors font-medium"
+                >
+                  Try again
+                </button>
+              </p>
+              <p className="text-xs text-rh-white/50">
+                Check your spam folder if you don't see the email in your inbox.
+              </p>
+            </div>
+          )}
 
           {/* Back Link */}
           <div className="text-center pt-4 border-t border-white/10">
