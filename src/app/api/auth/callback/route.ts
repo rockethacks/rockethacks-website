@@ -11,9 +11,28 @@ export async function GET(request: NextRequest) {
 
   if (code) {
     const supabase = await createClient()
-    const { error } = await supabase.auth.exchangeCodeForSession(code)
+    const { data, error } = await supabase.auth.exchangeCodeForSession(code)
 
-    if (!error) {
+    if (!error && data.session) {
+      // Create response with proper cookie settings for iOS Safari
+      const response = NextResponse.redirect(`${origin}${redirect}`)
+      
+      // iOS Safari fix: Explicitly set auth cookies with correct attributes
+      // This ensures cookies are saved when navigating from email client
+      const cookieOptions = {
+        path: '/',
+        sameSite: 'lax' as const, // Critical for iOS Safari
+        secure: process.env.NODE_ENV === 'production',
+        httpOnly: true,
+        maxAge: 60 * 60 * 24 * 7, // 7 days
+      }
+
+      // Set the session cookies explicitly (Supabase creates these)
+      response.cookies.set(`sb-${process.env.NEXT_PUBLIC_SUPABASE_URL?.split('//')[1]?.split('.')[0]}-auth-token`, 
+        JSON.stringify(data.session), 
+        cookieOptions
+      )
+
       // If this is a password recovery, always go to reset-password
       if (type === 'recovery') {
         return NextResponse.redirect(`${origin}/reset-password`)
@@ -40,8 +59,10 @@ export async function GET(request: NextRequest) {
         }
       }
 
-      return NextResponse.redirect(`${origin}${redirect}`)
+      return response
     }
+    
+    console.error('Auth callback error:', error)
   }
 
   // Return the user to an error page with instructions
