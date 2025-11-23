@@ -45,14 +45,11 @@ export async function createClient() {
 /**
  * Creates a Supabase client specifically for Route Handlers
  * This version properly sets cookies on the NextResponse object
- * Critical for iOS Safari magic link authentication
+ * Critical for iOS Safari magic link authentication with enhanced mobile cookie persistence
  */
 export function createClientForRouteHandler(request: NextRequest) {
-  let response = NextResponse.next({
-    request: {
-      headers: request.headers,
-    },
-  })
+  // Store cookies that will be set
+  const cookiesToSet: Array<{ name: string; value: string; options: any }> = []
 
   const supabase = createServerClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -62,29 +59,42 @@ export function createClientForRouteHandler(request: NextRequest) {
         getAll() {
           return request.cookies.getAll()
         },
-        setAll(cookiesToSet) {
-          // Set cookies on both the request and response
-          cookiesToSet.forEach(({ name, value }) => request.cookies.set(name, value))
-          response = NextResponse.next({
-            request: {
-              headers: request.headers,
-            },
-          })
-          cookiesToSet.forEach(({ name, value, options }) => {
-            // iOS Safari fix: Set cookies with proper attributes
-            const cookieOptions = {
-              ...options,
-              sameSite: 'lax' as const, // Critical for iOS Safari
-              secure: process.env.NODE_ENV === 'production',
-              path: '/',
-              maxAge: options?.maxAge || 60 * 60 * 24 * 7, // 7 days
-            }
-            response.cookies.set(name, value, cookieOptions)
+        setAll(cookies) {
+          // Capture all cookies that need to be set
+          cookies.forEach(cookie => {
+            cookiesToSet.push(cookie)
           })
         },
       },
     }
   )
 
-  return { supabase, response }
+  return { supabase, cookiesToSet }
+}
+
+/**
+ * Apply cookies to a NextResponse with mobile-optimized settings
+ * Ensures maximum compatibility with iOS Safari and mobile browsers
+ */
+export function applyCookiesToResponse(
+  response: NextResponse,
+  cookies: Array<{ name: string; value: string; options?: any }>
+) {
+  cookies.forEach(({ name, value, options }) => {
+    // Enhanced cookie options for mobile devices (iOS 17+ compatibility)
+    const cookieOptions = {
+      ...options,
+      sameSite: 'lax' as const, // Critical for iOS Safari cross-site navigation
+      secure: process.env.NODE_ENV === 'production', // HTTPS only in production
+      path: '/', // Available site-wide
+      httpOnly: name.includes('auth-token') || name.includes('access-token'), // Security for auth tokens
+      maxAge: options?.maxAge || 60 * 60 * 24 * 7, // 7 days default
+      // Priority hint for browsers (high = important to keep)
+      priority: 'high' as any,
+    }
+    
+    response.cookies.set(name, value, cookieOptions)
+  })
+  
+  return response
 }

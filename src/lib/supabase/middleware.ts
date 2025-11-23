@@ -25,11 +25,16 @@ export async function updateSession(request: NextRequest) {
           })
           cookiesToSet.forEach(({ name, value, options }) => {
             // iOS Safari fix: Ensure cookies work in cross-site context
+            // Enhanced for mobile browser cookie persistence
             const cookieOptions = {
               ...options,
               sameSite: 'lax' as const, // Critical for iOS Safari
               secure: process.env.NODE_ENV === 'production',
               path: '/',
+              // Extend maxAge for mobile browsers
+              maxAge: options?.maxAge || 60 * 60 * 24 * 7, // 7 days default
+              // HttpOnly for auth tokens only
+              httpOnly: name.includes('auth-token') || name.includes('access-token'),
             }
             supabaseResponse.cookies.set(name, value, cookieOptions)
           })

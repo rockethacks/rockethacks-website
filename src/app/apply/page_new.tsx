@@ -512,19 +512,71 @@ export default function ApplyPage() {
               <h2 className={`${terminal.className} text-2xl font-semibold text-rh-yellow uppercase tracking-wide`}>
                 Resume
               </h2>
-              <div className="relative">
-                <input
-                  type="file"
-                  accept=".pdf,.docx"
-                  onChange={handleResumeUpload}
-                  disabled={uploading || !formData.first_name || !formData.last_name || !formData.school}
-                  className="w-full px-4 py-3 bg-white/5 border border-white/20 rounded-lg text-white file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-rh-yellow file:text-black hover:file:bg-rh-orange file:transition-colors cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed backdrop-blur-sm"
-                />
-                {uploading && <p className="text-sm text-rh-yellow mt-2">Uploading...</p>}
-                {formData.resume_url && <p className="text-sm text-green-400 mt-2">✓ Resume uploaded successfully</p>}
-                {(!formData.first_name || !formData.last_name || !formData.school) && (
-                  <p className="text-xs text-rh-white/50 mt-1">Please fill in your name and school before uploading resume</p>
+              <div className="relative space-y-3">
+                {formData.resume_url ? (
+                  // Show uploaded resume with actions
+                  <div className="bg-white/5 border border-green-500/30 rounded-lg p-4 backdrop-blur-sm">
+                    <div className="flex items-start justify-between">
+                      <div className="flex items-center space-x-3">
+                        <svg className="w-6 h-6 text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                        </svg>
+                        <div>
+                          <p className="text-sm font-medium text-green-400">✓ Resume uploaded successfully</p>
+                          <p className="text-xs text-rh-white/60 mt-0.5">
+                            {formData.first_name}_{formData.last_name}_{formData.school.replace(/[^a-zA-Z0-9]/g, '_').substring(0, 20)}...
+                          </p>
+                        </div>
+                      </div>
+                      <div className="flex space-x-2">
+                        <a
+                          href={formData.resume_url}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="px-3 py-1.5 text-xs bg-rh-yellow/10 text-rh-yellow border border-rh-yellow/30 rounded-lg hover:bg-rh-yellow/20 transition-colors"
+                        >
+                          View
+                        </a>
+                        <label className="px-3 py-1.5 text-xs bg-rh-orange/10 text-rh-orange border border-rh-orange/30 rounded-lg hover:bg-rh-orange/20 transition-colors cursor-pointer">
+                          Replace
+                          <input
+                            type="file"
+                            accept=".pdf,.docx"
+                            onChange={handleResumeUpload}
+                            disabled={uploading}
+                            className="hidden"
+                          />
+                        </label>
+                      </div>
+                    </div>
+                  </div>
+                ) : (
+                  // Show upload input
+                  <>
+                    <input
+                      type="file"
+                      accept=".pdf,.docx"
+                      onChange={handleResumeUpload}
+                      disabled={uploading || !formData.first_name || !formData.last_name || !formData.school}
+                      className="w-full px-4 py-3 bg-white/5 border border-white/20 rounded-lg text-white file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-rh-yellow file:text-black hover:file:bg-rh-orange file:transition-colors cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed backdrop-blur-sm"
+                    />
+                    {uploading && (
+                      <div className="flex items-center space-x-2 text-sm text-rh-yellow">
+                        <svg className="animate-spin h-4 w-4" viewBox="0 0 24 24">
+                          <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" fill="none"></circle>
+                          <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                        </svg>
+                        <span>Uploading...</span>
+                      </div>
+                    )}
+                    {(!formData.first_name || !formData.last_name || !formData.school) && (
+                      <p className="text-xs text-rh-white/50">Please fill in your name and school before uploading resume</p>
+                    )}
+                  </>
                 )}
+                <p className="text-xs text-rh-white/40">
+                  Upload your resume as PDF or DOCX (max 5MB). You'll be able to view and download it from your dashboard.
+                </p>
               </div>
             </section>
 
