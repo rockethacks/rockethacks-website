@@ -1,4 +1,4 @@
-import { createClient } from '@/lib/supabase/server'
+import { createClientForRouteHandler } from '@/lib/supabase/server'
 import { NextResponse } from 'next/server'
 import { type NextRequest } from 'next/server'
 
@@ -10,32 +10,28 @@ export async function GET(request: NextRequest) {
   const redirect = requestUrl.searchParams.get('redirect') || '/dashboard'
 
   if (code) {
-    const supabase = await createClient()
+    // Use Route Handler specific client that properly sets cookies
+    const { supabase, response } = createClientForRouteHandler(request)
+    
+    // Exchange code for session - this MUST happen before any redirects
     const { data, error } = await supabase.auth.exchangeCodeForSession(code)
 
     if (!error && data.session) {
-      // Create response with proper cookie settings for iOS Safari
-      const response = NextResponse.redirect(`${origin}${redirect}`)
-      
-      // iOS Safari fix: Explicitly set auth cookies with correct attributes
-      // This ensures cookies are saved when navigating from email client
-      const cookieOptions = {
-        path: '/',
-        sameSite: 'lax' as const, // Critical for iOS Safari
-        secure: process.env.NODE_ENV === 'production',
-        httpOnly: true,
-        maxAge: 60 * 60 * 24 * 7, // 7 days
-      }
-
-      // Set the session cookies explicitly (Supabase creates these)
-      response.cookies.set(`sb-${process.env.NEXT_PUBLIC_SUPABASE_URL?.split('//')[1]?.split('.')[0]}-auth-token`, 
-        JSON.stringify(data.session), 
-        cookieOptions
-      )
-
       // If this is a password recovery, always go to reset-password
       if (type === 'recovery') {
-        return NextResponse.redirect(`${origin}/reset-password`)
+        // Clone the response with cookies and redirect
+        const recoveryResponse = NextResponse.redirect(`${origin}/reset-password`)
+        // Copy all cookies from the supabase response
+        response.cookies.getAll().forEach(cookie => {
+          recoveryResponse.cookies.set(cookie.name, cookie.value, {
+            path: '/',
+            sameSite: 'lax',
+            secure: process.env.NODE_ENV === 'production',
+            httpOnly: cookie.name.includes('auth-token'),
+            maxAge: 60 * 60 * 24 * 7,
+          })
+        })
+        return recoveryResponse
       }
 
       // Get user data to check if they have an application
@@ -55,11 +51,33 @@ export async function GET(request: NextRequest) {
 
         // If no application exists and not going to apply page, redirect to apply
         if (!application && redirect !== '/apply') {
-          return NextResponse.redirect(`${origin}/apply`)
+          // Clone the response with cookies and redirect to apply
+          const applyResponse = NextResponse.redirect(`${origin}/apply`)
+          response.cookies.getAll().forEach(cookie => {
+            applyResponse.cookies.set(cookie.name, cookie.value, {
+              path: '/',
+              sameSite: 'lax',
+              secure: process.env.NODE_ENV === 'production',
+              httpOnly: cookie.name.includes('auth-token'),
+              maxAge: 60 * 60 * 24 * 7,
+            })
+          })
+          return applyResponse
         }
       }
 
-      return response
+      // Create final redirect response with all cookies
+      const finalResponse = NextResponse.redirect(`${origin}${redirect}`)
+      response.cookies.getAll().forEach(cookie => {
+        finalResponse.cookies.set(cookie.name, cookie.value, {
+          path: '/',
+          sameSite: 'lax',
+          secure: process.env.NODE_ENV === 'production',
+          httpOnly: cookie.name.includes('auth-token'),
+          maxAge: 60 * 60 * 24 * 7,
+        })
+      })
+      return finalResponse
     }
     
     console.error('Auth callback error:', error)

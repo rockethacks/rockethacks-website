@@ -1,8 +1,9 @@
 import { createServerClient, type CookieOptions } from '@supabase/ssr'
 import { cookies } from 'next/headers'
+import { NextRequest, NextResponse } from 'next/server'
 
 /**
- * Creates a Supabase client for server-side usage (Server Components, Route Handlers, Server Actions)
+ * Creates a Supabase client for server-side usage (Server Components, Server Actions)
  * Properly handles cookies for authentication state
  * iOS Safari compatibility: Sets cookies with SameSite=Lax for cross-site navigation
  */
@@ -39,4 +40,51 @@ export async function createClient() {
       },
     }
   )
+}
+
+/**
+ * Creates a Supabase client specifically for Route Handlers
+ * This version properly sets cookies on the NextResponse object
+ * Critical for iOS Safari magic link authentication
+ */
+export function createClientForRouteHandler(request: NextRequest) {
+  let response = NextResponse.next({
+    request: {
+      headers: request.headers,
+    },
+  })
+
+  const supabase = createServerClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+    {
+      cookies: {
+        getAll() {
+          return request.cookies.getAll()
+        },
+        setAll(cookiesToSet) {
+          // Set cookies on both the request and response
+          cookiesToSet.forEach(({ name, value }) => request.cookies.set(name, value))
+          response = NextResponse.next({
+            request: {
+              headers: request.headers,
+            },
+          })
+          cookiesToSet.forEach(({ name, value, options }) => {
+            // iOS Safari fix: Set cookies with proper attributes
+            const cookieOptions = {
+              ...options,
+              sameSite: 'lax' as const, // Critical for iOS Safari
+              secure: process.env.NODE_ENV === 'production',
+              path: '/',
+              maxAge: options?.maxAge || 60 * 60 * 24 * 7, // 7 days
+            }
+            response.cookies.set(name, value, cookieOptions)
+          })
+        },
+      },
+    }
+  )
+
+  return { supabase, response }
 }
