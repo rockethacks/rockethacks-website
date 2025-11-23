@@ -9,15 +9,22 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: 'Email is required' }, { status: 400 })
   }
 
-  // Send password reset email
-  const { error } = await supabase.auth.resetPasswordForEmail(email, {
-    redirectTo: `${process.env.NEXT_PUBLIC_SITE_URL}/api/auth/callback?redirect=/reset-password`,
-  })
+  // Check if user exists in our database first
+  const { data: existingApplicant } = await supabase
+    .from('applicants')
+    .select('user_id, email')
+    .eq('email', email)
+    .maybeSingle()
 
-  if (error) {
-    // Don't reveal if email exists or not for security reasons
-    // Still return success to prevent email enumeration
-    console.error('Password reset error:', error.message)
+  // Only send reset email if user exists
+  if (existingApplicant) {
+    const { error } = await supabase.auth.resetPasswordForEmail(email, {
+      redirectTo: `${process.env.NEXT_PUBLIC_SITE_URL}/api/auth/callback?redirect=/reset-password`,
+    })
+
+    if (error) {
+      console.error('Password reset error:', error.message)
+    }
   }
 
   // Always return success to prevent email enumeration attacks

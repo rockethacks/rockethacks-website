@@ -67,10 +67,28 @@ export async function POST(request: Request) {
 
   // Magic Link login (email OTP)
   if (authMode === 'magic-link' || (!password && !authMode)) {
+    // First, check if user exists in our database
+    const { data: existingApplicant } = await supabase
+      .from('applicants')
+      .select('user_id, email')
+      .eq('email', email)
+      .maybeSingle()
+
+    if (!existingApplicant) {
+      return NextResponse.json(
+        {
+          error: 'No account found with this email. Please sign up first to create an account.',
+        },
+        { status: 404 }
+      )
+    }
+
+    // User exists, send magic link with shouldCreateUser: false to prevent account creation
     const { error } = await supabase.auth.signInWithOtp({
       email,
       options: {
         emailRedirectTo: redirectUrl,
+        shouldCreateUser: false, // Prevent creating new users via magic link
       },
     })
 

@@ -125,40 +125,7 @@ function LoginForm() {
             </p>
           </div>
 
-          {/* Auth Mode Toggle */}
-          <div className="flex gap-2 p-1 bg-white/5 rounded-lg border border-white/10">
-            <button
-              type="button"
-              onClick={() => {
-                setAuthMode('password')
-                setError('')
-                setMessage('')
-              }}
-              className={`flex-1 py-2 px-4 rounded-md text-sm font-medium transition-all ${
-                authMode === 'password'
-                  ? 'bg-rh-yellow text-black shadow-lg'
-                  : 'text-rh-white/60 hover:text-rh-white'
-              }`}
-            >
-              Password
-            </button>
-            <button
-              type="button"
-              onClick={() => {
-                setAuthMode('magic-link')
-                setError('')
-                setMessage('')
-                setPassword('')
-              }}
-              className={`flex-1 py-2 px-4 rounded-md text-sm font-medium transition-all ${
-                authMode === 'magic-link'
-                  ? 'bg-rh-yellow text-black shadow-lg'
-                  : 'text-rh-white/60 hover:text-rh-white'
-              }`}
-            >
-              Magic Link
-            </button>
-          </div>
+
 
           {/* Alert Messages */}
           {error && (
@@ -259,6 +226,53 @@ function LoginForm() {
             </button>
           </form>
 
+          {/* Alternative Login Method */}
+          {authMode === 'password' && (
+            <div className="relative">
+              <div className="absolute inset-0 flex items-center">
+                <div className="w-full border-t border-white/10"></div>
+              </div>
+              <div className="relative flex justify-center text-sm">
+                <span className="px-2 bg-[#0a0a0a] text-rh-white/50">Or</span>
+              </div>
+            </div>
+          )}
+
+          {authMode === 'password' && (
+            <button
+              type="button"
+              onClick={() => {
+                setAuthMode('magic-link')
+                setError('')
+                setMessage('')
+                setPassword('')
+              }}
+              className="w-full py-3 px-4 bg-white/5 hover:bg-white/10 border border-white/20 rounded-lg text-rh-white text-sm font-medium transition-all flex items-center justify-center gap-2"
+            >
+              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+              </svg>
+              Sign in with Magic Link
+            </button>
+          )}
+
+          {authMode === 'magic-link' && (
+            <button
+              type="button"
+              onClick={() => {
+                setAuthMode('password')
+                setError('')
+                setMessage('')
+              }}
+              className="w-full py-3 px-4 bg-white/5 hover:bg-white/10 border border-white/20 rounded-lg text-rh-white text-sm font-medium transition-all flex items-center justify-center gap-2"
+            >
+              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 7a2 2 0 012 2m4 0a6 6 0 01-7.743 5.743L11 17H9v2H7v2H4a1 1 0 01-1-1v-2.586a1 1 0 01.293-.707l5.964-5.964A6 6 0 1121 9z" />
+              </svg>
+              Back to Password Sign In
+            </button>
+          )}
+
           {/* Signup Link */}
           <div className="text-center pt-2">
             <p className="text-sm text-rh-white/60">
@@ -293,9 +307,14 @@ function LoginForm() {
               Sign in with your email and password for instant access
             </p>
           ) : (
-            <p className="text-rh-white/50 text-sm">
-              You'll receive a secure authentication link via email
-            </p>
+            <div className="space-y-2">
+              <p className="text-rh-white/50 text-sm">
+                A secure authentication link will be sent to your email
+              </p>
+              <p className="text-rh-yellow/70 text-xs">
+                Note: Magic Link only works for existing accounts
+              </p>
+            </div>
           )}
         </div>
       </div>
