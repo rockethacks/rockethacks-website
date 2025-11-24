@@ -6,6 +6,7 @@ import { createClient } from '@/lib/supabase/client'
 import { parseResume, extractResumeData } from '@/lib/resumeParser'
 import { loadSchoolsList } from '@/lib/mlhSchools'
 import { SchoolAutocomplete } from '@/components/ui/school-autocomplete'
+import { PhoneNumberInput } from '@/components/ui/phone-input'
 import {
   LEVEL_OF_STUDY_OPTIONS,
   DIETARY_RESTRICTIONS_OPTIONS,
@@ -221,6 +222,13 @@ export default function ApplyPage() {
       return
     }
 
+    // Validate phone number
+    if (!formData.phone_number || formData.phone_number.length < 4) {
+      setError('Please enter a valid phone number with country code')
+      setLoading(false)
+      return
+    }
+
     try {
       const applicationData = {
         user_id: user.id,
@@ -343,7 +351,12 @@ export default function ApplyPage() {
                   <label className="block text-sm font-medium text-gray-300 mb-2">
                     Phone Number <span className="text-red-400">*</span>
                   </label>
-                  <input type="tel" name="phone_number" required value={formData.phone_number} onChange={handleInputChange} className="w-full px-4 py-2 bg-white/5 border border-white/10 rounded-lg text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="+1 (555) 123-4567" />
+                  <PhoneNumberInput
+                    value={formData.phone_number}
+                    onChange={(value) => setFormData(prev => ({ ...prev, phone_number: value }))}
+                    required
+                    placeholder="+1 (555) 123-4567"
+                  />
                 </div>
                 <div className="md:col-span-2">
                   <label className="block text-sm font-medium text-gray-300 mb-2">
