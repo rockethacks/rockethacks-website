@@ -138,7 +138,7 @@ function SignupForm() {
             {/* Email Input */}
             <div>
               <label htmlFor="email" className="block text-sm font-medium text-rh-white/80 mb-2">
-                Email Address
+                School Email Address
               </label>
               <input
                 id="email"
@@ -147,9 +147,12 @@ function SignupForm() {
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 className="w-full px-4 py-3 bg-white/5 border border-white/20 rounded-lg text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-rh-yellow focus:border-transparent transition-all backdrop-blur-sm"
-                placeholder="your.email@example.com"
+                placeholder="your.name@school.edu"
                 disabled={loading}
               />
+              <p className="text-xs text-rh-white/50 mt-1">
+                We recommend using your school email address
+              </p>
             </div>
 
             {/* Password Input */}
