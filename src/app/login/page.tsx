@@ -233,7 +233,9 @@ function LoginForm() {
                 <div className="w-full border-t border-white/10"></div>
               </div>
               <div className="relative flex justify-center text-sm">
-                <span className="px-2 bg-[#0a0a0a] text-rh-white/50">Or</span>
+                <span className="px-4 py-1 bg-white/5 backdrop-blur-sm text-rh-white/70 rounded-full border border-white/10 font-medium">
+                  Or
+                </span>
               </div>
             </div>
           )}
