@@ -47,6 +47,30 @@ export default function CodeCreatePage() {
         </div>
 
         <div className="relative z-10 w-full max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
+          {/* Registration CTA - Featured First */}
+          <div className="mb-12 sm:mb-16 animate-slide-up">
+            <div className="glass-strong rounded-3xl p-6 sm:p-10 max-w-3xl mx-auto border-2 border-rh-yellow/30 shadow-2xl">
+              <div className="w-16 h-16 sm:w-20 sm:h-20 mx-auto mb-6 rounded-full bg-gradient-to-br from-rh-yellow to-rh-orange flex items-center justify-center animate-pulse">
+                <FaUsers size={40} className="text-rh-navy-dark" />
+              </div>
+              <h2 className={`${terminal.className} text-2xl sm:text-3xl md:text-4xl gradient-text uppercase tracking-wider font-bold mb-4`}>
+                Register Now for 2026!
+              </h2>
+              <p className="text-base sm:text-lg leading-relaxed text-rh-white/90 mb-6 max-w-2xl mx-auto">
+                Join us for Code & Create 2026! High school students will learn programming, 
+                build amazing projects, and explore the University of Toledo College of Engineering.
+              </p>
+              <a
+                href="https://docs.google.com/forms/d/e/1FAIpQLSco9dtycv9S1lOurB0rN_rrZE4HAU0n8PUaym014uu3FqMDuw/viewform"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="btn-primary px-8 sm:px-12 py-4 inline-block text-base sm:text-lg font-bold uppercase tracking-wide hover:scale-105 transition-transform duration-300 shadow-lg"
+              >
+              Register Now - It&apos;s Free!
+              </a>
+            </div>
+          </div>
+
           {/* Main Heading */}
           <div className="text-center mb-16 animate-slide-up">
             <h1 className={`${terminal.className} text-[clamp(2rem,5vw,4rem)] gradient-text uppercase tracking-wider font-bold mb-6 px-4`}>
@@ -81,20 +105,21 @@ export default function CodeCreatePage() {
 
           {/* Call to Action */}
           <div className="text-center px-4">
-            <div className="glass-strong rounded-3xl p-6 sm:p-8 max-w-2xl mx-auto">
+            <div className="glass-strong rounded-3xl p-6 sm:p-8 max-w-2xl mx-auto border-2 border-rh-orange/30">
               <h3 className={`${terminal.className} text-xl sm:text-2xl text-rh-yellow mb-4`}>
-                Ready to Join Next Year?
+                Don&apos;t Miss Out!
               </h3>
               <p className="text-sm sm:text-base text-rh-white/90 mb-6">
-                Code & Create 2026 is coming soon! Fill out our interest form to be notified when registration opens.
+                Spaces are filling up fast! Register now for Code & Create 2026 and secure your spot 
+                for an amazing day of learning and creativity.
               </p>
               <a
-                href="https://docs.google.com/forms/d/17Mm4UXiSANYwftmRhaUssHJhZSQli6Qt3hgtIRFKThE/edit"
+                href="https://docs.google.com/forms/d/e/1FAIpQLSco9dtycv9S1lOurB0rN_rrZE4HAU0n8PUaym014uu3FqMDuw/viewform"
                 target="_blank"
                 rel="noopener noreferrer"
-                className="btn-primary px-6 sm:px-8 py-3 inline-block text-sm sm:text-base"
+                className="btn-primary px-6 sm:px-8 py-3 inline-block text-sm sm:text-base font-bold"
               >
-                Fill Interest Form
+                Register Now
               </a>
             </div>
           </div>
@@ -274,12 +299,12 @@ export default function CodeCreatePage() {
                 </p>
                 <div className="space-y-3 sm:space-y-4">
                   <a
-                    href="https://docs.google.com/forms/d/17Mm4UXiSANYwftmRhaUssHJhZSQli6Qt3hgtIRFKThE/edit"
+                    href="https://docs.google.com/forms/d/e/1FAIpQLSco9dtycv9S1lOurB0rN_rrZE4HAU0n8PUaym014uu3FqMDuw/viewform"
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="btn-primary w-full px-4 sm:px-6 py-2 sm:py-3 inline-block text-center text-sm sm:text-base"
+                    className="btn-primary w-full px-4 sm:px-6 py-2 sm:py-3 inline-block text-center text-sm sm:text-base font-bold"
                   >
-                    Fill Interest Form
+                    Register Now
                   </a>
                   <Link
                     href="/"
