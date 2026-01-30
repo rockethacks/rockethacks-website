@@ -53,6 +53,33 @@
   background: var(--primary-purple-light);
 }
 
+/* Custom scrollbar for tables and other containers */
+.custom-scrollbar::-webkit-scrollbar {
+  width: 10px;
+  height: 10px;
+}
+
+.custom-scrollbar::-webkit-scrollbar-track {
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 10px;
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.15);
+  border-radius: 10px;
+  border: 2px solid rgba(255, 255, 255, 0.05);
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb:hover {
+  background: rgba(255, 255, 255, 0.25);
+}
+
+/* Firefox scrollbar styling */
+.custom-scrollbar {
+  scrollbar-color: rgba(255, 255, 255, 0.15) rgba(255, 255, 255, 0.05);
+  scrollbar-width: thin;
+}
+
 /* Reset and base responsive setup */
 *,
 *::before,
