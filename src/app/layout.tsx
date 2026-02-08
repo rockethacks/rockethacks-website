@@ -62,8 +62,7 @@ export default function RootLayout({
         {/* MLH 2026 Trust Badge - Positioned far right to avoid profile icon */}
         <a
           id="mlh-trust-badge"
-          className="fixed top-0 right-0 w-[50px] sm:w-[65px] md:w-[80px] lg:w-[100px] max-w-[100px] min-w-[50px] z-[45] block transition-transform hover:scale-105 active:scale-95"
-          style={{ display: "block" }}
+          className="fixed top-0 right-0 w-[50px] sm:w-[65px] md:w-[80px] lg:w-[100px] max-w-[100px] min-w-[50px] z-[45] hidden md:block transition-transform hover:scale-105 active:scale-95"
           href="https://mlh.io/na?utm_source=na-hackathon&utm_medium=TrustBadge&utm_campaign=2026-season&utm_content=yellow"
           target="_blank"
           rel="noopener noreferrer"
