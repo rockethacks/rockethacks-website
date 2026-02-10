@@ -44,7 +44,7 @@ const scheduleData = [
       {
         name: "Hacking Starts!",
         startTime: "11:00 AM",
-        endTime: "5:00 PM",
+        endTime: "-",
         location: "NI hallway & NE tables",
       },
       {
@@ -115,8 +115,8 @@ const scheduleData = [
       },
       {
         name: "Hacking Ends! - Project Submission Deadline",
-        startTime: "10:30 AM",
-        endTime: "11:30 AM",
+        startTime: "11:00 AM",
+        endTime: "-",
         location: "NI Hallway and NE Tables",
       },
       {
