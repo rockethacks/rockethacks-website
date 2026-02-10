@@ -5,18 +5,26 @@ import dynamic from "next/dynamic";
 import Navbar from "@/components/navbar/Navbar";
 import Hero from "@/components/hero/Hero";
 import About from "@/components/about/About";
+import Schedule from "@/components/schedule/Schedule";
 import { SponsorData } from "@/components/sponsor/SponsorData";
 /* Kept for future use */
-/* import Schedule from "@/components/schedule/Schedule"; */
 /* import { Prizes } from "@/components/prizes/Prizes"; */
 
 // Lazy load heavy components that are below the fold
 const Sponsor = dynamic(() => import("@/components/sponsor/Sponsor"), {
-  loading: () => <div className="min-h-screen flex items-center justify-center"><div className="animate-spin rounded-full h-16 w-16 border-t-2 border-b-2 border-rh-yellow"></div></div>
+  loading: () => (
+    <div className="min-h-screen flex items-center justify-center">
+      <div className="animate-spin rounded-full h-16 w-16 border-t-2 border-b-2 border-rh-yellow"></div>
+    </div>
+  ),
 });
 
 const Gallery = dynamic(() => import("@/components/gallery/Gallery"), {
-  loading: () => <div className="min-h-screen flex items-center justify-center"><div className="animate-spin rounded-full h-16 w-16 border-t-2 border-b-2 border-rh-yellow"></div></div>
+  loading: () => (
+    <div className="min-h-screen flex items-center justify-center">
+      <div className="animate-spin rounded-full h-16 w-16 border-t-2 border-b-2 border-rh-yellow"></div>
+    </div>
+  ),
 });
 
 const Contact = dynamic(() => import("@/components/contact/Contact"));
@@ -30,6 +38,7 @@ export default function Home() {
       <main className="relative">
         <Hero />
         <About />
+        <Schedule />
         <Sponsor sponsors={SponsorData} />
         {/* Temporarily hidden - uncomment to enable prizes section */}
         {/* <Prizes /> */}

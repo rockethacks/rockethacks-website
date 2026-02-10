@@ -124,8 +124,8 @@ export const SponsorData: SponsorType[] = [
   },
   {
     type: "image",
-    src: "/assets/sponsors/standout-stickers.png",
-    alt: "Standout Stickers",
-    link: "https://www.standoutstickers.com/",
+    src: "/assets/sponsors/purebutton.png",
+    alt: "Pure Buttons",
+    link: "https://mlh.link/MLH-PureButtons-hackathons",
   },
 ];

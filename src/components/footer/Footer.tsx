@@ -1,5 +1,11 @@
 import React from "react";
-import { BsTwitterX, BsInstagram, BsLinkedin, BsGithub, BsYoutube } from "react-icons/bs";
+import {
+  BsTwitterX,
+  BsInstagram,
+  BsLinkedin,
+  BsGithub,
+  BsYoutube,
+} from "react-icons/bs";
 import { FaTiktok } from "react-icons/fa";
 import { SiDevpost } from "react-icons/si";
 import { HiMail, HiLocationMarker } from "react-icons/hi";
@@ -10,47 +16,47 @@ import { terminal } from "../../app/fonts/fonts";
 export default function Footer() {
   const socialLinks = [
     {
-      href: "https://rockethacks.devpost.com/?_gl=1*zs3ybp*_gcl_au*MjA1MjQ4MjgxNC4xNzM2ODEwMTE1*_ga*ODY0Mjg3NTg0LjE3Mjc3MTE4NjM.*_ga_0YHJK3Y10M*MTc0MDMyNzM0OC4yMi4wLjE3NDAzMjczNDguMC4wLjA.",
+      href: "https://rockethacks26.devpost.com/",
       ariaLabel: "Find out more on Devpost",
       icon: SiDevpost,
-      name: "Devpost"
+      name: "Devpost",
     },
     {
       href: "https://x.com/UTRocketHacks",
       ariaLabel: "Follow us on X (Twitter)",
       icon: BsTwitterX,
-      name: "X"
+      name: "X",
     },
     {
       href: "https://www.instagram.com/rockethacks.ut",
       ariaLabel: "Follow us on Instagram",
       icon: BsInstagram,
-      name: "Instagram"
+      name: "Instagram",
     },
     {
       href: "https://www.linkedin.com/company/rocket-hacks",
       ariaLabel: "Follow us on LinkedIn",
       icon: BsLinkedin,
-      name: "LinkedIn"
+      name: "LinkedIn",
     },
     {
       href: "https://github.com/rockethacks",
       ariaLabel: "Follow us on GitHub",
       icon: BsGithub,
-      name: "GitHub"
+      name: "GitHub",
     },
     {
       href: "https://www.tiktok.com/@ut.rockethacks",
       ariaLabel: "Follow us on TikTok",
       icon: FaTiktok,
-      name: "TikTok"
+      name: "TikTok",
     },
     {
       href: "https://www.youtube.com/@RocketHacks25",
       ariaLabel: "Subscribe to our YouTube channel",
       icon: BsYoutube,
-      name: "YouTube"
-    }
+      name: "YouTube",
+    },
   ];
 
   const quickLinks = [
@@ -58,17 +64,20 @@ export default function Footer() {
     { href: "#sponsor", label: "Sponsors" },
     { href: "#contact", label: "Contact" },
     { href: "#faq", label: "FAQ" },
-    { href: "/team", label: "Team" }
+    { href: "/team", label: "Team" },
   ];
 
   return (
     <footer className="relative bg-gradient-to-b from-rh-navy-light to-rh-navy-dark text-white">
       {/* Background Pattern */}
       <div className="absolute inset-0 opacity-5">
-        <div className="absolute inset-0" style={{
-          backgroundImage: `radial-gradient(circle at 25px 25px, rgba(255, 196, 90, 0.3) 2px, transparent 0)`,
-          backgroundSize: '50px 50px'
-        }}></div>
+        <div
+          className="absolute inset-0"
+          style={{
+            backgroundImage: `radial-gradient(circle at 25px 25px, rgba(255, 196, 90, 0.3) 2px, transparent 0)`,
+            backgroundSize: "50px 50px",
+          }}
+        ></div>
       </div>
 
       <div className="relative max-w-7xl mx-auto px-6 py-16">
@@ -86,8 +95,9 @@ export default function Footer() {
               />
             </div>
             <p className="text-rh-white/80 leading-relaxed mb-6 max-w-md">
-              RocketHacks is the premier 24-hour hackathon in the Midwest, hosted by the 
-              University of Toledo. Join us in 2026 as we hack the horizon together.
+              RocketHacks is the premier 24-hour hackathon in the Midwest,
+              hosted by the University of Toledo. Join us in 2026 as we hack the
+              horizon together.
             </p>
             <div className="space-y-3">
               <div className="flex items-center space-x-3 text-rh-white/70">
@@ -96,11 +106,11 @@ export default function Footer() {
               </div>
               <div className="flex items-center space-x-3 text-rh-white/70">
                 <HiMail className="text-rh-yellow" size={20} />
-                <Link 
+                <Link
                   href="mailto:rockethacks@rockets.utoledo.edu"
                   className="hover:text-rh-yellow transition-colors"
                 >
-                  rockethacks@rockets.utoledo.edu
+                  rockethacks@utoledo.edu
                 </Link>
               </div>
             </div>
@@ -108,7 +118,9 @@ export default function Footer() {
 
           {/* Quick Links */}
           <div>
-            <h3 className={`${terminal.className} text-lg font-semibold text-rh-yellow mb-6 uppercase tracking-wider`}>
+            <h3
+              className={`${terminal.className} text-lg font-semibold text-rh-yellow mb-6 uppercase tracking-wider`}
+            >
               Quick Links
             </h3>
             <ul className="space-y-3">
@@ -127,7 +139,9 @@ export default function Footer() {
 
           {/* Social Media */}
           <div>
-            <h3 className={`${terminal.className} text-lg font-semibold text-rh-yellow mb-6 uppercase tracking-wider`}>
+            <h3
+              className={`${terminal.className} text-lg font-semibold text-rh-yellow mb-6 uppercase tracking-wider`}
+            >
               Follow Us
             </h3>
             <div className="grid grid-cols-2 gap-3">
@@ -141,7 +155,10 @@ export default function Footer() {
                   className="flex items-center space-x-2 p-2 rounded-lg bg-rh-white/5 hover:bg-rh-yellow/10 
                            text-rh-white/70 hover:text-rh-yellow transition-all duration-200 group"
                 >
-                  <social.icon size={18} className="group-hover:scale-110 transition-transform" />
+                  <social.icon
+                    size={18}
+                    className="group-hover:scale-110 transition-transform"
+                  />
                   <span className="text-sm">{social.name}</span>
                 </Link>
               ))}
@@ -153,7 +170,8 @@ export default function Footer() {
         <div className="border-t border-rh-white/10 pt-8">
           <div className="flex flex-col md:flex-row justify-between items-center space-y-4 md:space-y-0">
             <div className="text-rh-white/60 text-sm">
-              © 2026 RocketHacks. All rights reserved. Made with ❤️ by the RocketHacks team.
+              © 2026 RocketHacks. All rights reserved. Made with ❤️ by the
+              RocketHacks team.
             </div>
             <div className="flex items-center space-x-6 text-sm text-rh-white/60">
               <Link

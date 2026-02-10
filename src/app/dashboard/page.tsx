@@ -960,6 +960,20 @@ export default function DashboardPage() {
             </p>
           </Link>
           <Link
+            href="/#schedule"
+            className="glass rounded-xl p-6 hover:border-rh-yellow/50 transition-all duration-300 group animate-slide-up"
+            style={{ animationDelay: "0.35s" }}
+          >
+            <h3
+              className={`${terminal.className} text-lg font-semibold text-rh-yellow group-hover:text-rh-orange transition-colors mb-2 uppercase tracking-wide flex items-center gap-2`}
+            >
+              Event Schedule
+            </h3>
+            <p className="text-rh-white/60 text-sm">
+              View the full event itinerary
+            </p>
+          </Link>
+          <Link
             href="/#faq"
             target="_blank"
             rel="noopener noreferrer"
