@@ -5,6 +5,7 @@ import dynamic from "next/dynamic";
 import Navbar from "@/components/navbar/Navbar";
 import Hero from "@/components/hero/Hero";
 import About from "@/components/about/About";
+import Tracks from "@/components/tracks/Tracks";
 import Schedule from "@/components/schedule/Schedule";
 import { SponsorData } from "@/components/sponsor/SponsorData";
 /* Kept for future use */
@@ -38,6 +39,7 @@ export default function Home() {
       <main className="relative">
         <Hero />
         <About />
+        <Tracks />
         <Schedule />
         <Sponsor sponsors={SponsorData} />
         {/* Temporarily hidden - uncomment to enable prizes section */}

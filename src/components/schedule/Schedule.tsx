@@ -48,51 +48,9 @@ const scheduleData = [
         location: "NI hallway & NE tables",
       },
       {
-        name: "Workshop 1",
+        name: "Workshops",
         startTime: "11:00 AM",
-        endTime: "12:00 PM",
-        location: "T.B.D.",
-      },
-      {
-        name: "Workshop 2",
-        startTime: "12:00 PM",
-        endTime: "1:00 PM",
-        location: "T.B.D.",
-      },
-      {
-        name: "Lunch",
-        startTime: "12:30 PM",
-        endTime: "1:30 PM",
-        location: "The NODE",
-      },
-      {
-        name: "Workshop 3",
-        startTime: "1:00 PM",
-        endTime: "2:00 PM",
-        location: "T.B.D.",
-      },
-      {
-        name: "Workshop 4",
-        startTime: "2:00 PM",
-        endTime: "3:00 PM",
-        location: "T.B.D.",
-      },
-      {
-        name: "Workshop 5",
-        startTime: "3:00 PM",
-        endTime: "4:00 PM",
-        location: "T.B.D.",
-      },
-      {
-        name: "Workshop 6",
-        startTime: "4:00 PM",
         endTime: "5:00 PM",
-        location: "T.B.D.",
-      },
-      {
-        name: "Workshop 7",
-        startTime: "5:00 PM",
-        endTime: "6:00 PM",
         location: "T.B.D.",
       },
       {
