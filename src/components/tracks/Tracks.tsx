@@ -311,7 +311,8 @@ const tracksData = [
   {
     id: 3,
     title: "Hardware",
-    description: "Develop IoT and embedded systems that push boundaries",
+    description:
+      "Develop IoT and embedded systems that push boundaries. Hackers are allowed to bring their own 3d printed parts.",
     accent: "#f483f5",
     Icon: HardwareIcon,
     gradient: "from-pink-500/20 to-purple-500/10",

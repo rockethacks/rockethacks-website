@@ -1,29 +1,43 @@
 import { SponsorType } from "@/components/sponsor/Sponsor";
 
 export const SponsorData: SponsorType[] = [
-  // {
-  //   type: "image",
-  //   src: "/assets/sponsors/prhi.png",
-  //   alt: "Pittsburgh Regional Health Initiative",
-  //   link: "https://prhi.org/",
-  // },
+  // Row 1 - Main Sponsors
   {
     type: "image",
-    src: "/assets/sponsors/College-of-engineering.png",
+    src: "/assets/sponsors/eecs.png",
+    alt: "University of Toledo Department of Electrical Engineering & Computer Science",
+    link: "https://www.utoledo.edu/engineering/electrical-engineering-computer-science/",
+  },
+  {
+    type: "image",
+    src: "/assets/sponsors/besnx.png",
+    alt: "BESNX",
+    link: "https://www.besnxc.org/",
+  },
+  {
+    type: "image",
+    src: "/assets/sponsors/coe.png",
     alt: "University of Toledo College of Engineering",
     link: "https://www.utoledo.edu/engineering/",
   },
   {
     type: "image",
-    src: "/assets/sponsors/eecs.png",
-    alt: "University of Toledo Department of Electrical Engineering & Computer Science",
-    link: "https://www.utoledo.edu/",
+    src: "/assets/sponsors/cobi.png",
+    alt: "University of Toledo College of Business & Innovation",
+    link: "https://www.utoledo.edu/business/",
   },
   {
     type: "image",
-    src: "/assets/sponsors/spoke.png",
-    alt: "SpokeHQ",
-    link: "https://spokehq.com/",
+    src: "/assets/sponsors/firstsolar.png",
+    alt: "First Solar",
+    link: "https://www.firstsolar.com/",
+  },
+  // Row 2 - Secondary Sponsors
+  {
+    type: "image",
+    src: "/assets/sponsors/codeecho.png",
+    alt: "Code Echo",
+    link: "https://codeecho.com/",
   },
   {
     type: "image",
@@ -33,94 +47,42 @@ export const SponsorData: SponsorType[] = [
   },
   {
     type: "image",
-    src: "/assets/sponsors/actual-tech.png",
+    src: "/assets/sponsors/impelix.png",
+    alt: "Impelix",
+    link: "https://www.impelix.com/",
+  },
+  {
+    type: "image",
+    src: "/assets/sponsors/actual.png",
     alt: "Actual Reality Technologies",
     link: "https://www.actualreality.tech/",
   },
-  {
-    type: "image",
-    src: "/assets/sponsors/mercy.png",
-    alt: "Mercy Health",
-    link: "https://www.mercy.com/",
-  },
-  {
-    type: "image",
-    src: "/assets/sponsors/firstsolar.png",
-    alt: "First Solar",
-    link: "https://www.firstsolar.com/",
-  },
-  {
-    type: "image",
-    src: "/assets/sponsors/cdw-education.png",
-    alt: "CDW",
-    link: "https://www.cdw.com/",
-  },
-  {
-    type: "icon",
-    icon: "github",
-    alt: "GitHub",
-    link: "https://www.github.com/",
-  },
+  // Row 3 - Partner Sponsors
   { type: "icon", icon: "aws", alt: "AWS", link: "https://aws.amazon.com/" },
   {
     type: "image",
-    src: "/assets/sponsors/vercel.png",
-    alt: "Vercel",
-    link: "https://vercel.com/",
+    src: "/assets/sponsors/rgp.png",
+    alt: "Regional Growth Partnership",
+    link: "https://rgp.org/",
   },
   {
     type: "image",
-    src: "/assets/sponsors/codeecho.png",
-    alt: "Code Echo",
-    link: "https://codeecho.com/",
+    src: "/assets/sponsors/parkut.png",
+    alt: "ParkUT",
+    link: "https://www.utoledo.edu/parkingservices/parkutoledo/",
+  },
+  // Row 4 - Additional Partners
+  {
+    type: "image",
+    src: "/assets/sponsors/fai.png",
+    alt: "Featherless AI",
+    link: "https://featherless.ai/",
   },
   {
     type: "image",
-    src: "/assets/sponsors/Perplexity.png",
-    alt: "Perplexity AI",
-    link: "https://www.perplexity.ai/",
-  },
-  {
-    type: "image",
-    src: "/assets/sponsors/Mistral2.png",
-    alt: "Mistral AI",
-    link: "https://www.mistral.ai/",
-  },
-  {
-    type: "image",
-    src: "/assets/sponsors/sprintlogo.png",
-    alt: "Sprint.Dev",
-    link: "https://www.sprint.dev/",
-  },
-  {
-    type: "image",
-    src: "/assets/sponsors/warp.png",
-    alt: "Warp Terminal",
-    link: "https://www.warp.dev/",
-  },
-  {
-    type: "image",
-    src: "/assets/sponsors/orielly.png",
-    alt: "O'Reilly",
-    link: "https://www.oreilly.com/",
-  },
-  {
-    type: "image",
-    src: "/assets/sponsors/Hugging-face.png",
-    alt: "Hugging Face",
-    link: "https://huggingface.co/",
-  },
-  {
-    type: "image",
-    src: "/assets/sponsors/xyz.png",
-    alt: ".XYZ",
-    link: "https://www.gen.xyz/",
-  },
-  {
-    type: "image",
-    src: "/assets/sponsors/photoroom.png",
-    alt: "Photoroom",
-    link: "https://www.photoroom.com/",
+    src: "/assets/sponsors/anthropic.png",
+    alt: "Anthropic",
+    link: "https://www.anthropic.com/",
   },
   {
     type: "image",

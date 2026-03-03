@@ -72,6 +72,9 @@ export default function CodeCreatePage() {
                 programming, build amazing projects, and explore the University
                 of Toledo College of Engineering.
               </p>
+              <p className="text-xs sm:text-sm text-rh-yellow/80 mb-4">
+                *Students are expected to bring their own laptop
+              </p>
               <a
                 href="https://docs.google.com/forms/d/e/1FAIpQLSco9dtycv9S1lOurB0rN_rrZE4HAU0n8PUaym014uu3FqMDuw/viewform"
                 target="_blank"
@@ -132,6 +135,9 @@ export default function CodeCreatePage() {
                 and secure your spot for an amazing day of learning and
                 creativity.
               </p>
+              <p className="text-xs text-rh-yellow/80 mb-4">
+                *Students are expected to bring their own laptop
+              </p>
               <a
                 href="https://docs.google.com/forms/d/e/1FAIpQLSco9dtycv9S1lOurB0rN_rrZE4HAU0n8PUaym014uu3FqMDuw/viewform"
                 target="_blank"
@@ -184,10 +190,10 @@ export default function CodeCreatePage() {
                 KEYNOTE SESSION
               </h3>
               <p className="text-rh-white/80 text-sm leading-relaxed">
-                Tom Bush, CEO of ActualReality, inspired students to embrace
-                creativity and innovation. He focused on real-world tech
-                applications and encouraged thinking like creators, not just
-                consumers.
+                Inspirational talk from industry leaders sharing insights on
+                creativity, innovation, and real-world tech applications. Learn
+                how to think like creators and innovators, not just consumers of
+                technology.
               </p>
             </div>
 
@@ -387,6 +393,9 @@ export default function CodeCreatePage() {
                   form to be the first to know when registration opens for
                   another amazing day of learning, building, and celebrating
                   creativity.
+                </p>
+                <p className="text-xs text-rh-yellow/80 mb-4">
+                  *Students are expected to bring their own laptop
                 </p>
                 <div className="space-y-3 sm:space-y-4">
                   <a
