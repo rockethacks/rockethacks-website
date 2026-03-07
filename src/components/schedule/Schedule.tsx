@@ -42,6 +42,12 @@ const scheduleData = [
         location: "NODE",
       },
       {
+        name: "Lunch",
+        startTime: "12:30 PM",
+        endTime: "1:30 PM",
+        location: "The NODE",
+      },
+      {
         name: "Hacking Starts!",
         startTime: "11:00 AM",
         endTime: "-",

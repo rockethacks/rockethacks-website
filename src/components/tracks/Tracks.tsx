@@ -319,6 +319,57 @@ const tracksData = [
   },
 ];
 
+const sponsorTracksData = [
+  {
+    id: "elevenlabs",
+    name: "ElevenLabs",
+    description:
+      "Build the most creative and impactful project using the ElevenLabs API (voice, TTS, or cloning). Depth of integration and showcase-worthy quality wins.",
+    accent: "#7f819e",
+    gradient: "from-violet-500/15 to-purple-600/10",
+  },
+  {
+    id: "aws",
+    name: "AWS",
+    description:
+      "Integrate 4+ AWS services meaningfully into your solution, including at least one AI/ML service. Best overall architecture and breadth of AWS usage wins.",
+    accent: "#ffc65a",
+    gradient: "from-amber-500/15 to-orange-500/10",
+  },
+  {
+    id: "featherless",
+    name: "Featherless.AI",
+    description:
+      "Use the Featherless.AI inference API to power your project with open-weight models. Best model selection, prompt engineering, and creative application wins.",
+    accent: "#c32c9a",
+    gradient: "from-pink-500/15 to-rose-600/10",
+  },
+  {
+    id: "runanywhere",
+    name: "RunAnywhere",
+    description:
+      "Build a project with RunAnywhere AI at its core. Most creative and technically sound use of the platform wins. Top 2 teams take home an OpenClaw Raspberry Pi kit.",
+    accent: "#22c55e",
+    gradient: "from-emerald-500/15 to-green-600/10",
+  },
+  {
+    id: "base44",
+    name: "Base44",
+    description:
+      "Build a real-world impact app under one of the challenge categories (e.g., local innovation, workforce resilience) using Base44. Judged on impact, UX, and execution.",
+    accent: "#3b82f6",
+    gradient: "from-blue-500/15 to-indigo-600/10",
+  },
+  {
+    id: "jaseci",
+    name: "Jaseci Labs",
+    description:
+      "Showcase the best use of agentic AI — autonomous decision-making, multi-step reasoning, or tool use. No platform requirement; just impress with your agent.",
+    accent: "#f483f5",
+    gradient: "from-fuchsia-500/15 to-purple-600/10",
+  },
+];
+
 const CARD_COUNT = tracksData.length;
 const ANGLE_SLICE = 360 / CARD_COUNT;
 // Radius: distance from center to card face
@@ -535,6 +586,71 @@ export default function Tracks() {
               {activeIndex + 1}
             </span>{" "}
             / {tracksData.length}
+          </div>
+        </motion.div>
+
+        {/* Sponsor Tracks Section */}
+        <motion.div
+          initial={{ opacity: 0, y: 24 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5 }}
+          viewport={{ once: true, margin: "-80px" }}
+          className="mt-24 sm:mt-28 lg:mt-32"
+        >
+          <div className="text-center mb-10 sm:mb-12">
+            <h3
+              className={`${terminal.className} text-3xl sm:text-4xl font-bold uppercase tracking-wider mb-3 gradient-text`}
+            >
+              Sponsor Tracks
+            </h3>
+            <div className="w-20 h-0.5 bg-gradient-to-r from-rh-yellow to-rh-orange mx-auto mb-4 rounded-full" />
+            <p className="text-white/70 text-sm sm:text-base max-w-2xl mx-auto px-2">
+              Build with sponsor APIs and tools — win category prizes and stand
+              out.
+            </p>
+          </div>
+
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-5 lg:gap-6">
+            {sponsorTracksData.map((sponsor, index) => (
+              <motion.div
+                key={sponsor.id}
+                initial={{ opacity: 0, y: 20 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.4, delay: index * 0.06 }}
+                viewport={{ once: true, margin: "-40px" }}
+                whileHover={{ y: -4, transition: { duration: 0.2 } }}
+                className="group relative rounded-2xl overflow-hidden border border-white/10 bg-gradient-to-br from-white/5 to-transparent backdrop-blur-sm transition-all duration-300 hover:border-white/20 hover:shadow-lg hover:shadow-black/20"
+                style={{
+                  boxShadow: "0 4px 24px rgba(0,0,0,0.2)",
+                }}
+              >
+                {/* Accent glow line */}
+                <div
+                  className="absolute top-0 left-0 right-0 h-1 opacity-80 group-hover:opacity-100 transition-opacity"
+                  style={{
+                    background: `linear-gradient(90deg, ${sponsor.accent}, transparent)`,
+                  }}
+                />
+                <div
+                  className={`absolute inset-0 bg-gradient-to-br ${sponsor.gradient} opacity-50 group-hover:opacity-70 transition-opacity pointer-events-none`}
+                  aria-hidden
+                />
+                <div className="relative z-10 p-5 sm:p-6 flex flex-col min-h-[180px] sm:min-h-[200px]">
+                  <h4
+                    className={`${terminal.className} text-lg sm:text-xl font-bold uppercase tracking-wide mb-3 flex-shrink-0`}
+                    style={{
+                      color: sponsor.accent,
+                      textShadow: `0 0 20px ${sponsor.accent}40`,
+                    }}
+                  >
+                    {sponsor.name}
+                  </h4>
+                  <p className="text-white/75 text-sm sm:text-[15px] leading-relaxed flex-1">
+                    {sponsor.description}
+                  </p>
+                </div>
+              </motion.div>
+            ))}
           </div>
         </motion.div>
       </div>

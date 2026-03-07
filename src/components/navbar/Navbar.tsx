@@ -2,6 +2,7 @@
 import React, { useState, useEffect } from "react";
 import Link from "next/link";
 import Image from "next/image";
+import { usePathname } from "next/navigation";
 import { FiMenu, FiX } from "react-icons/fi";
 import { terminal } from "../../app/fonts/fonts";
 import UserProfileDropdown from "./UserProfileDropdown";
@@ -9,10 +10,12 @@ import { createClient } from "@/lib/supabase/client";
 import type { User } from "@supabase/supabase-js";
 
 export default function Navbar() {
+  const pathname = usePathname();
   const [menuOpen, setMenuOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
   const [user, setUser] = useState<User | null>(null);
   const supabase = createClient();
+  const isHomePage = pathname === "/";
 
   useEffect(() => {
     if (menuOpen) {
@@ -57,31 +60,33 @@ export default function Navbar() {
 
   const closeMenu = () => setMenuOpen(false);
 
-  const handleSmoothScroll = (
+  const handleNavClick = (
     e: React.MouseEvent<HTMLAnchorElement>,
     href: string,
   ) => {
-    // Only handle smooth scroll for anchor links (starting with #)
+    // Anchor links: on home page smooth-scroll; on other pages navigate to /#section
     if (href.startsWith("#")) {
-      e.preventDefault();
-      const targetId = href.substring(1);
-      const targetElement = document.getElementById(targetId);
-
-      if (targetElement) {
-        closeMenu();
-        targetElement.scrollIntoView({
-          behavior: "smooth",
-          block: "start",
-        });
+      if (isHomePage) {
+        e.preventDefault();
+        const targetId = href.substring(1);
+        const targetElement = document.getElementById(targetId);
+        if (targetElement) {
+          closeMenu();
+          targetElement.scrollIntoView({
+            behavior: "smooth",
+            block: "start",
+          });
+        }
       }
+      // When not on home, Link href is "/#section" so no preventDefault — let navigation happen
     }
   };
 
   const navLinks = [
     { href: "#about", label: "ABOUT" },
-    { href: "#gallery", label: "2025" },
+    { href: "/gallery", label: "2025" },
     { href: "#tracks", label: "TRACKS" },
-    { href: "#past-sponsors", label: "SPONSORS" },
+    { href: "#sponsor", label: "SPONSORS" },
     { href: "#contact", label: "CONTACT" },
     { href: "#faq", label: "FAQ" },
     { href: "/login", label: "APPLY", highlight: true },
@@ -93,7 +98,7 @@ export default function Navbar() {
     <nav
       className={`
       fixed top-0 left-0 right-0 z-50 transition-all duration-300
-      ${scrolled ? "glass-strong backdrop-blur-md shadow-lg" : "bg-transparent"}
+      ${!isHomePage || scrolled ? "glass-strong backdrop-blur-md shadow-lg" : "bg-transparent"}
     `}
     >
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -122,8 +127,8 @@ export default function Navbar() {
             {navLinks.map((link) => (
               <Link
                 key={link.href}
-                href={link.href}
-                onClick={(e) => handleSmoothScroll(e, link.href)}
+                href={link.href.startsWith("#") ? `/${link.href}` : link.href}
+                onClick={(e) => handleNavClick(e, link.href)}
                 className={`
                   ${terminal.className} text-sm font-medium tracking-wider
                   ${
@@ -212,8 +217,8 @@ export default function Navbar() {
               {navLinks.map((link) => (
                 <Link
                   key={link.href}
-                  href={link.href}
-                  onClick={(e) => handleSmoothScroll(e, link.href)}
+                  href={link.href.startsWith("#") ? `/${link.href}` : link.href}
+                  onClick={(e) => handleNavClick(e, link.href)}
                   className={`
                     ${terminal.className}
                     text-xl font-medium tracking-wider

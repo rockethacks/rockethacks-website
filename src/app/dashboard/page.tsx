@@ -25,6 +25,7 @@ export default function DashboardPage() {
     null,
   );
   const [showMissingFields, setShowMissingFields] = useState(false);
+  const [showMapModal, setShowMapModal] = useState(false);
 
   useEffect(() => {
     async function loadData() {
@@ -66,6 +67,17 @@ export default function DashboardPage() {
     }
     loadData();
   }, []);
+
+  useEffect(() => {
+    if (!showMapModal) return;
+    const handleEscape = (e: KeyboardEvent) => {
+      if (e.key === "Escape") setShowMapModal(false);
+    };
+    document.addEventListener("keydown", handleEscape);
+    return () => {
+      document.removeEventListener("keydown", handleEscape);
+    };
+  }, [showMapModal]);
 
   const handleLogout = async () => {
     await supabase.auth.signOut();
@@ -677,6 +689,124 @@ export default function DashboardPage() {
                       <div className="absolute top-0 right-0 w-32 h-32 bg-gradient-to-bl from-indigo-400/10 to-transparent rounded-bl-full"></div>
                     </div>
                   </a>
+
+                  {/* Facility Map — accepted hackers only (same width as Discord) */}
+                  <div className="mt-6 lg:mt-8 w-full lg:col-span-2">
+                    <div
+                      className="relative rounded-2xl overflow-hidden border-2 border-white/10 shadow-2xl backdrop-blur-sm"
+                      style={{
+                        background:
+                          "linear-gradient(180deg, #0a1628 0%, #06102a 50%, #030c1b 100%)",
+                      }}
+                    >
+                      <div className="absolute inset-0 bg-gradient-to-br from-blue-500/8 via-transparent to-indigo-600/5 pointer-events-none" />
+                      <div className="relative px-3 sm:px-5 lg:px-6 pt-5 sm:pt-6 lg:pt-8 pb-4 sm:pb-5">
+                        <div className="flex items-center gap-3 mb-4 sm:mb-5">
+                          <div className="flex-shrink-0 inline-flex items-center justify-center w-12 h-12 rounded-xl bg-blue-500/20 border-2 border-blue-400/40 shadow-lg">
+                            <svg
+                              className="w-6 h-6 text-blue-300"
+                              fill="none"
+                              stroke="currentColor"
+                              viewBox="0 0 24 24"
+                            >
+                              <path
+                                strokeLinecap="round"
+                                strokeLinejoin="round"
+                                strokeWidth={2}
+                                d="M9 20l-5.447-2.724A1 1 0 013 16.382V5.618a1 1 0 011.447-.894L9 7m0 13l6-3m-6 3V7m6 10l4.553 2.276A1 1 0 0021 18.382V7.618a1 1 0 00-.553-.894L15 4m0 13V4m0 0L9 7"
+                              />
+                            </svg>
+                          </div>
+                          <div className="min-w-0">
+                            <h3
+                              className={`${terminal.className} text-xl sm:text-2xl font-bold text-blue-300 uppercase tracking-wide`}
+                            >
+                              Facility Map
+                            </h3>
+                            <p className="text-sm text-rh-white/60 mt-0.5">
+                              Venue layout, labs, and key locations
+                            </p>
+                          </div>
+                        </div>
+                        <button
+                          type="button"
+                          onClick={() => setShowMapModal(true)}
+                          className="block w-full -mx-1 sm:-mx-2 rounded-xl overflow-hidden border border-white/10 focus:outline-none focus:ring-2 focus:ring-blue-400/50 focus:ring-offset-2 focus:ring-offset-[#0a1628] cursor-zoom-in"
+                          aria-label="Expand facility map to view details"
+                        >
+                          <div className="relative w-full min-h-[220px] sm:min-h-[300px] lg:min-h-[360px] aspect-[4/3]">
+                            <Image
+                              src="/assets/rh_26/MAP.png"
+                              alt="RocketHacks facility map — labs, lounges, entrances, restrooms, and event spaces. Click to expand."
+                              fill
+                              className="object-contain"
+                              sizes="(max-width: 640px) 100vw, (max-width: 1024px) 90vw, 1200px"
+                              priority={false}
+                            />
+                          </div>
+                        </button>
+                        <p className="mt-3 text-xs text-rh-white/50 text-center sm:text-left">
+                          Click map to expand · Pinch to zoom on mobile
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Map expand modal — map fills screen, dashboard visible behind */}
+                  {showMapModal && (
+                    <div
+                      className="fixed inset-0 z-[100] pointer-events-none"
+                      role="dialog"
+                      aria-modal="true"
+                      aria-label="Facility map (expanded)"
+                    >
+                      {/* translucent tint + slight blur, but don't block scrolling */}
+                      <div
+                        className="absolute inset-0"
+                        style={{
+                          background:
+                            "linear-gradient(180deg, rgba(10, 22, 40, 0.55) 0%, rgba(6, 16, 42, 0.55) 50%, rgba(3, 12, 27, 0.55) 100%)",
+                          backdropFilter: "blur(3px)",
+                          WebkitBackdropFilter: "blur(3px)",
+                        }}
+                        aria-hidden
+                      />
+
+                      <div className="relative w-full h-full flex items-center justify-center">
+                        <div className="pointer-events-auto w-[min(1400px,98vw)] h-[min(92vh,950px)] flex items-center justify-center">
+                          <Image
+                            src="/assets/rh_26/MAP.png"
+                            alt="RocketHacks facility map — full size"
+                            width={2200}
+                            height={1400}
+                            className="w-full h-full object-contain drop-shadow-2xl"
+                            priority={false}
+                          />
+                        </div>
+
+                        <button
+                          type="button"
+                          onClick={() => setShowMapModal(false)}
+                          className="pointer-events-auto absolute top-3 right-3 sm:top-5 sm:right-5 p-2.5 sm:p-3 rounded-full bg-white/15 hover:bg-white/25 text-white border border-white/30 transition-colors focus:outline-none focus:ring-2 focus:ring-blue-400"
+                          aria-label="Close map"
+                        >
+                          <svg
+                            className="w-6 h-6 sm:w-7 sm:h-7"
+                            fill="none"
+                            stroke="currentColor"
+                            viewBox="0 0 24 24"
+                          >
+                            <path
+                              strokeLinecap="round"
+                              strokeLinejoin="round"
+                              strokeWidth={2}
+                              d="M6 18L18 6M6 6l12 12"
+                            />
+                          </svg>
+                        </button>
+                      </div>
+                    </div>
+                  )}
                 </div>
               )}
 
