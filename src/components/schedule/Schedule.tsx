@@ -30,12 +30,6 @@ const scheduleData = [
         location: "Nitschke Auditorium",
       },
       {
-        name: "Career Fair/Expo",
-        startTime: "10:00 AM",
-        endTime: "12:00 PM",
-        location: "NODE",
-      },
-      {
         name: "Lunch",
         startTime: "12:30 PM",
         endTime: "1:30 PM",
