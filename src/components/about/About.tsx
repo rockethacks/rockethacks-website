@@ -1,10 +1,8 @@
 import React, { useState, useEffect } from "react";
 import { PiTerminalWindow } from "react-icons/pi";
-import { IoDiamond } from "react-icons/io5";
 import { FaHandshake } from "react-icons/fa6";
 import { terminal } from "../../app/fonts/fonts";
 import Link from "next/link";
-import Image from "next/image";
 import { createClient } from "@/lib/supabase/client";
 import type { User } from "@supabase/supabase-js";
 
@@ -76,45 +74,12 @@ export default function About() {
           </div>
           {/* Action Cards */}
           <div
-            className="grid grid-cols-1 lg:grid-cols-3 gap-8 mb-20 animate-fade-scale"
+            className="grid grid-cols-1 md:grid-cols-2 gap-8 mb-20 animate-fade-scale justify-items-center"
             role="list"
           >
-            {/* Sponsorship Card */}
-            <div
-              className="card group text-center p-8 hover:scale-105 transition-all duration-500"
-              role="listitem"
-            >
-              <div className="flex flex-col h-full">
-                <div className="flex-grow">
-                  <div className="w-20 h-20 mx-auto mb-6 rounded-full bg-gradient-to-br from-rh-yellow to-rh-orange flex items-center justify-center group-hover:animate-pulse">
-                    <IoDiamond size={40} className="text-rh-navy-dark" />
-                  </div>
-                  <h3
-                    className={`${terminal.className} text-2xl mb-4 text-rh-yellow group-hover:text-rh-orange transition-colors`}
-                  >
-                    SPONSOR US
-                  </h3>
-                  <p className="text-rh-white/80 leading-relaxed mb-6">
-                    Partner with us to support the next generation of
-                    innovators. Check out our sponsorship packet for
-                    opportunities and benefits.
-                  </p>
-                </div>
-                <Link
-                  href="/documents/sponsorship-packet.pdf"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="btn-primary w-full group-hover:shadow-glow transition-all duration-300"
-                  aria-label="View sponsorship packet"
-                >
-                  VIEW PACKET
-                </Link>
-              </div>
-            </div>
-
             {/* Hackers Card */}
             <div
-              className="card group text-center p-8 hover:scale-105 transition-all duration-500"
+              className="card group text-center p-8 hover:scale-105 transition-all duration-500 w-full max-w-xl"
               role="listitem"
             >
               <div className="flex flex-col h-full">
@@ -148,7 +113,7 @@ export default function About() {
 
             {/* Volunteer Card */}
             <div
-              className="card group text-center p-8 hover:scale-105 transition-all duration-500"
+              className="card group text-center p-8 hover:scale-105 transition-all duration-500 w-full max-w-xl"
               role="listitem"
             >
               <div className="flex flex-col h-full">
