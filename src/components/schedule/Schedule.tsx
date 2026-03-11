@@ -14,7 +14,7 @@ const scheduleData = [
       {
         name: "Hacker Check-In",
         startTime: "8:30 AM",
-        endTime: "8:30 AM",
+        endTime: "-",
         location: "Nitschke Hall Entrance",
       },
       {
@@ -142,7 +142,11 @@ export default function Schedule() {
   const getEventType = (eventName: string): "workshop" | "food" | "general" => {
     const name = eventName.toLowerCase();
     if (name.includes("workshop")) return "workshop";
-    if (name.includes("lunch") || name.includes("dinner") || name.includes("breakfast")) {
+    if (
+      name.includes("lunch") ||
+      name.includes("dinner") ||
+      name.includes("breakfast")
+    ) {
       return "food";
     }
     return "general";
@@ -170,7 +174,9 @@ export default function Schedule() {
 
   const toggleFilter = (filter: "workshop" | "food") => {
     setActiveFilters((prev) =>
-      prev.includes(filter) ? prev.filter((f) => f !== filter) : [...prev, filter],
+      prev.includes(filter)
+        ? prev.filter((f) => f !== filter)
+        : [...prev, filter],
     );
   };
 
@@ -242,8 +248,7 @@ export default function Schedule() {
                   <Clock className="w-4 h-4 text-rh-yellow flex-shrink-0" />
                   <span className="truncate">
                     {event.startTime}{" "}
-                    <span className="text-rh-white/50">–</span>{" "}
-                    {event.endTime}
+                    <span className="text-rh-white/50">–</span> {event.endTime}
                   </span>
                 </div>
                 <div className="flex items-center gap-2 min-w-0">
@@ -357,7 +362,9 @@ export default function Schedule() {
                     >
                       <span className="w-2 h-2 rounded-full bg-rh-purple-light" />
                       Workshops
-                      <span className="text-xs opacity-75">({counts.workshop})</span>
+                      <span className="text-xs opacity-75">
+                        ({counts.workshop})
+                      </span>
                     </button>
                     <button
                       type="button"
@@ -371,7 +378,9 @@ export default function Schedule() {
                     >
                       <span className="w-2 h-2 rounded-full bg-rh-yellow" />
                       Food
-                      <span className="text-xs opacity-75">({counts.food})</span>
+                      <span className="text-xs opacity-75">
+                        ({counts.food})
+                      </span>
                     </button>
                   </div>
                 </div>
@@ -381,7 +390,11 @@ export default function Schedule() {
               <div className="max-h-[520px] md:max-h-[620px] overflow-y-auto px-4 sm:px-6 py-4 space-y-3">
                 {filteredEvents.length > 0 ? (
                   filteredEvents.map((event, index) => (
-                    <EventCard key={`${event.name}-${index}`} event={event} index={index} />
+                    <EventCard
+                      key={`${event.name}-${index}`}
+                      event={event}
+                      index={index}
+                    />
                   ))
                 ) : (
                   <div className="text-center py-10 text-rh-purple-light">
