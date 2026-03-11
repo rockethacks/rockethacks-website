@@ -30,17 +30,18 @@ const scheduleData = [
         location: "Nitschke Auditorium",
       },
       {
-        name: "Lunch",
-        startTime: "12:30 PM",
-        endTime: "1:30 PM",
-        location: "The NODE",
-      },
-      {
         name: "Hacking Starts!",
         startTime: "11:00 AM",
         endTime: "-",
         location: "NI hallway & NE tables",
       },
+      {
+        name: "Lunch",
+        startTime: "12:30 PM",
+        endTime: "1:30 PM",
+        location: "The NODE",
+      },
+
       {
         name: "Hacking with GitHub Copilot - MLH Workshop",
         startTime: "11:00 AM",
