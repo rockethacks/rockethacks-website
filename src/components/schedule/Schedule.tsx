@@ -1,14 +1,8 @@
 "use client";
-import React, { useState } from "react";
+import React, { useMemo, useState } from "react";
 import localFont from "next/font/local";
 import { motion, AnimatePresence } from "framer-motion";
 import { Clock, MapPin } from "lucide-react";
-import {
-  Accordion,
-  AccordionContent,
-  AccordionItem,
-  AccordionTrigger,
-} from "@/components/ui/accordion";
 
 const terminal = localFont({ src: "../../app/fonts/terminal-grotesque.ttf" });
 
@@ -54,10 +48,40 @@ const scheduleData = [
         location: "NI hallway & NE tables",
       },
       {
-        name: "Workshops",
+        name: "Hacking with GitHub Copilot - MLH Workshop",
         startTime: "11:00 AM",
-        endTime: "5:00 PM",
-        location: "T.B.D.",
+        endTime: "11:30 AM",
+        location: "NE 1039",
+      },
+      {
+        name: "Intro to Arduino Workshop - MIME Workshop",
+        startTime: "11:30 AM",
+        endTime: "1:00 PM",
+        location: "NE 1320",
+      },
+      {
+        name: "Tech Together - MLH Workshop",
+        startTime: "12:30 AM",
+        endTime: "1:00 PM",
+        location: "NE 1021",
+      },
+      {
+        name: "Intro to Google AI Studio - MLH Workshop",
+        startTime: "1:30 PM",
+        endTime: "2:00 PM",
+        location: "NE 1039",
+      },
+      {
+        name: "From Prompt to Agent: Creating an OpenClaw AI Agent - CodeEcho Workshop",
+        startTime: "2:00 PM",
+        endTime: "3:00 PM",
+        location: "NE 1300",
+      },
+      {
+        name: "Ship It: Build Real Software with AI in One Hackathon - A.R.T. Workshop",
+        startTime: "3:00 PM",
+        endTime: "4:00 PM",
+        location: "NE 1039",
       },
       {
         name: "Dinner",
@@ -107,10 +131,48 @@ const scheduleData = [
 
 export default function Schedule() {
   const [selectedDay, setSelectedDay] = useState("Saturday");
+  const [activeFilters, setActiveFilters] = useState<
+    Array<"workshop" | "food">
+  >([]);
 
   const currentDaySchedule = scheduleData.find(
     (item) => item.day === selectedDay,
   );
+
+  const getEventType = (eventName: string): "workshop" | "food" | "general" => {
+    const name = eventName.toLowerCase();
+    if (name.includes("workshop")) return "workshop";
+    if (name.includes("lunch") || name.includes("dinner") || name.includes("breakfast")) {
+      return "food";
+    }
+    return "general";
+  };
+
+  const filteredEvents = useMemo(() => {
+    if (!currentDaySchedule) return [];
+    if (activeFilters.length === 0) return currentDaySchedule.events;
+    return currentDaySchedule.events.filter((event) => {
+      const type = getEventType(event.name);
+      return activeFilters.includes(type as "workshop" | "food");
+    });
+  }, [currentDaySchedule, activeFilters]);
+
+  const counts = useMemo(() => {
+    const base = { workshop: 0, food: 0 };
+    if (!currentDaySchedule) return base;
+    for (const e of currentDaySchedule.events) {
+      const t = getEventType(e.name);
+      if (t === "workshop") base.workshop += 1;
+      if (t === "food") base.food += 1;
+    }
+    return base;
+  }, [currentDaySchedule]);
+
+  const toggleFilter = (filter: "workshop" | "food") => {
+    setActiveFilters((prev) =>
+      prev.includes(filter) ? prev.filter((f) => f !== filter) : [...prev, filter],
+    );
+  };
 
   const EventCard = ({
     event,
@@ -118,43 +180,83 @@ export default function Schedule() {
   }: {
     event: (typeof scheduleData)[0]["events"][0];
     index: number;
-  }) => (
-    <motion.div
-      initial={{ opacity: 0, y: 10 }}
-      whileInView={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.3, delay: index * 0.05 }}
-      viewport={{ once: true }}
-      className="group"
-    >
-      <Accordion type="single" collapsible>
-        <AccordionItem value={`event-${index}`} className="border-0 mb-3">
-          <AccordionTrigger className="px-4 py-3 rounded-lg bg-gradient-to-r from-rh-navy-light/40 to-rh-navy-dark/40 backdrop-blur-sm border border-rh-yellow/20 hover:border-rh-yellow/50 hover:from-rh-navy-light/60 hover:to-rh-navy-dark/60 transition-all duration-300 group-hover:shadow-lg group-hover:shadow-rh-yellow/20 [&[data-state=open]]:bg-gradient-to-r [&[data-state=open]]:from-rh-navy-light/60 [&[data-state=open]]:to-rh-navy-dark/60 [&[data-state=open]]:border-rh-yellow/50">
-            <div className="flex items-start justify-between w-full gap-4">
-              <div className="text-left flex-1">
-                <h3 className="text-base md:text-lg font-bold text-white mb-2 group-hover:text-rh-yellow transition-colors">
+  }) => {
+    const type = getEventType(event.name);
+    const accent =
+      type === "workshop"
+        ? {
+            border: "border-rh-purple-light/35 hover:border-rh-purple-light/60",
+            glow: "group-hover:shadow-rh-purple-light/20",
+            badge:
+              "bg-rh-purple-light/15 text-rh-purple-light border-rh-purple-light/35",
+            dot: "bg-rh-purple-light",
+          }
+        : type === "food"
+          ? {
+              border: "border-rh-yellow/30 hover:border-rh-yellow/60",
+              glow: "group-hover:shadow-rh-yellow/20",
+              badge: "bg-rh-yellow/15 text-rh-yellow border-rh-yellow/35",
+              dot: "bg-rh-yellow",
+            }
+          : {
+              border: "border-white/10 hover:border-white/20",
+              glow: "group-hover:shadow-white/10",
+              badge: "bg-white/5 text-rh-white/70 border-white/10",
+              dot: "bg-rh-orange",
+            };
+
+    return (
+      <motion.div
+        initial={{ opacity: 0, y: 10 }}
+        whileInView={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.28, delay: index * 0.03 }}
+        viewport={{ once: true }}
+        className="group"
+      >
+        <div
+          className={`relative px-4 py-3 rounded-lg bg-gradient-to-r from-rh-navy-light/40 to-rh-navy-dark/40 backdrop-blur-sm border ${accent.border} hover:from-rh-navy-light/60 hover:to-rh-navy-dark/60 transition-all duration-300 group-hover:shadow-lg ${accent.glow}`}
+        >
+          <div className="absolute left-0 top-0 bottom-0 w-1 rounded-l-lg opacity-70">
+            <div className={`h-full w-full ${accent.dot}`} />
+          </div>
+
+          <div className="flex items-start justify-between gap-4 pl-2">
+            <div className="min-w-0 flex-1">
+              <div className="flex items-start justify-between gap-3">
+                <h3 className="text-base md:text-lg font-bold text-white group-hover:text-rh-yellow transition-colors leading-snug">
                   {event.name}
                 </h3>
-                <div className="flex flex-col gap-2 text-xs md:text-sm text-rh-purple-light">
-                  <div className="flex items-center gap-2">
-                    <Clock className="w-4 h-4 text-rh-yellow flex-shrink-0" />
-                    <span>
-                      {event.startTime} - {event.endTime}
-                    </span>
-                  </div>
+                <span
+                  className={`hidden sm:inline-flex flex-shrink-0 items-center px-2.5 py-1 text-[11px] font-semibold rounded-full border ${accent.badge}`}
+                >
+                  {type === "workshop"
+                    ? "Workshop"
+                    : type === "food"
+                      ? "Food"
+                      : "Event"}
+                </span>
+              </div>
+
+              <div className="mt-2 grid grid-cols-1 sm:grid-cols-2 gap-2 text-xs md:text-sm text-rh-white/80">
+                <div className="flex items-center gap-2 min-w-0">
+                  <Clock className="w-4 h-4 text-rh-yellow flex-shrink-0" />
+                  <span className="truncate">
+                    {event.startTime}{" "}
+                    <span className="text-rh-white/50">–</span>{" "}
+                    {event.endTime}
+                  </span>
+                </div>
+                <div className="flex items-center gap-2 min-w-0">
+                  <MapPin className="w-4 h-4 text-rh-orange flex-shrink-0" />
+                  <span className="truncate">{event.location}</span>
                 </div>
               </div>
             </div>
-          </AccordionTrigger>
-          <AccordionContent className="px-4 pt-4 pb-3 bg-rh-navy-dark/50 border-t border-rh-yellow/20">
-            <div className="flex items-center gap-2 text-rh-white">
-              <MapPin className="w-5 h-5 text-rh-yellow flex-shrink-0" />
-              <span className="text-sm">{event.location}</span>
-            </div>
-          </AccordionContent>
-        </AccordionItem>
-      </Accordion>
-    </motion.div>
-  );
+          </div>
+        </div>
+      </motion.div>
+    );
+  };
 
   return (
     <section
@@ -213,17 +315,80 @@ export default function Schedule() {
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, y: -20 }}
               transition={{ duration: 0.3 }}
-              className="space-y-3"
+              className="rounded-2xl border border-white/10 bg-rh-navy-dark/30 backdrop-blur-md shadow-2xl overflow-hidden"
             >
-              {currentDaySchedule.events.length > 0 ? (
-                currentDaySchedule.events.map((event, index) => (
-                  <EventCard key={index} event={event} index={index} />
-                ))
-              ) : (
-                <div className="text-center py-8 text-rh-purple-light">
-                  No events scheduled for this day.
+              {/* Filter Bar */}
+              <div className="sticky top-0 z-10 border-b border-white/10 bg-gradient-to-r from-rh-navy-dark/65 to-rh-navy-light/40 backdrop-blur-xl">
+                <div className="px-4 sm:px-6 py-4 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+                  <div className="min-w-0">
+                    <div className="flex items-center gap-3">
+                      <p className="text-sm text-rh-white/70">
+                        Showing{" "}
+                        <span className="text-rh-yellow font-semibold">
+                          {filteredEvents.length}
+                        </span>{" "}
+                        event{filteredEvents.length === 1 ? "" : "s"}
+                      </p>
+                      {activeFilters.length > 0 && (
+                        <button
+                          type="button"
+                          onClick={() => setActiveFilters([])}
+                          className="text-xs text-rh-white/60 hover:text-rh-white/90 underline underline-offset-4"
+                        >
+                          Clear
+                        </button>
+                      )}
+                    </div>
+                    <p className="text-xs text-rh-white/40 mt-1">
+                      Tip: toggle Workshops and Food to focus fast.
+                    </p>
+                  </div>
+
+                  <div className="flex flex-wrap gap-2">
+                    <button
+                      type="button"
+                      onClick={() => toggleFilter("workshop")}
+                      className={`inline-flex items-center gap-2 px-3.5 py-2 rounded-full border text-sm font-semibold transition-all ${
+                        activeFilters.includes("workshop")
+                          ? "bg-rh-purple-light/20 text-rh-purple-light border-rh-purple-light/45 shadow-lg shadow-rh-purple-light/15"
+                          : "bg-white/5 text-rh-white/70 border-white/10 hover:border-rh-purple-light/30 hover:text-rh-white/90"
+                      }`}
+                      aria-pressed={activeFilters.includes("workshop")}
+                    >
+                      <span className="w-2 h-2 rounded-full bg-rh-purple-light" />
+                      Workshops
+                      <span className="text-xs opacity-75">({counts.workshop})</span>
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => toggleFilter("food")}
+                      className={`inline-flex items-center gap-2 px-3.5 py-2 rounded-full border text-sm font-semibold transition-all ${
+                        activeFilters.includes("food")
+                          ? "bg-rh-yellow/20 text-rh-yellow border-rh-yellow/45 shadow-lg shadow-rh-yellow/15"
+                          : "bg-white/5 text-rh-white/70 border-white/10 hover:border-rh-yellow/30 hover:text-rh-white/90"
+                      }`}
+                      aria-pressed={activeFilters.includes("food")}
+                    >
+                      <span className="w-2 h-2 rounded-full bg-rh-yellow" />
+                      Food
+                      <span className="text-xs opacity-75">({counts.food})</span>
+                    </button>
+                  </div>
                 </div>
-              )}
+              </div>
+
+              {/* Scrollable Events List */}
+              <div className="max-h-[520px] md:max-h-[620px] overflow-y-auto px-4 sm:px-6 py-4 space-y-3">
+                {filteredEvents.length > 0 ? (
+                  filteredEvents.map((event, index) => (
+                    <EventCard key={`${event.name}-${index}`} event={event} index={index} />
+                  ))
+                ) : (
+                  <div className="text-center py-10 text-rh-purple-light">
+                    No events match your filters.
+                  </div>
+                )}
+              </div>
             </motion.div>
           )}
         </AnimatePresence>

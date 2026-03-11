@@ -345,14 +345,6 @@ const sponsorTracksData = [
     gradient: "from-pink-500/15 to-rose-600/10",
   },
   {
-    id: "runanywhere",
-    name: "RunAnywhere",
-    description:
-      "Build a project with RunAnywhere AI at its core. Most creative and technically sound use of the platform wins. Top 2 teams take home an OpenClaw Raspberry Pi kit.",
-    accent: "#22c55e",
-    gradient: "from-emerald-500/15 to-green-600/10",
-  },
-  {
     id: "base44",
     name: "Base44",
     description:
