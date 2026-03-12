@@ -35,6 +35,19 @@ export default function AdminPage() {
     checkAdminAndLoadData();
   }, []);
 
+  const calculateRsvpStats = () => {
+    const rsvpCount = applications.filter((app) => app.rsvp_attending).length;
+    const rsvpFirstTimers = applications.filter(
+      (app) => app.rsvp_attending && app.first_hackathon,
+    ).length;
+
+    return {
+      status: "rsvp",
+      count: rsvpCount,
+      first_time_hackers: rsvpFirstTimers,
+    };
+  };
+
   const loadApplications = async () => {
     const { data, error } = await supabase
       .from("applicants")
@@ -129,6 +142,8 @@ export default function AdminPage() {
         return "bg-red-500/20 text-red-400";
       case "waitlisted":
         return "bg-blue-500/20 text-blue-400";
+      case "rsvp":
+        return "bg-purple-500/20 text-purple-400";
       default:
         return "bg-gray-500/20 text-gray-400";
     }
@@ -257,7 +272,7 @@ export default function AdminPage() {
 
         {/* Stats */}
         {stats && stats.length > 0 && (
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
+          <div className="grid grid-cols-2 md:grid-cols-5 gap-4 mb-8">
             {stats.map((stat: any) => (
               <div
                 key={stat.status}
@@ -276,6 +291,20 @@ export default function AdminPage() {
                 </div>
               </div>
             ))}
+            {/* RSVP Card */}
+            {applications.length > 0 && (
+              <div className="bg-white/5 backdrop-blur-lg rounded-xl border border-white/10 p-6">
+                <div className="inline-block px-3 py-1 rounded-lg text-sm font-semibold uppercase mb-2 bg-purple-500/20 text-purple-400">
+                  RSVP
+                </div>
+                <div className="text-3xl font-bold text-white">
+                  {calculateRsvpStats().count}
+                </div>
+                <div className="text-sm text-gray-400 mt-2">
+                  {calculateRsvpStats().first_time_hackers} first-timers
+                </div>
+              </div>
+            )}
           </div>
         )}
 
