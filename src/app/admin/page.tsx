@@ -134,6 +134,12 @@ export default function AdminPage() {
     }
   };
 
+  const getRsvpColor = (rsvpAttending: boolean) => {
+    return rsvpAttending
+      ? "bg-green-500/20 text-green-400"
+      : "bg-white/10 text-gray-200";
+  };
+
   const exportToExcel = () => {
     // Prepare data with headers
     const data = filteredApplications.map((app) => ({
@@ -149,6 +155,7 @@ export default function AdminPage() {
       Gender: app.gender || "",
       Pronouns: app.pronouns || "",
       Status: app.status,
+      RSVP: app.rsvp_attending ? "Yes" : "No",
       Role: app.role || "participant",
       "First Hackathon": app.first_hackathon ? "Yes" : "No",
       "T-Shirt Size": app.tshirt_size || "",
@@ -183,6 +190,7 @@ export default function AdminPage() {
       { wch: 12 }, // Gender
       { wch: 12 }, // Pronouns
       { wch: 12 }, // Status
+      { wch: 10 }, // RSVP
       { wch: 12 }, // Role
       { wch: 15 }, // First Hackathon
       { wch: 12 }, // T-Shirt Size
@@ -314,7 +322,7 @@ export default function AdminPage() {
                   <th className="px-6 py-4">Name</th>
                   <th className="px-6 py-4">School</th>
                   <th className="px-6 py-4">Major</th>
-                  <th className="px-6 py-4">Age</th>
+                  <th className="px-6 py-4">RSVP</th>
                   <th className="px-6 py-4">Status</th>
                   <th className="px-6 py-4">Submitted</th>
                   <th className="px-6 py-4">Actions</th>
@@ -336,8 +344,12 @@ export default function AdminPage() {
                     <td className="px-6 py-4 text-gray-300">
                       {app.major || "-"}
                     </td>
-                    <td className="px-6 py-4 text-gray-300">
-                      {app.age || "-"}
+                    <td className="px-6 py-4">
+                      <span
+                        className={`px-3 py-1 rounded-lg text-xs font-semibold uppercase ${getRsvpColor(!!app.rsvp_attending)}`}
+                      >
+                        {!!app.rsvp_attending ? "Yes" : "No"}
+                      </span>
                     </td>
                     <td className="px-6 py-4">
                       <span

@@ -21,6 +21,8 @@ export default function DashboardPage() {
   const [application, setApplication] = useState<any>(null);
   const [isAdmin, setIsAdmin] = useState(false);
   const [isOrganizer, setIsOrganizer] = useState(false);
+  const [rsvpUpdating, setRsvpUpdating] = useState<null | boolean>(null);
+  const [rsvpError, setRsvpError] = useState<string | null>(null);
   const [completeness, setCompleteness] = useState<CompletenessResult | null>(
     null,
   );
@@ -82,6 +84,28 @@ export default function DashboardPage() {
   const handleLogout = async () => {
     await supabase.auth.signOut();
     router.push("/");
+  };
+
+  const updateRsvp = async (attending: boolean) => {
+    if (!application?.id) return;
+    setRsvpError(null);
+    setRsvpUpdating(attending);
+    const { error } = await supabase
+      .from("applicants")
+      .update({ rsvp_attending: attending })
+      .eq("id", application.id);
+
+    if (error) {
+      console.error("Error updating RSVP:", error);
+      setRsvpError("Failed to update RSVP. Please try again.");
+      setRsvpUpdating(null);
+      return;
+    }
+
+    setApplication((prev: any) =>
+      prev ? { ...prev, rsvp_attending: attending } : prev,
+    );
+    setRsvpUpdating(null);
   };
 
   const getStatusColor = (status: string) => {
@@ -202,8 +226,8 @@ export default function DashboardPage() {
                         className={`${terminal.className} text-xl font-semibold uppercase tracking-wide ${completeness.isComplete ? "text-green-400" : "text-yellow-400"}`}
                       >
                         {completeness.isComplete
-                          ? "✓ Application Complete"
-                          : "⚠️ Application Incomplete"}
+                          ? "Application Complete"
+                          : "Application Incomplete"}
                       </h3>
                       {!completeness.isComplete && (
                         <span className="text-sm text-rh-white/60">
@@ -376,7 +400,7 @@ export default function DashboardPage() {
                             Accepted!
                           </h3>
                           <p className="text-green-300/90 text-base sm:text-lg font-semibold">
-                            🎉 Congratulations! You're in!
+                            Congratulations! You're in!
                           </p>
                         </div>
 
@@ -502,7 +526,7 @@ export default function DashboardPage() {
                           >
                             {application.checked_in
                               ? "✓ Verified & Active"
-                              : "⏳ Pending Check-In"}
+                              : "Pending Check-In"}
                           </p>
                         </div>
 
@@ -615,112 +639,100 @@ export default function DashboardPage() {
                     </div>
                   </div>
 
-                  {/* Hacker Q&A Session Card */}
-                  <a
-                    href="https://teams.microsoft.com/meet/27576670859255?p=Ei9LrgVXTEHLAqChjp"
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="relative rounded-2xl backdrop-blur-xl overflow-hidden border-2 border-violet-500/40 shadow-2xl hover:border-violet-500/60 transition-all duration-300 group"
+                  {/* RSVP Card (accepted hackers only) */}
+                  <div
+                    className="relative rounded-2xl backdrop-blur-xl overflow-hidden border-2 border-rh-yellow/50 shadow-2xl"
                     style={{
                       background:
-                        "linear-gradient(135deg, rgba(139, 92, 246, 0.15) 0%, rgba(124, 58, 237, 0.08) 100%)",
+                        "linear-gradient(135deg, rgba(245, 158, 11, 0.18) 0%, rgba(217, 119, 6, 0.08) 55%, rgba(239, 68, 68, 0.06) 100%)",
                     }}
                   >
-                    <div className="absolute inset-0 bg-gradient-to-br from-violet-400/5 via-transparent to-violet-600/10 pointer-events-none"></div>
+                    <div className="absolute inset-0 bg-gradient-to-br from-rh-yellow/10 via-transparent to-red-500/10 pointer-events-none"></div>
                     <div className="relative p-6 sm:p-8">
-                      <div className="inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-violet-500/20 border-2 border-violet-400/40 mb-4 shadow-lg group-hover:scale-110 transition-transform duration-300">
-                        <svg
-                          className="w-9 h-9 text-violet-400"
-                          fill="none"
-                          stroke="currentColor"
-                          viewBox="0 0 24 24"
-                        >
-                          <path
-                            strokeLinecap="round"
-                            strokeLinejoin="round"
-                            strokeWidth={2}
-                            d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"
-                          />
-                        </svg>
-                      </div>
-                      <div className="space-y-3">
-                        <h3
-                          className={`${terminal.className} text-xl sm:text-2xl font-bold text-violet-400 uppercase tracking-wide mb-2`}
-                        >
-                          Hacker Q&A Session
-                        </h3>
-                        <p className="text-violet-300/90 text-base font-semibold">
-                          Meet the organizing team and ask any questions!
-                        </p>
-                        <div className="h-1 w-20 bg-gradient-to-r from-violet-400 to-violet-600 rounded-full"></div>
-                        <ul className="text-sm text-rh-white/80 space-y-1.5">
-                          <li className="flex items-start gap-2">
-                            <span className="text-violet-400 mt-0.5">•</span>
-                            <span>
-                              Learn about event schedule and expectations
-                            </span>
-                          </li>
-                          <li className="flex items-start gap-2">
-                            <span className="text-violet-400 mt-0.5">•</span>
-                            <span>
-                              Ask about projects, teams, and resources
-                            </span>
-                          </li>
-                          <li className="flex items-start gap-2">
-                            <span className="text-violet-400 mt-0.5">•</span>
-                            <span>Chat with the organizing team</span>
-                          </li>
-                        </ul>
-                        <div className="flex flex-wrap gap-3 pt-2 text-sm text-violet-300/90">
-                          <span className="flex items-center gap-1.5">
-                            <svg
-                              className="w-4 h-4"
-                              fill="none"
-                              stroke="currentColor"
-                              viewBox="0 0 24 24"
+                      <div className="flex items-start justify-between gap-4">
+                        <div className="min-w-0">
+                          <div className="flex items-center gap-3 mb-2">
+                            <div className="inline-flex items-center justify-center w-14 h-14 rounded-2xl bg-rh-yellow/20 border-2 border-rh-yellow/40 shadow-lg">
+                              <svg
+                                className="w-8 h-8 text-rh-yellow"
+                                fill="none"
+                                stroke="currentColor"
+                                viewBox="0 0 24 24"
+                              >
+                                <path
+                                  strokeLinecap="round"
+                                  strokeLinejoin="round"
+                                  strokeWidth={2.5}
+                                  d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"
+                                />
+                              </svg>
+                            </div>
+                            <div className="min-w-0">
+                              <h3
+                                className={`${terminal.className} text-xl sm:text-2xl font-bold text-rh-yellow uppercase tracking-wide`}
+                              >
+                                RSVP Required
+                              </h3>
+                              <p className="text-sm text-rh-white/70 mt-0.5">
+                                March 14–15, 2026 (Saturday–Sunday)
+                              </p>
+                            </div>
+                          </div>
+
+                          <p className="text-sm sm:text-base text-rh-white/85 leading-relaxed">
+                            Will you be present for RocketHacks on March 14 and
+                            15, 2026?
+                          </p>
+
+                          <div className="mt-4 flex flex-wrap items-center gap-3">
+                            {application?.rsvp_attending && (
+                              <span className="px-3 py-1 rounded-lg border text-xs font-semibold uppercase tracking-wide bg-green-500/20 text-green-300 border-green-500/40">
+                                RSVP Confirmed
+                              </span>
+                            )}
+                            {rsvpError && (
+                              <span className="text-xs text-red-300">
+                                {rsvpError}
+                              </span>
+                            )}
+                          </div>
+
+                          <div className="mt-5 flex flex-col gap-3 w-full">
+                            <button
+                              type="button"
+                              onClick={() => updateRsvp(true)}
+                              disabled={rsvpUpdating !== null}
+                              className={`btn-primary px-6 py-3 text-sm font-semibold w-full ${
+                                application?.rsvp_attending ? "ring-2 ring-green-400/40" : ""
+                              }`}
                             >
-                              <path
-                                strokeLinecap="round"
-                                strokeLinejoin="round"
-                                strokeWidth={2}
-                                d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"
-                              />
-                            </svg>
-                            Monday, March 9
-                          </span>
-                          <span className="flex items-center gap-1.5">
-                            <svg
-                              className="w-4 h-4"
-                              fill="none"
-                              stroke="currentColor"
-                              viewBox="0 0 24 24"
+                              Yes, I will be there
+                            </button>
+                            <button
+                              type="button"
+                              onClick={() => updateRsvp(false)}
+                              disabled={rsvpUpdating !== null}
+                              className={`btn-secondary px-6 py-3 text-sm font-semibold w-full ${
+                                !application?.rsvp_attending
+                                  ? "ring-2 ring-white/15"
+                                  : ""
+                              }`}
                             >
-                              <path
-                                strokeLinecap="round"
-                                strokeLinejoin="round"
-                                strokeWidth={2}
-                                d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"
-                              />
-                            </svg>
-                            4:00 PM – 5:00 PM EST
-                          </span>
-                        </div>
-                        <div className="pt-4">
-                          <span className="inline-flex items-center gap-2 px-4 py-2.5 bg-violet-500/30 group-hover:bg-violet-500/50 transition-colors rounded-lg border border-violet-400/50 text-violet-300 font-semibold">
-                            <svg
-                              className="w-5 h-5"
-                              fill="currentColor"
-                              viewBox="0 0 24 24"
-                            >
-                              <path d="M20.5 2h-17A1.5 1.5 0 002 3.5v17A1.5 1.5 0 003.5 22h17a1.5 1.5 0 001.5-1.5v-17A1.5 1.5 0 0020.5 2zM14 7h1.5v1.5H14V7zm-2.5 0h1.5v1.5h-1.5V7zM9 7h1.5v1.5H9V7zM6.5 7H8v1.5H6.5V7zm12 9h-13v-1.5h13V16zm0-3h-13v-1.5h13V13zm0-3h-13v-1.5h13V10z" />
-                            </svg>
-                            Join Teams Meeting
-                          </span>
+                              No, I will not be there
+                            </button>
+                          </div>
+
+                          {rsvpUpdating !== null && (
+                            <p className="mt-3 text-xs text-rh-white/60">
+                              Saving your RSVP…
+                            </p>
+                          )}
                         </div>
                       </div>
-                      <div className="absolute top-0 right-0 w-32 h-32 bg-gradient-to-bl from-violet-400/10 to-transparent rounded-bl-full"></div>
+
+                      <div className="absolute top-0 right-0 w-32 h-32 bg-gradient-to-bl from-rh-yellow/10 to-transparent rounded-bl-full"></div>
                     </div>
-                  </a>
+                  </div>
 
                   {/* Intro to AWS Cloud Services Workshop Card */}
                   <a
