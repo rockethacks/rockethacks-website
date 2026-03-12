@@ -703,7 +703,9 @@ export default function DashboardPage() {
                               onClick={() => updateRsvp(true)}
                               disabled={rsvpUpdating !== null}
                               className={`btn-primary px-6 py-3 text-sm font-semibold w-full ${
-                                application?.rsvp_attending ? "ring-2 ring-green-400/40" : ""
+                                application?.rsvp_attending
+                                  ? "ring-2 ring-green-400/40"
+                                  : ""
                               }`}
                             >
                               Yes, I will be there
@@ -736,7 +738,7 @@ export default function DashboardPage() {
 
                   {/* Intro to AWS Cloud Services Workshop Card */}
                   <a
-                    href="https://teams.microsoft.com/meet/25300630669102?p=OCT7ilEMEqGtfibEJv"
+                    href="https://amazon.zoom.us/j/94561464768?pwd=xeXUY67U2ia28Z1LBKxsiaczroo3Kd.1&from=addon"
                     target="_blank"
                     rel="noopener noreferrer"
                     className="relative rounded-2xl backdrop-blur-xl overflow-hidden border-2 border-rose-500/40 shadow-2xl hover:border-rose-500/60 transition-all duration-300 group"
@@ -821,7 +823,7 @@ export default function DashboardPage() {
                             >
                               <path d="M20.5 2h-17A1.5 1.5 0 002 3.5v17A1.5 1.5 0 003.5 22h17a1.5 1.5 0 001.5-1.5v-17A1.5 1.5 0 0020.5 2zM14 7h1.5v1.5H14V7zm-2.5 0h1.5v1.5h-1.5V7zM9 7h1.5v1.5H9V7zM6.5 7H8v1.5H6.5V7zm12 9h-13v-1.5h13V16zm0-3h-13v-1.5h13V13zm0-3h-13v-1.5h13V10z" />
                             </svg>
-                            Join Teams Meeting
+                            Join Zoom Call
                           </span>
                         </div>
                       </div>
