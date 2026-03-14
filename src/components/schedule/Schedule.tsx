@@ -67,12 +67,6 @@ const scheduleData = [
         location: "NE 1300",
       },
       {
-        name: "Ship It: Build Real Software with AI in One Hackathon - A.R.T. Workshop",
-        startTime: "3:00 PM",
-        endTime: "4:00 PM",
-        location: "NE 1039",
-      },
-      {
         name: "Tech Together - MLH Workshop",
         startTime: "4:15 PM",
         endTime: "4:45 PM",
