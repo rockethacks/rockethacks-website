@@ -58,7 +58,7 @@ const scheduleData = [
         name: "Intro to Google AI Studio - MLH Workshop",
         startTime: "1:30 PM",
         endTime: "2:00 PM",
-        location: "NE 1039",
+        location: "SSOE",
       },
       {
         name: "From Prompt to Agent: Creating an OpenClaw AI Agent - CodeEcho Workshop",
