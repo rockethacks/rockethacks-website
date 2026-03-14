@@ -55,12 +55,6 @@ const scheduleData = [
         location: "NE 1320",
       },
       {
-        name: "Tech Together - MLH Workshop",
-        startTime: "12:30 AM",
-        endTime: "1:00 PM",
-        location: "NE 1021",
-      },
-      {
         name: "Intro to Google AI Studio - MLH Workshop",
         startTime: "1:30 PM",
         endTime: "2:00 PM",
@@ -77,6 +71,12 @@ const scheduleData = [
         startTime: "3:00 PM",
         endTime: "4:00 PM",
         location: "NE 1039",
+      },
+      {
+        name: "Tech Together - MLH Workshop",
+        startTime: "4:15 PM",
+        endTime: "4:45 PM",
+        location: "NE 1021",
       },
       {
         name: "Dinner",
