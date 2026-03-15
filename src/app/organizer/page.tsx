@@ -4,6 +4,7 @@ import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
 import Link from "next/link";
+import * as XLSX from "xlsx";
 import type { Applicant } from "@/types/database";
 
 export default function OrganizerPortal() {
@@ -19,7 +20,6 @@ export default function OrganizerPortal() {
 
   useEffect(() => {
     async function checkOrganizerAndLoadData() {
-      // Check if user is organizer or admin
       const authResponse = await fetch("/api/auth/user");
       const authData = await authResponse.json();
 
@@ -36,7 +36,6 @@ export default function OrganizerPortal() {
   }, []);
 
   const loadApplicants = async () => {
-    // Only load accepted applicants for check-in
     const { data, error } = await supabase
       .from("applicants")
       .select("*")
@@ -85,6 +84,44 @@ export default function OrganizerPortal() {
   const handleLogout = async () => {
     await supabase.auth.signOut();
     router.push("/");
+  };
+
+  const exportToExcel = () => {
+    const data = filteredApplicants.map((app) => ({
+      "First Name": app.first_name || "",
+      "Last Name": app.last_name || "",
+      Age: app.age || "",
+      Email: app.email || "",
+      School: app.school || "",
+      "Phone Number": app.phone_number || "",
+      Country: app.country_of_residence || "",
+      "Level of Study": app.level_of_study || "",
+      "Checked In": app.checked_in ? "Yes" : "No",
+      "Checked In At": app.checked_in_at
+        ? new Date(app.checked_in_at).toLocaleString()
+        : "",
+    }));
+
+    const worksheet = XLSX.utils.json_to_sheet(data);
+
+    worksheet["!cols"] = [
+      { wch: 15 }, // First Name
+      { wch: 15 }, // Last Name
+      { wch: 8 }, // Age
+      { wch: 30 }, // Email
+      { wch: 35 }, // School
+      { wch: 15 }, // Phone Number
+      { wch: 20 }, // Country
+      { wch: 18 }, // Level of Study
+      { wch: 12 }, // Checked In
+      { wch: 22 }, // Checked In At
+    ];
+
+    const workbook = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(workbook, worksheet, "Check-Ins");
+
+    const fileName = `RocketHacks_2026_CheckIns_${new Date().toISOString().split("T")[0]}.xlsx`;
+    XLSX.writeFile(workbook, fileName);
   };
 
   const filteredApplicants = applicants.filter((app) => {
@@ -197,6 +234,12 @@ export default function OrganizerPortal() {
               <option value="checked-in">Checked In</option>
               <option value="not-checked-in">Not Checked In</option>
             </select>
+            <button
+              onClick={exportToExcel}
+              className="px-6 py-2 bg-green-600 hover:bg-green-700 text-white font-semibold rounded-lg transition-all duration-200"
+            >
+              Export Excel
+            </button>
           </div>
           <div className="mt-4 text-sm text-gray-400">
             Showing {filteredApplicants.length} of {applicants.length} accepted
