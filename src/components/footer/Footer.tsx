@@ -63,7 +63,6 @@ export default function Footer() {
     { href: "#about", label: "About" },
     { href: "#sponsor", label: "Sponsors" },
     { href: "#contact", label: "Contact" },
-    { href: "#faq", label: "FAQ" },
     { href: "/team", label: "Team" },
   ];
 

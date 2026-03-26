@@ -85,11 +85,8 @@ export default function Navbar() {
   const navLinks = [
     { href: "#about", label: "ABOUT" },
     { href: "/gallery", label: "2025" },
-    { href: "#tracks", label: "TRACKS" },
     { href: "#sponsor", label: "SPONSORS" },
     { href: "#contact", label: "CONTACT" },
-    { href: "#faq", label: "FAQ" },
-    { href: "/login", label: "APPLY", highlight: true },
     // Temporarily hidden - uncomment to enable team page
     // { href: "/team", label: "TEAM" }
   ];

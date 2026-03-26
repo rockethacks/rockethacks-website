@@ -5,8 +5,6 @@ import dynamic from "next/dynamic";
 import Navbar from "@/components/navbar/Navbar";
 import Hero from "@/components/hero/Hero";
 import About from "@/components/about/About";
-import Tracks from "@/components/tracks/Tracks";
-import Schedule from "@/components/schedule/Schedule";
 import { SponsorData } from "@/components/sponsor/SponsorData";
 /* Kept for future use */
 /* import { Prizes } from "@/components/prizes/Prizes"; */
@@ -21,7 +19,6 @@ const Sponsor = dynamic(() => import("@/components/sponsor/Sponsor"), {
 });
 
 const Contact = dynamic(() => import("@/components/contact/Contact"));
-const Faq = dynamic(() => import("@/components/faq/Faq"));
 const Footer = dynamic(() => import("@/components/footer/Footer"));
 
 export default function Home() {
@@ -45,13 +42,10 @@ export default function Home() {
       <main className="relative">
         <Hero />
         <About />
-        <Tracks />
-        <Schedule />
         <Sponsor sponsors={SponsorData} />
         {/* Temporarily hidden - uncomment to enable prizes section */}
         {/* <Prizes /> */}
         <Contact />
-        <Faq />
       </main>
       <Footer />
     </div>

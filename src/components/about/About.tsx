@@ -1,36 +1,9 @@
-import React, { useState, useEffect } from "react";
-import { PiTerminalWindow } from "react-icons/pi";
-import { FaHandshake } from "react-icons/fa6";
+import React from "react";
+import { FaUsers } from "react-icons/fa6";
 import { terminal } from "../../app/fonts/fonts";
 import Link from "next/link";
-import { createClient } from "@/lib/supabase/client";
-import type { User } from "@supabase/supabase-js";
 
 export default function About() {
-  const [user, setUser] = useState<User | null>(null);
-  const [loading, setLoading] = useState(true);
-  const supabase = createClient();
-
-  useEffect(() => {
-    const getUser = async () => {
-      const {
-        data: { user },
-      } = await supabase.auth.getUser();
-      setUser(user);
-      setLoading(false);
-    };
-
-    getUser();
-
-    const {
-      data: { subscription },
-    } = supabase.auth.onAuthStateChange((_event, session) => {
-      setUser(session?.user ?? null);
-    });
-
-    return () => subscription.unsubscribe();
-  }, [supabase]);
-
   return (
     <div>
       <section
@@ -71,77 +44,6 @@ export default function About() {
               RocketHacks will empower students to turn their ideas into
               impactful projects.
             </p>
-          </div>
-          {/* Action Cards */}
-          <div
-            className="grid grid-cols-1 md:grid-cols-2 gap-8 mb-20 animate-fade-scale justify-items-center"
-            role="list"
-          >
-            {/* Hackers Card */}
-            <div
-              className="card group text-center p-8 hover:scale-105 transition-all duration-500 w-full max-w-xl"
-              role="listitem"
-            >
-              <div className="flex flex-col h-full">
-                <div className="flex-grow">
-                  <div className="w-20 h-20 mx-auto mb-6 rounded-full bg-gradient-to-br from-rh-pink to-rh-purple-dark flex items-center justify-center group-hover:animate-pulse">
-                    <PiTerminalWindow size={40} className="text-white" />
-                  </div>
-                  <h3
-                    className={`${terminal.className} text-2xl mb-4 text-rh-pink group-hover:text-rh-purple-light transition-colors`}
-                  >
-                    HACKERS
-                  </h3>
-                  <p className="text-rh-white/80 leading-relaxed mb-6">
-                    Ready to code, create, and collaborate? Applications for
-                    RocketHacks 2026 will open soon. Stay tuned!
-                  </p>
-                </div>
-                <Link
-                  href={user ? "/dashboard" : "/login"}
-                  className="btn-primary w-full"
-                  aria-label="Apply for RocketHacks"
-                >
-                  {loading
-                    ? "Loading..."
-                    : user
-                      ? "Go to Dashboard"
-                      : "Apply Now"}
-                </Link>
-              </div>
-            </div>
-
-            {/* Volunteer Card */}
-            <div
-              className="card group text-center p-8 hover:scale-105 transition-all duration-500 w-full max-w-xl"
-              role="listitem"
-            >
-              <div className="flex flex-col h-full">
-                <div className="flex-grow">
-                  <div className="w-20 h-20 mx-auto mb-6 rounded-full bg-gradient-to-br from-rh-purple-light to-rh-navy-light flex items-center justify-center group-hover:animate-pulse">
-                    <FaHandshake size={40} className="text-white" />
-                  </div>
-                  <h3
-                    className={`${terminal.className} text-2xl mb-4 text-rh-purple-light group-hover:text-rh-yellow transition-colors`}
-                  >
-                    VOLUNTEER
-                  </h3>
-                  <p className="text-rh-white/80 leading-relaxed mb-6">
-                    Help make RocketHacks amazing! Volunteer opportunities will
-                    be available closer to the event date.
-                  </p>
-                </div>
-                <Link
-                  href="https://docs.google.com/forms/d/e/1FAIpQLSe-4jP6ucv7cOTzc1biofQMS-ea7DHBWdPlpREV8b1XZvr-7w/viewform?usp=dialog"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="btn-primary w-full"
-                  aria-label="Apply to volunteer for RocketHacks"
-                >
-                  BE A VOLUNTEER NOW
-                </Link>
-              </div>
-            </div>
           </div>
 
           {/* Temporarily hidden sections - uncomment to enable */}
