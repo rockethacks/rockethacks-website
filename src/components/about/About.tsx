@@ -1,10 +1,7 @@
 import React from "react";
-import { PiTerminalWindow } from "react-icons/pi";
-import { IoDiamond } from "react-icons/io5";
-import { FaHandshake } from "react-icons/fa6";
+import { FaUsers } from "react-icons/fa6";
 import { terminal } from "../../app/fonts/fonts";
 import Link from "next/link";
-import Image from "next/image";
 
 export default function About() {
   return (
@@ -16,19 +13,24 @@ export default function About() {
       >
         {/* Gradient Background */}
         <div className="absolute inset-0 bg-gradient-to-b from-rh-background/85 via-rh-navy-dark/75 to-rh-navy-light/85"></div>
-        
+
         {/* Background Pattern */}
         <div className="absolute inset-0 opacity-5">
-          <div className="absolute inset-0" style={{
-            backgroundImage: `radial-gradient(circle at 25px 25px, rgba(255, 196, 90, 0.3) 2px, transparent 0)`,
-            backgroundSize: '50px 50px'
-          }}></div>
+          <div
+            className="absolute inset-0"
+            style={{
+              backgroundImage: `radial-gradient(circle at 25px 25px, rgba(255, 196, 90, 0.3) 2px, transparent 0)`,
+              backgroundSize: "50px 50px",
+            }}
+          ></div>
         </div>
 
         <div className="relative max-w-7xl mx-auto">
           {/* Section Header */}
           <div className="text-center mb-16 animate-slide-up">
-            <h2 className={`${terminal.className} heading-lg gradient-text mb-6 uppercase tracking-wider`}>
+            <h2
+              className={`${terminal.className} heading-lg gradient-text mb-6 uppercase tracking-wider`}
+            >
               About RocketHacks
             </h2>
             <div className="w-24 h-1 bg-gradient-to-r from-rh-yellow to-rh-orange mx-auto mb-8 rounded-full"></div>
@@ -36,92 +38,14 @@ export default function About() {
               RocketHacks is a 24-hour hackathon hosted by the University of
               Toledo dedicated to fostering innovation and problem-solving among
               students from the Midwest and beyond. This event brings together
-              talented students—from budding programmers to visionary designers—to
-              build real solutions to real-world challenges. With an emphasis on
-              collaboration, creativity, and technical skills, RocketHacks will
-              empower students to turn their ideas into impactful projects.
+              talented students—from budding programmers to visionary
+              designers—to build real solutions to real-world challenges. With
+              an emphasis on collaboration, creativity, and technical skills,
+              RocketHacks will empower students to turn their ideas into
+              impactful projects.
             </p>
           </div>
-          {/* Action Cards */}
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 mb-20 animate-fade-scale" role="list">
-            {/* Sponsorship Card */}
-            <div className="card group text-center p-8 hover:scale-105 transition-all duration-500" role="listitem">
-              <div className="flex flex-col h-full">
-                <div className="flex-grow">
-                  <div className="w-20 h-20 mx-auto mb-6 rounded-full bg-gradient-to-br from-rh-yellow to-rh-orange flex items-center justify-center group-hover:animate-pulse">
-                    <IoDiamond size={40} className="text-rh-navy-dark" />
-                  </div>
-                  <h3 className={`${terminal.className} text-2xl mb-4 text-rh-yellow group-hover:text-rh-orange transition-colors`}>
-                    SPONSOR US
-                  </h3>
-                  <p className="text-rh-white/80 leading-relaxed mb-6">
-                    Partner with us to support the next generation of innovators. 
-                    Check out our sponsorship packet for opportunities and benefits.
-                  </p>
-                </div>
-                <Link
-                  href="/documents/sponsorship-packet.pdf"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="btn-primary w-full group-hover:shadow-glow transition-all duration-300"
-                  aria-label="View sponsorship packet"
-                >
-                  VIEW PACKET
-                </Link>
-              </div>
-            </div>
 
-            {/* Hackers Card */}
-            <div className="card group text-center p-8 hover:scale-105 transition-all duration-500" role="listitem">
-              <div className="flex flex-col h-full">
-                <div className="flex-grow">
-                  <div className="w-20 h-20 mx-auto mb-6 rounded-full bg-gradient-to-br from-rh-pink to-rh-purple-dark flex items-center justify-center group-hover:animate-pulse">
-                    <PiTerminalWindow size={40} className="text-white" />
-                  </div>
-                  <h3 className={`${terminal.className} text-2xl mb-4 text-rh-pink group-hover:text-rh-purple-light transition-colors`}>
-                    HACKERS
-                  </h3>
-                  <p className="text-rh-white/80 leading-relaxed mb-6">
-                    Ready to code, create, and collaborate? Applications for 
-                    RocketHacks 2026 will open soon. Stay tuned!
-                  </p>
-                </div>
-                <button
-                  className="btn-secondary w-full opacity-60 cursor-not-allowed"
-                  disabled
-                  aria-label="Applications not yet open"
-                >
-                  COMING SOON
-                </button>
-              </div>
-            </div>
-
-            {/* Volunteer Card */}
-            <div className="card group text-center p-8 hover:scale-105 transition-all duration-500" role="listitem">
-              <div className="flex flex-col h-full">
-                <div className="flex-grow">
-                  <div className="w-20 h-20 mx-auto mb-6 rounded-full bg-gradient-to-br from-rh-purple-light to-rh-navy-light flex items-center justify-center group-hover:animate-pulse">
-                    <FaHandshake size={40} className="text-white" />
-                  </div>
-                  <h3 className={`${terminal.className} text-2xl mb-4 text-rh-purple-light group-hover:text-rh-yellow transition-colors`}>
-                    VOLUNTEER
-                  </h3>
-                  <p className="text-rh-white/80 leading-relaxed mb-6">
-                    Help make RocketHacks amazing! Volunteer opportunities will 
-                    be available closer to the event date.
-                  </p>
-                </div>
-                <button
-                  className="btn-secondary w-full opacity-60 cursor-not-allowed"
-                  disabled
-                  aria-label="Volunteer applications not yet open"
-                >
-                  COMING SOON
-                </button>
-              </div>
-            </div>
-          </div>
-          
           {/* Temporarily hidden sections - uncomment to enable */}
           {/*
           {/* Tracks Section */}
@@ -139,7 +63,7 @@ export default function About() {
 
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 animate-fade-scale" role="list">
             {/* Green Innovation Track */}
-            {/*
+          {/*
             <div className="card group text-center p-6 hover:scale-105 transition-all duration-500" role="listitem">
               <div className="w-16 h-16 mx-auto mb-4 rounded-full bg-gradient-to-br from-green-400 to-emerald-600 flex items-center justify-center group-hover:animate-pulse">
                 <FaLeaf size={32} className="text-white" />
@@ -153,7 +77,7 @@ export default function About() {
             </div>
 
             {/* MedTech Track */}
-            {/*
+          {/*
             <div className="card group text-center p-6 hover:scale-105 transition-all duration-500" role="listitem">
               <div className="w-16 h-16 mx-auto mb-4 rounded-full bg-gradient-to-br from-red-400 to-pink-600 flex items-center justify-center group-hover:animate-pulse">
                 <FaHeartbeat size={32} className="text-white" />
@@ -167,7 +91,7 @@ export default function About() {
             </div>
 
             {/* Next Gen AI Track */}
-            {/*
+          {/*
             <div className="card group text-center p-6 hover:scale-105 transition-all duration-500" role="listitem">
               <div className="w-16 h-16 mx-auto mb-4 rounded-full bg-gradient-to-br from-purple-400 to-blue-600 flex items-center justify-center group-hover:animate-pulse">
                 <GiBrain size={32} className="text-white" />
@@ -181,7 +105,7 @@ export default function About() {
             </div>
 
             {/* Hardware Track */}
-            {/*
+          {/*
             <div className="card group text-center p-6 hover:scale-105 transition-all duration-500" role="listitem">
               <div className="w-16 h-16 mx-auto mb-4 rounded-full bg-gradient-to-br from-orange-400 to-yellow-600 flex items-center justify-center group-hover:animate-pulse">
                 <FaMicrochip size={32} className="text-white" />

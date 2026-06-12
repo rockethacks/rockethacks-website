@@ -25,26 +25,35 @@ interface SponsorProps {
 
 const Sponsor: React.FC<SponsorProps> = ({ sponsors }) => {
   // Organize sponsors by tier
-  const mainSponsors = sponsors.filter(s => 
-    ['College-of-engineering', 'eecs', 'spoke', 'Nysus', 'actual-tech'].some(name => s.src?.includes(name)) ||
-    s.icon === 'github'
-  );
-  
-  const intermediateSponsors = sponsors.filter(s => 
-    ['mercy', 'firstsolar', 'cdw', 'codeecho'].some(name => s.src?.includes(name)) ||
-    s.icon === 'aws'
-  );
-  
-  const mainInKindSponsors = sponsors.filter(s => 
-    ['Perplexity', 'Mistral', 'vercel', 'warp', 'sprint', 'Hugging'].some(name => s.src?.includes(name))
-  );
-  
-  const lessImportantSponsors = sponsors.filter(s => 
-    ['xyz', 'photoroom', 'orielly', 'standout'].some(name => s.src?.includes(name))
+  const mainSponsors = sponsors.filter((s) =>
+    ["eecs", "besnx", "coe", "cobi", "firstsolar"].some((name) =>
+      s.src?.includes(name),
+    ),
   );
 
-  // Duplicate sponsors for seamless infinite scroll
-  const duplicateArray = (arr: SponsorType[]) => [...arr, ...arr, ...arr];
+  const intermediateSponsors = sponsors.filter(
+    (s) =>
+      ["codeecho", "Nysus", "impelix"].some((name) => s.src?.includes(name)) ||
+      s.icon === "aws",
+  );
+
+  const mainInKindSponsors = sponsors.filter((s) =>
+    ["rgp", "parkut", "actual"].some((name) => s.src?.includes(name)),
+  );
+
+  const lessImportantSponsors = sponsors.filter((s) =>
+    ["fai", "anthropic", "purebutton"].some((name) => s.src?.includes(name)),
+  );
+
+  // Duplicate sponsors for seamless infinite scroll - more duplicates for smaller arrays
+  const duplicateArray = (arr: SponsorType[]) => {
+    let minDuplicates = 3;
+    // For arrays with fewer items, duplicate more to fill the space
+    if (arr.length <= 3) minDuplicates = 6;
+    else if (arr.length <= 5) minDuplicates = 4;
+
+    return Array.from({ length: minDuplicates }, () => arr).flat();
+  };
 
   return (
     <div>
@@ -65,24 +74,29 @@ const Sponsor: React.FC<SponsorProps> = ({ sponsors }) => {
           {/* Gradient overlay */}
           <div className="absolute inset-0 bg-gradient-to-b from-rh-navy-light/85 via-rh-navy-dark/75 to-rh-background/85"></div>
         </div>
-        
+
         {/* Background Pattern */}
         <div className="absolute inset-0 opacity-5">
-          <div className="absolute inset-0" style={{
-            backgroundImage: `radial-gradient(circle at 25px 25px, rgba(255, 196, 90, 0.3) 2px, transparent 0)`,
-            backgroundSize: '50px 50px'
-          }}></div>
+          <div
+            className="absolute inset-0"
+            style={{
+              backgroundImage: `radial-gradient(circle at 25px 25px, rgba(255, 196, 90, 0.3) 2px, transparent 0)`,
+              backgroundSize: "50px 50px",
+            }}
+          ></div>
         </div>
 
         <div className="relative max-w-7xl mx-auto">
-          {/* Past Sponsors Carousel Section */}
-          <div id="past-sponsors" className="animate-fade-scale">
+          {/* Sponsors Carousel Section */}
+          <div id="sponsors" className="animate-fade-scale">
             <div className="text-center mb-8 md:mb-12">
-              <h3 className={`${terminal.className} heading-lg gradient-text mb-6 uppercase tracking-wider`}>
-                Past Sponsors
+              <h3
+                className={`${terminal.className} heading-lg gradient-text mb-6 uppercase tracking-wider`}
+              >
+                Sponsors
               </h3>
               <div className="w-24 h-1 bg-gradient-to-r from-rh-yellow to-rh-orange mx-auto mb-6 rounded-full"></div>
-              
+
               {/* Sponsorship CTA - Minimalistic Text Block */}
               <div className="px-4">
                 <p className="text-rh-white/80 text-sm md:text-base max-w-2xl mx-auto">
@@ -94,19 +108,19 @@ const Sponsor: React.FC<SponsorProps> = ({ sponsors }) => {
                     className="text-rh-yellow hover:text-rh-orange transition-colors duration-300 underline decoration-rh-yellow/50 hover:decoration-rh-orange underline-offset-4 font-medium"
                   >
                     View our sponsorship opportunities
-                  </Link>
-                  {" "}or{" "}
+                  </Link>{" "}
+                  or{" "}
                   <Link
                     href="mailto:rockethacks@utoledo.edu?subject=Sponsorship Inquiry - RocketHacks 2026"
                     className="text-rh-yellow hover:text-rh-orange transition-colors duration-300 underline decoration-rh-yellow/50 hover:decoration-rh-orange underline-offset-4 font-medium"
                   >
                     contact us
-                  </Link>
-                  {" "}to learn more.
+                  </Link>{" "}
+                  to learn more.
                 </p>
               </div>
             </div>
-            
+
             <div className="space-y-8 overflow-hidden -mx-4 sm:-mx-5 md:-mx-10">
               {/* Row 1: Main Sponsors - Left to Right */}
               <div className="group relative">
@@ -119,7 +133,7 @@ const Sponsor: React.FC<SponsorProps> = ({ sponsors }) => {
                       rel="noopener noreferrer"
                       className="flex-shrink-0"
                     >
-                      <div className="glass-card p-6 h-32 w-56 flex items-center justify-center hover:border-rh-yellow/50 transition-all duration-300 hover:scale-105 rounded-xl bg-rh-navy-light/30">
+                      <div className="glass-card p-8 h-40 w-64 flex items-center justify-center hover:border-rh-yellow/50 transition-all duration-300 hover:scale-105 rounded-xl bg-rh-navy-light/30">
                         {sponsor.type === "image" && sponsor.src ? (
                           <Image
                             src={sponsor.src}
@@ -128,8 +142,9 @@ const Sponsor: React.FC<SponsorProps> = ({ sponsors }) => {
                             height={100}
                             className="object-contain max-w-full max-h-full w-auto h-auto transition-all duration-300 hover:brightness-110"
                           />
-                        ) : sponsor.type === "icon" && sponsor.icon === "github" ? (
-                          <DiGithubFull className="h-16 w-16 text-rh-white transition-all duration-300 hover:scale-110" />
+                        ) : sponsor.type === "icon" &&
+                          sponsor.icon === "github" ? (
+                          <DiGithubFull className="h-20 w-20 text-rh-white transition-all duration-300 hover:scale-110" />
                         ) : null}
                       </div>
                     </Link>
@@ -140,29 +155,32 @@ const Sponsor: React.FC<SponsorProps> = ({ sponsors }) => {
               {/* Row 2: Intermediate Sponsors - Right to Left */}
               <div className="group relative">
                 <div className="flex gap-6 animate-scroll-right group-hover:pause-animation px-4">
-                  {duplicateArray(intermediateSponsors).map((sponsor, index) => (
-                    <Link
-                      key={`intermediate-${index}`}
-                      href={sponsor.link}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="flex-shrink-0"
-                    >
-                      <div className="glass-card p-4 h-24 w-40 flex items-center justify-center hover:border-rh-yellow/50 transition-all duration-300 hover:scale-105 rounded-xl bg-rh-navy-light/30">
-                        {sponsor.type === "image" && sponsor.src ? (
-                          <Image
-                            src={sponsor.src}
-                            alt={sponsor.alt}
-                            width={140}
-                            height={70}
-                            className="object-contain max-w-full max-h-full w-auto h-auto transition-all duration-300 hover:brightness-110"
-                          />
-                        ) : sponsor.type === "icon" && sponsor.icon === "aws" ? (
-                          <FaAws className="h-12 w-12 text-rh-white transition-all duration-300 hover:scale-110" />
-                        ) : null}
-                      </div>
-                    </Link>
-                  ))}
+                  {duplicateArray(intermediateSponsors).map(
+                    (sponsor, index) => (
+                      <Link
+                        key={`intermediate-${index}`}
+                        href={sponsor.link}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="flex-shrink-0"
+                      >
+                        <div className="glass-card p-6 h-32 w-56 flex items-center justify-center hover:border-rh-yellow/50 transition-all duration-300 hover:scale-105 rounded-xl bg-rh-navy-light/30">
+                          {sponsor.type === "image" && sponsor.src ? (
+                            <Image
+                              src={sponsor.src}
+                              alt={sponsor.alt}
+                              width={180}
+                              height={90}
+                              className="object-contain max-w-full max-h-full w-auto h-auto transition-all duration-300 hover:brightness-110"
+                            />
+                          ) : sponsor.type === "icon" &&
+                            sponsor.icon === "aws" ? (
+                            <FaAws className="h-16 w-16 text-rh-white transition-all duration-300 hover:scale-110" />
+                          ) : null}
+                        </div>
+                      </Link>
+                    ),
+                  )}
                 </div>
               </div>
 
@@ -177,12 +195,12 @@ const Sponsor: React.FC<SponsorProps> = ({ sponsors }) => {
                       rel="noopener noreferrer"
                       className="flex-shrink-0"
                     >
-                      <div className="glass-card p-4 h-24 w-40 flex items-center justify-center hover:border-rh-yellow/50 transition-all duration-300 hover:scale-105 rounded-xl bg-rh-navy-light/30">
+                      <div className="glass-card p-4 h-28 w-48 flex items-center justify-center hover:border-rh-yellow/50 transition-all duration-300 hover:scale-105 rounded-xl bg-rh-navy-light/30">
                         <Image
                           src={sponsor.src!}
                           alt={sponsor.alt}
-                          width={140}
-                          height={70}
+                          width={160}
+                          height={80}
                           className="object-contain max-w-full max-h-full w-auto h-auto transition-all duration-300 hover:brightness-110"
                         />
                       </div>
@@ -194,25 +212,27 @@ const Sponsor: React.FC<SponsorProps> = ({ sponsors }) => {
               {/* Row 4: Less Important Sponsors - Right to Left */}
               <div className="group relative">
                 <div className="flex gap-5 animate-scroll-right group-hover:pause-animation px-4">
-                  {duplicateArray(lessImportantSponsors).map((sponsor, index) => (
-                    <Link
-                      key={`less-${index}`}
-                      href={sponsor.link}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="flex-shrink-0"
-                    >
-                      <div className="glass-card p-3 h-20 w-32 flex items-center justify-center hover:border-rh-yellow/50 transition-all duration-300 hover:scale-105 rounded-xl bg-rh-navy-light/30">
-                        <Image
-                          src={sponsor.src!}
-                          alt={sponsor.alt}
-                          width={110}
-                          height={55}
-                          className="object-contain max-w-full max-h-full w-auto h-auto transition-all duration-300 hover:brightness-110"
-                        />
-                      </div>
-                    </Link>
-                  ))}
+                  {duplicateArray(lessImportantSponsors).map(
+                    (sponsor, index) => (
+                      <Link
+                        key={`less-${index}`}
+                        href={sponsor.link}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="flex-shrink-0"
+                      >
+                        <div className="glass-card p-3 h-24 w-40 flex items-center justify-center hover:border-rh-yellow/50 transition-all duration-300 hover:scale-105 rounded-xl bg-rh-navy-light/30">
+                          <Image
+                            src={sponsor.src!}
+                            alt={sponsor.alt}
+                            width={130}
+                            height={65}
+                            className="object-contain max-w-full max-h-full w-auto h-auto transition-all duration-300 hover:brightness-110"
+                          />
+                        </div>
+                      </Link>
+                    ),
+                  )}
                 </div>
               </div>
             </div>
@@ -224,13 +244,13 @@ const Sponsor: React.FC<SponsorProps> = ({ sponsors }) => {
                 transform: translateX(0);
               }
               100% {
-                transform: translateX(-33.333%);
+                transform: translateX(-50%);
               }
             }
 
             @keyframes scroll-right {
               0% {
-                transform: translateX(-33.333%);
+                transform: translateX(-50%);
               }
               100% {
                 transform: translateX(0);
@@ -238,12 +258,12 @@ const Sponsor: React.FC<SponsorProps> = ({ sponsors }) => {
             }
 
             .animate-scroll-left {
-              animation: scroll-left 40s linear infinite;
+              animation: scroll-left 50s linear infinite;
               will-change: transform;
             }
 
             .animate-scroll-right {
-              animation: scroll-right 40s linear infinite;
+              animation: scroll-right 50s linear infinite;
               will-change: transform;
             }
 
@@ -264,19 +284,21 @@ const Sponsor: React.FC<SponsorProps> = ({ sponsors }) => {
           {sponsors.length === 0 && (
             <div className="text-center py-16">
               <GlassCard className="max-w-2xl mx-auto p-12">
-                <AnimatedIcon 
+                <AnimatedIcon
                   icon={<FaRocket size={48} />}
                   size="xl"
                   color="yellow"
                   animation="float"
                   className="mx-auto mb-6"
                 />
-                <h3 className={`${terminal.className} text-2xl text-rh-yellow mb-4`}>
+                <h3
+                  className={`${terminal.className} text-2xl text-rh-yellow mb-4`}
+                >
                   Sponsors Coming Soon
                 </h3>
                 <p className="text-rh-white/80 mb-6">
-                  We&apos;re actively working with amazing companies and organizations 
-                  to make RocketHacks 2026 extraordinary.
+                  We&apos;re actively working with amazing companies and
+                  organizations to make RocketHacks 2026 extraordinary.
                 </p>
                 <Link
                   href="/documents/sponsorship-packet.pdf"

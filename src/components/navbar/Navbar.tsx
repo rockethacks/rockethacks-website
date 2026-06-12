@@ -2,6 +2,7 @@
 import React, { useState, useEffect } from "react";
 import Link from "next/link";
 import Image from "next/image";
+import { usePathname } from "next/navigation";
 import { FiMenu, FiX } from "react-icons/fi";
 import { terminal } from "../../app/fonts/fonts";
 import UserProfileDropdown from "./UserProfileDropdown";
@@ -9,10 +10,12 @@ import { createClient } from "@/lib/supabase/client";
 import type { User } from "@supabase/supabase-js";
 
 export default function Navbar() {
+  const pathname = usePathname();
   const [menuOpen, setMenuOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
   const [user, setUser] = useState<User | null>(null);
   const supabase = createClient();
+  const isHomePage = pathname === "/";
 
   useEffect(() => {
     if (menuOpen) {
@@ -28,21 +31,25 @@ export default function Navbar() {
       setScrolled(isScrolled);
     };
 
-    window.addEventListener('scroll', handleScroll);
-    return () => window.removeEventListener('scroll', handleScroll);
+    window.addEventListener("scroll", handleScroll);
+    return () => window.removeEventListener("scroll", handleScroll);
   }, []);
 
   useEffect(() => {
     // Get initial user
     const getUser = async () => {
-      const { data: { user } } = await supabase.auth.getUser();
+      const {
+        data: { user },
+      } = await supabase.auth.getUser();
       setUser(user);
     };
 
     getUser();
 
     // Listen for auth changes
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
+    const {
+      data: { subscription },
+    } = supabase.auth.onAuthStateChange((_event, session) => {
       setUser(session?.user ?? null);
     });
 
@@ -50,50 +57,55 @@ export default function Navbar() {
   }, [supabase]);
 
   const toggleMenu = () => setMenuOpen(!menuOpen);
-  
+
   const closeMenu = () => setMenuOpen(false);
 
-  const handleSmoothScroll = (e: React.MouseEvent<HTMLAnchorElement>, href: string) => {
-    // Only handle smooth scroll for anchor links (starting with #)
-    if (href.startsWith('#')) {
-      e.preventDefault();
-      const targetId = href.substring(1);
-      const targetElement = document.getElementById(targetId);
-      
-      if (targetElement) {
-        closeMenu();
-        targetElement.scrollIntoView({
-          behavior: 'smooth',
-          block: 'start',
-        });
+  const handleNavClick = (
+    e: React.MouseEvent<HTMLAnchorElement>,
+    href: string,
+  ) => {
+    // Anchor links: on home page smooth-scroll; on other pages navigate to /#section
+    if (href.startsWith("#")) {
+      if (isHomePage) {
+        e.preventDefault();
+        const targetId = href.substring(1);
+        const targetElement = document.getElementById(targetId);
+        if (targetElement) {
+          closeMenu();
+          targetElement.scrollIntoView({
+            behavior: "smooth",
+            block: "start",
+          });
+        }
       }
+      // When not on home, Link href is "/#section" so no preventDefault — let navigation happen
     }
   };
 
   const navLinks = [
     { href: "#about", label: "ABOUT" },
-    { href: "#gallery", label: "2025" },
-    { href: "#past-sponsors", label: "SPONSORS" },
+    { href: "/gallery", label: "2025" },
+    { href: "#sponsor", label: "SPONSORS" },
     { href: "#contact", label: "CONTACT" },
-    { href: "#faq", label: "FAQ" },
-    { href: "/login", label: "APPLY", highlight: true },
     // Temporarily hidden - uncomment to enable team page
     // { href: "/team", label: "TEAM" }
   ];
 
   return (
-    <nav className={`
+    <nav
+      className={`
       fixed top-0 left-0 right-0 z-50 transition-all duration-300
-      ${scrolled 
-        ? 'glass-strong backdrop-blur-md shadow-lg' 
-        : 'bg-transparent'
-      }
-    `}>
+      ${!isHomePage || scrolled ? "glass-strong backdrop-blur-md shadow-lg" : "bg-transparent"}
+    `}
+    >
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center h-20">
           {/* Logo */}
           <div className="flex-shrink-0">
-            <Link href="/" className="block transition-transform hover:scale-105">
+            <Link
+              href="/"
+              className="block transition-transform hover:scale-105"
+            >
               <Image
                 src="/assets/rh_26/rh_26_folder/rh_26_bundle_png/rh_26_logo_color_transparent.png"
                 alt="RocketHacks 2026"
@@ -102,7 +114,7 @@ export default function Navbar() {
                 className="h-10 sm:h-12 w-auto object-contain"
                 priority
                 sizes="120px"
-                style={{ aspectRatio: '2/1' }}
+                style={{ aspectRatio: "2/1" }}
               />
             </Link>
           </div>
@@ -112,13 +124,14 @@ export default function Navbar() {
             {navLinks.map((link) => (
               <Link
                 key={link.href}
-                href={link.href}
-                onClick={(e) => handleSmoothScroll(e, link.href)}
+                href={link.href.startsWith("#") ? `/${link.href}` : link.href}
+                onClick={(e) => handleNavClick(e, link.href)}
                 className={`
                   ${terminal.className} text-sm font-medium tracking-wider
-                  ${link.highlight
-                    ? 'text-rh-yellow hover:text-rh-yellow/80 font-bold'
-                    : 'text-rh-white/90 hover:text-rh-yellow'
+                  ${
+                    link.highlight
+                      ? "text-rh-yellow hover:text-rh-yellow/80 font-bold"
+                      : "text-rh-white/90 hover:text-rh-yellow"
                   }
                   transition-colors duration-200
                   relative group
@@ -163,12 +176,12 @@ export default function Navbar() {
 
       {/* Mobile Full-Screen Navigation Menu */}
       {menuOpen && (
-        <div 
+        <div
           className="md:hidden fixed inset-0 z-[9999] animate-fade-in"
           style={{
-            backgroundColor: 'rgba(10, 0, 55, 0.98)', // Direct color value
-            backdropFilter: 'blur(12px)',
-            WebkitBackdropFilter: 'blur(12px)'
+            backgroundColor: "rgba(10, 0, 55, 0.98)", // Direct color value
+            backdropFilter: "blur(12px)",
+            WebkitBackdropFilter: "blur(12px)",
           }}
         >
           {/* Close button area - ensure it's visible */}
@@ -195,20 +208,21 @@ export default function Navbar() {
                 priority
               />
             </div>
-            
+
             {/* Navigation links - vertically stacked */}
             <nav className="flex flex-col items-stretch space-y-1 flex-1">
               {navLinks.map((link) => (
                 <Link
                   key={link.href}
-                  href={link.href}
-                  onClick={(e) => handleSmoothScroll(e, link.href)}
+                  href={link.href.startsWith("#") ? `/${link.href}` : link.href}
+                  onClick={(e) => handleNavClick(e, link.href)}
                   className={`
                     ${terminal.className}
                     text-xl font-medium tracking-wider
-                    ${link.highlight
-                      ? 'text-yellow-400 hover:text-yellow-300 font-bold'
-                      : 'text-white hover:text-yellow-400'
+                    ${
+                      link.highlight
+                        ? "text-yellow-400 hover:text-yellow-300 font-bold"
+                        : "text-white hover:text-yellow-400"
                     }
                     transition-all duration-200
                     py-4 px-6 text-center
@@ -222,7 +236,9 @@ export default function Navbar() {
               ))}
 
               {/* User Profile Menu Items - Mobile */}
-              {user && <UserProfileDropdown isMobile={true} onMenuClose={closeMenu} />}
+              {user && (
+                <UserProfileDropdown isMobile={true} onMenuClose={closeMenu} />
+              )}
 
               {/* CTA Button */}
               <Link
@@ -233,7 +249,7 @@ export default function Navbar() {
                 CODE & CREATE
               </Link>
             </nav>
-            
+
             {/* Footer at bottom */}
             <div className="text-center mt-6 pt-6 border-t border-white/10">
               <p className="text-white/60 text-xs">

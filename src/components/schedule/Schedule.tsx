@@ -1,309 +1,399 @@
 "use client";
-import React, { useState } from "react";
-import Image from "next/image";
-import * as Tabs from "@radix-ui/react-tabs";
-import {
-  Accordion,
-  AccordionContent,
-  AccordionItem,
-  AccordionTrigger,
-} from "@/components/ui/accordion";
+import React, { useMemo, useState } from "react";
 import localFont from "next/font/local";
 import { motion, AnimatePresence } from "framer-motion";
-import Link from "next/link";
+import { Clock, MapPin } from "lucide-react";
 
 const terminal = localFont({ src: "../../app/fonts/terminal-grotesque.ttf" });
 
-const collegeSchedule = [
+const scheduleData = [
   {
-    day: "Day 1",
-    time: "08:30 AM",
-    event: "Hackers Check-in",
-    venue: "Outside Nitschke Auditorium",
-  },
-  {
-    day: "Day 1",
-    time: "09:00 AM",
-    event: "Opening Ceremony",
-    venue: "Nitschke Auditorium",
-  },
-  {
-    day: "Day 1",
-    time: "10:00 AM",
-    event: "Team Formation",
-    venue: "Nitschke Auditorium",
-  },
-  {
-    day: "Day 1",
-    time: "11:00 AM",
-    event: "Hacking Starts!",
-    venue: "Nitschke Hallway",
-  },
-  {
-    day: "Day 1",
-    time: "11:00 AM",
-    event: "Nosu - Hacking Hackathons Workshop",
-    venue: "EECS 1320",
-  },
-  {
-    day: "Day 1",
-    time: "12:00 PM",
-    event: "AWS - Gen AI Full-Stack App. Workshop",
-    venue: "EECS 1039",
-  },
-  { day: "Day 1", time: "12:30 PM", event: "Lunch", venue: "Node" },
-  {
-    day: "Day 1",
-    time: "01:00 PM",
-    event: "Actual Reality - Ollama Chatbot Workshop",
-    venue: "EECS 1320",
-  },
-  {
-    day: "Day 1",
-    time: "01:00 PM",
-    event: "Perplexity - Deepseek R1 Workshop",
-    venue: "EECS 1300",
-  },
-  {
-    day: "Day 1",
-    time: "02:00 PM",
-    event: "MLH - Co-Pilot Workshop",
-    venue: "EECS 1039",
-  },
-  {
-    day: "Day 1",
-    time: "03:00 PM",
-    event: "MLH - Figma Workshop",
-    venue: "EECS 1039",
-  },
-  {
-    day: "Day 1",
-    time: "03:00 PM",
-    event: "George - Intro. to Arduinos Workshop",
-    venue: "EECS 1320",
-  },
-  { day: "Day 1", time: "04:00 PM", event: "Gaming Session", venue: "NE 2100" },
-  { day: "Day 1", time: "07:00 PM", event: "Dinner by SPOKE", venue: "Node" },
-  {
-    day: "Day 2",
-    time: "12:00 AM",
-    event: "F1 WatchParty",
-    venue: "Nitschke Auditorium",
-  },
-  { day: "Day 2", time: "08:00 AM", event: "Breakfast", venue: "Node" },
-  {
-    day: "Day 2",
-    time: "11:00 AM",
-    event: "Project Submissions Due",
-    venue: "Nitschke Hallway",
-  },
-  {
-    day: "Day 2",
-    time: "12:00 PM",
-    event: "Judging",
-    venue: "Nitschke Lobby and Brady Center",
-  },
-  { day: "Day 2", time: "12:30 PM", event: "Lunch", venue: "Node" },
-  {
-    day: "Day 2",
-    time: "1:30 PM",
-    event: "Closing Ceremony & Awards",
-    venue: "Nitschke Auditorium",
-  },
-];
+    day: "Saturday",
+    date: "March 14",
+    events: [
+      {
+        name: "Hacker Check-In",
+        startTime: "8:30 AM",
+        endTime: "-",
+        location: "Nitschke Hall Entrance",
+      },
+      {
+        name: "Opening Ceremony",
+        startTime: "9:00 AM",
+        endTime: "10:00 AM",
+        location: "Nitschke Auditorium",
+      },
+      {
+        name: "Team Formation",
+        startTime: "10:00 AM",
+        endTime: "11:00 AM",
+        location: "Nitschke Auditorium",
+      },
+      {
+        name: "Hacking Starts!",
+        startTime: "11:00 AM",
+        endTime: "-",
+        location: "NI hallway & NE tables",
+      },
+      {
+        name: "Lunch",
+        startTime: "12:30 PM",
+        endTime: "1:30 PM",
+        location: "The NODE",
+      },
 
-const highSchoolSchedule = [
-  {
-    day: "Day 1",
-    time: "08:00 AM",
-    event: "Hackers Check-in",
-    venue: "Outside Nitschke Auditorium",
+      {
+        name: "Hacking with GitHub Copilot - MLH Workshop",
+        startTime: "11:00 AM",
+        endTime: "11:30 AM",
+        location: "NE 1039",
+      },
+      {
+        name: "Intro to Arduino Workshop - MIME Workshop",
+        startTime: "11:30 AM",
+        endTime: "1:00 PM",
+        location: "NE 1320",
+      },
+      {
+        name: "Intro to Google AI Studio - MLH Workshop",
+        startTime: "1:30 PM",
+        endTime: "2:00 PM",
+        location: "SSOE",
+      },
+      {
+        name: "From Prompt to Agent: Creating an OpenClaw AI Agent - CodeEcho Workshop",
+        startTime: "2:00 PM",
+        endTime: "3:00 PM",
+        location: "NE 1300",
+      },
+      {
+        name: "Tech Together - MLH Workshop",
+        startTime: "4:15 PM",
+        endTime: "4:45 PM",
+        location: "NE 1021",
+      },
+      {
+        name: "Dinner",
+        startTime: "8:00 PM",
+        endTime: "9:00 PM",
+        location: "The NODE",
+      },
+    ],
   },
   {
-    day: "Day 1",
-    time: "09:00 AM",
-    event: "Opening Ceremony",
-    venue: "Nitschke Auditorium",
-  },
-  {
-    day: "Day 1",
-    time: "10:00 AM",
-    event: "Campus Tour",
-    venue: "University Of Toledo",
-  },
-  {
-    day: "Day 1",
-    time: "11:00 AM",
-    event: "KoolKat Science Workshop",
-    venue: "North Engineering 2100",
-  },
-  {
-    day: "Day 1",
-    time: "12:00 PM",
-    event: "Project on Scratch",
-    venue: "North Engineering 2100",
-  },
-  {
-    day: "Day 1",
-    time: "02:00 PM",
-    event: "Judging and Award Ceremony",
-    venue: "North Engineering 2100",
+    day: "Sunday",
+    date: "March 15",
+    events: [
+      {
+        name: "Breakfast",
+        startTime: "9:00 AM",
+        endTime: "10:00 AM",
+        location: "The NODE",
+      },
+      {
+        name: "Hacking Ends! - Project Submission Deadline",
+        startTime: "11:00 AM",
+        endTime: "-",
+        location: "NI Hallway and NE Tables",
+      },
+      {
+        name: "Lunch",
+        startTime: "12:00 PM",
+        endTime: "1:00 PM",
+        location: "The NODE",
+      },
+      {
+        name: "Judging",
+        startTime: "12:30 PM",
+        endTime: "1:30 PM",
+        location: "NI Hallway and NE Tables",
+      },
+      {
+        name: "Closing Ceremony",
+        startTime: "2:30 PM",
+        endTime: "3:30 PM",
+        location: "Nitschke Auditorium",
+      },
+    ],
   },
 ];
 
 export default function Schedule() {
-  const [selectedTab, setSelectedTab] = useState("college");
-  const [selectedCollegeDay, setSelectedCollegeDay] = useState("Day 1");
-  const filteredCollegeSchedule = collegeSchedule.filter(
-    (item) => item.day === selectedCollegeDay
+  const [selectedDay, setSelectedDay] = useState("Saturday");
+  const [activeFilters, setActiveFilters] = useState<
+    Array<"workshop" | "food">
+  >([]);
+
+  const currentDaySchedule = scheduleData.find(
+    (item) => item.day === selectedDay,
   );
 
-  return (
-    <section id="schedule" className="mb-20">
-      <div className="h-auto bg-cover bg-center bg-gradient-to-b from-[#051735] from-10%  to-80% to-[#030c1b]/50 px-4 py-8">
-        <div className="flex flex-col items-center justify-center gap-6">
-          <div className="w-full md:w-1/2 flex flex-col justify-center items-center">
-            <h1
-              className={`${terminal.className} text-4xl md:text-6xl text-[#FFDA20] text-center mt-5`}
-            >
-              EVENT MAP
-            </h1>
-            <Link
-              href="/Map"
-              target="_blank"
-              rel="noopener noreferrer"
-              aria-label="Event Map"
-              prefetch={true}
-            >
-              <Image
-                src="/COE_MAP_2.png"
-                width={2000}
-                height={1501}
-                alt="Event illustration"
-                className="object-cover rounded-lg cursor-pointer"
-                data-tooltip="Click to expand"
-              />
-            </Link>
-            <p className="text-white text-lg md:text-xl mt-4 text-center">
-              <span className="font-semibold">Event Address:</span>{" "}
-              <Link
-                href="https://maps.app.goo.gl/xC2YjujFcZfS65PF8"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="hover:text-[#FFDA20] transition-colors duration-300 underline"
-              >
-                1700 N Westwood Ave, Toledo, OH 43607
-              </Link>
-            </p>
+  const getEventType = (eventName: string): "workshop" | "food" | "general" => {
+    const name = eventName.toLowerCase();
+    if (name.includes("workshop")) return "workshop";
+    if (
+      name.includes("lunch") ||
+      name.includes("dinner") ||
+      name.includes("breakfast")
+    ) {
+      return "food";
+    }
+    return "general";
+  };
+
+  const filteredEvents = useMemo(() => {
+    if (!currentDaySchedule) return [];
+    if (activeFilters.length === 0) return currentDaySchedule.events;
+    return currentDaySchedule.events.filter((event) => {
+      const type = getEventType(event.name);
+      return activeFilters.includes(type as "workshop" | "food");
+    });
+  }, [currentDaySchedule, activeFilters]);
+
+  const counts = useMemo(() => {
+    const base = { workshop: 0, food: 0 };
+    if (!currentDaySchedule) return base;
+    for (const e of currentDaySchedule.events) {
+      const t = getEventType(e.name);
+      if (t === "workshop") base.workshop += 1;
+      if (t === "food") base.food += 1;
+    }
+    return base;
+  }, [currentDaySchedule]);
+
+  const toggleFilter = (filter: "workshop" | "food") => {
+    setActiveFilters((prev) =>
+      prev.includes(filter)
+        ? prev.filter((f) => f !== filter)
+        : [...prev, filter],
+    );
+  };
+
+  const EventCard = ({
+    event,
+    index,
+  }: {
+    event: (typeof scheduleData)[0]["events"][0];
+    index: number;
+  }) => {
+    const type = getEventType(event.name);
+    const accent =
+      type === "workshop"
+        ? {
+            border: "border-rh-purple-light/35 hover:border-rh-purple-light/60",
+            glow: "group-hover:shadow-rh-purple-light/20",
+            badge:
+              "bg-rh-purple-light/15 text-rh-purple-light border-rh-purple-light/35",
+            dot: "bg-rh-purple-light",
+          }
+        : type === "food"
+          ? {
+              border: "border-rh-yellow/30 hover:border-rh-yellow/60",
+              glow: "group-hover:shadow-rh-yellow/20",
+              badge: "bg-rh-yellow/15 text-rh-yellow border-rh-yellow/35",
+              dot: "bg-rh-yellow",
+            }
+          : {
+              border: "border-white/10 hover:border-white/20",
+              glow: "group-hover:shadow-white/10",
+              badge: "bg-white/5 text-rh-white/70 border-white/10",
+              dot: "bg-rh-orange",
+            };
+
+    return (
+      <motion.div
+        initial={{ opacity: 0, y: 10 }}
+        whileInView={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.28, delay: index * 0.03 }}
+        viewport={{ once: true }}
+        className="group"
+      >
+        <div
+          className={`relative px-4 py-3 rounded-lg bg-gradient-to-r from-rh-navy-light/40 to-rh-navy-dark/40 backdrop-blur-sm border ${accent.border} hover:from-rh-navy-light/60 hover:to-rh-navy-dark/60 transition-all duration-300 group-hover:shadow-lg ${accent.glow}`}
+        >
+          <div className="absolute left-0 top-0 bottom-0 w-1 rounded-l-lg opacity-70">
+            <div className={`h-full w-full ${accent.dot}`} />
           </div>
-          <div
-            className={`${terminal.className} text-white w-full md:w-1/2 bg-slate-950/30 backdrop-blur-sm border-blue-600 border-2 rounded-md p-5`}
-          >
-            <h2 className="text-4xl md:text-6xl text-[#FFDA20] text-center mb-6">
-              Event Schedule
-            </h2>
-            <Tabs.Root defaultValue="college" onValueChange={setSelectedTab}>
-              <Tabs.List className="flex justify-center space-x-4 mb-4 border-b border-gray-500">
-                <Tabs.Trigger
-                  value="college"
-                  className={`px-6 py-3 text-2xl md:text-3xl font-bold border-b-2 ${
-                    selectedTab === "college"
-                      ? "border-yellow-400"
-                      : "border-transparent"
-                  } transition`}
+
+          <div className="flex items-start justify-between gap-4 pl-2">
+            <div className="min-w-0 flex-1">
+              <div className="flex items-start justify-between gap-3">
+                <h3 className="text-base md:text-lg font-bold text-white group-hover:text-rh-yellow transition-colors leading-snug">
+                  {event.name}
+                </h3>
+                <span
+                  className={`hidden sm:inline-flex flex-shrink-0 items-center px-2.5 py-1 text-[11px] font-semibold rounded-full border ${accent.badge}`}
                 >
-                  RocketHacks
-                </Tabs.Trigger>
-                <Tabs.Trigger
-                  value="highschool"
-                  className={`px-6 py-3 text-2xl md:text-3xl font-bold border-b-2 ${
-                    selectedTab === "highschool"
-                      ? "border-yellow-400"
-                      : "border-transparent"
-                  } transition`}
-                >
-                  Code & Create
-                </Tabs.Trigger>
-              </Tabs.List>
-              <div className="overflow-hidden">
-                <AnimatePresence mode="wait">
-                  {selectedTab === "college" ? (
-                    <motion.div
-                      key="college"
-                      initial={{ x: "100%", opacity: 0 }}
-                      animate={{ x: "0%", opacity: 1 }}
-                      exit={{ x: "-100%", opacity: 0 }}
-                      transition={{ duration: 0.2, ease: "easeIn" }}
-                    >
-                      <div className="flex justify-center space-x-4 mb-4">
-                        <button
-                          onClick={() => setSelectedCollegeDay("Day 1")}
-                          className={`px-4 py-2 rounded ${
-                            selectedCollegeDay === "Day 1"
-                              ? "bg-yellow-400 text-black text-xl"
-                              : "bg-transparent border border-white text-white"
-                          } transition`}
-                        >
-                          Day 1
-                        </button>
-                        <button
-                          onClick={() => setSelectedCollegeDay("Day 2")}
-                          className={`px-4 py-2 rounded ${
-                            selectedCollegeDay === "Day 2"
-                              ? "bg-yellow-400 text-black text-xl"
-                              : "bg-transparent border border-white text-white"
-                          } transition`}
-                        >
-                          Day 2
-                        </button>
-                      </div>
-                      <Accordion type="single" collapsible>
-                        {filteredCollegeSchedule.map((item, index) => (
-                          <AccordionItem
-                            key={index}
-                            value={`college-${selectedCollegeDay}-${index}`}
-                          >
-                            <AccordionTrigger className="font-bold text-white">
-                              {`${item.time} - ${item.event}`}
-                            </AccordionTrigger>
-                            <AccordionContent className="text-white">
-                              <p className="text-md">Venue: {item.venue}</p>
-                            </AccordionContent>
-                          </AccordionItem>
-                        ))}
-                      </Accordion>
-                    </motion.div>
-                  ) : (
-                    <motion.div
-                      key="highschool"
-                      initial={{ x: "-100%", opacity: 0 }}
-                      animate={{ x: "0%", opacity: 1 }}
-                      exit={{ x: "100%", opacity: 0 }}
-                      transition={{ duration: 0.2, ease: "easeIn" }}
-                    >
-                      <Accordion type="single" collapsible>
-                        {highSchoolSchedule.map((item, index) => (
-                          <AccordionItem
-                            key={index}
-                            value={`highschool-${index}`}
-                          >
-                            <AccordionTrigger className="font-bold text-white">
-                              {`${item.day} - ${item.event}`}
-                            </AccordionTrigger>
-                            <AccordionContent className="text-white">
-                              <p className="text-md">Time: {item.time}</p>
-                              <p className="text-md">Venue: {item.venue}</p>
-                            </AccordionContent>
-                          </AccordionItem>
-                        ))}
-                      </Accordion>
-                    </motion.div>
-                  )}
-                </AnimatePresence>
+                  {type === "workshop"
+                    ? "Workshop"
+                    : type === "food"
+                      ? "Food"
+                      : "Event"}
+                </span>
               </div>
-            </Tabs.Root>
+
+              <div className="mt-2 grid grid-cols-1 sm:grid-cols-2 gap-2 text-xs md:text-sm text-rh-white/80">
+                <div className="flex items-center gap-2 min-w-0">
+                  <Clock className="w-4 h-4 text-rh-yellow flex-shrink-0" />
+                  <span className="truncate">
+                    {event.startTime}{" "}
+                    <span className="text-rh-white/50">–</span> {event.endTime}
+                  </span>
+                </div>
+                <div className="flex items-center gap-2 min-w-0">
+                  <MapPin className="w-4 h-4 text-rh-orange flex-shrink-0" />
+                  <span className="truncate">{event.location}</span>
+                </div>
+              </div>
+            </div>
           </div>
         </div>
+      </motion.div>
+    );
+  };
+
+  return (
+    <section
+      id="schedule"
+      className="relative py-16 md:py-24 px-4 md:px-8 overflow-hidden bg-cover bg-center bg-no-repeat"
+      style={{
+        backgroundImage: "url('/assets/rh_26/rh_26_folder/rh_bg_1.jpg')",
+      }}
+    >
+      {/* Gradient Overlay */}
+      <div className="absolute inset-0 bg-gradient-to-b from-rh-background/50 via-rh-background/60 to-rh-background/65 pointer-events-none" />
+
+      <div className="relative max-w-6xl mx-auto z-10">
+        {/* Section Title */}
+        <motion.div
+          initial={{ opacity: 0, y: -20 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5 }}
+          viewport={{ once: true }}
+          className="text-center mb-12 md:mb-16"
+        >
+          <h2
+            className={`${terminal.className} text-4xl md:text-6xl text-rh-yellow mb-4`}
+          >
+            EVENT SCHEDULE
+          </h2>
+          <div className="w-12 h-1 bg-gradient-to-r from-rh-yellow to-rh-pink mx-auto rounded-full" />
+        </motion.div>
+
+        {/* Day Selector */}
+        <div className="flex justify-center gap-4 mb-12">
+          {scheduleData.map((day) => (
+            <motion.button
+              key={day.day}
+              onClick={() => setSelectedDay(day.day)}
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.98 }}
+              className={`px-8 py-3 rounded-lg font-bold text-lg transition-all duration-300 ${
+                selectedDay === day.day
+                  ? "bg-gradient-to-r from-rh-yellow to-rh-pink text-rh-navy-dark shadow-lg shadow-rh-yellow/50"
+                  : "bg-rh-navy-light/40 backdrop-blur-sm border border-rh-yellow/30 text-rh-white hover:border-rh-yellow/60 hover:bg-rh-navy-light/60"
+              }`}
+            >
+              <span>{day.day}</span>
+              <span className="text-sm ml-2 opacity-75">{day.date}</span>
+            </motion.button>
+          ))}
+        </div>
+
+        {/* Events Container */}
+        <AnimatePresence mode="wait">
+          {currentDaySchedule && (
+            <motion.div
+              key={selectedDay}
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -20 }}
+              transition={{ duration: 0.3 }}
+              className="rounded-2xl border border-white/10 bg-rh-navy-dark/30 backdrop-blur-md shadow-2xl overflow-hidden"
+            >
+              {/* Filter Bar */}
+              <div className="sticky top-0 z-10 border-b border-white/10 bg-gradient-to-r from-rh-navy-dark/65 to-rh-navy-light/40 backdrop-blur-xl">
+                <div className="px-4 sm:px-6 py-4 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+                  <div className="min-w-0">
+                    <div className="flex items-center gap-3">
+                      <p className="text-sm text-rh-white/70">
+                        Showing{" "}
+                        <span className="text-rh-yellow font-semibold">
+                          {filteredEvents.length}
+                        </span>{" "}
+                        event{filteredEvents.length === 1 ? "" : "s"}
+                      </p>
+                      {activeFilters.length > 0 && (
+                        <button
+                          type="button"
+                          onClick={() => setActiveFilters([])}
+                          className="text-xs text-rh-white/60 hover:text-rh-white/90 underline underline-offset-4"
+                        >
+                          Clear
+                        </button>
+                      )}
+                    </div>
+                    <p className="text-xs text-rh-white/40 mt-1">
+                      Tip: toggle Workshops and Food to focus fast.
+                    </p>
+                  </div>
+
+                  <div className="flex flex-wrap gap-2">
+                    <button
+                      type="button"
+                      onClick={() => toggleFilter("workshop")}
+                      className={`inline-flex items-center gap-2 px-3.5 py-2 rounded-full border text-sm font-semibold transition-all ${
+                        activeFilters.includes("workshop")
+                          ? "bg-rh-purple-light/20 text-rh-purple-light border-rh-purple-light/45 shadow-lg shadow-rh-purple-light/15"
+                          : "bg-white/5 text-rh-white/70 border-white/10 hover:border-rh-purple-light/30 hover:text-rh-white/90"
+                      }`}
+                      aria-pressed={activeFilters.includes("workshop")}
+                    >
+                      <span className="w-2 h-2 rounded-full bg-rh-purple-light" />
+                      Workshops
+                      <span className="text-xs opacity-75">
+                        ({counts.workshop})
+                      </span>
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => toggleFilter("food")}
+                      className={`inline-flex items-center gap-2 px-3.5 py-2 rounded-full border text-sm font-semibold transition-all ${
+                        activeFilters.includes("food")
+                          ? "bg-rh-yellow/20 text-rh-yellow border-rh-yellow/45 shadow-lg shadow-rh-yellow/15"
+                          : "bg-white/5 text-rh-white/70 border-white/10 hover:border-rh-yellow/30 hover:text-rh-white/90"
+                      }`}
+                      aria-pressed={activeFilters.includes("food")}
+                    >
+                      <span className="w-2 h-2 rounded-full bg-rh-yellow" />
+                      Food
+                      <span className="text-xs opacity-75">
+                        ({counts.food})
+                      </span>
+                    </button>
+                  </div>
+                </div>
+              </div>
+
+              {/* Scrollable Events List */}
+              <div className="max-h-[520px] md:max-h-[620px] overflow-y-auto px-4 sm:px-6 py-4 space-y-3">
+                {filteredEvents.length > 0 ? (
+                  filteredEvents.map((event, index) => (
+                    <EventCard
+                      key={`${event.name}-${index}`}
+                      event={event}
+                      index={index}
+                    />
+                  ))
+                ) : (
+                  <div className="text-center py-10 text-rh-purple-light">
+                    No events match your filters.
+                  </div>
+                )}
+              </div>
+            </motion.div>
+          )}
+        </AnimatePresence>
       </div>
     </section>
   );

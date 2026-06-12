@@ -426,22 +426,22 @@ export default function ApplyPage() {
             {/* MLH Partnership */}
             <section className="bg-purple-500/10 border border-purple-500/30 rounded-xl p-6">
               <h2 className="text-2xl font-semibold text-white mb-4">MLH Partnership</h2>
-              <div className="space-y-3">
+              <div className="space-y-4">
                 <label className="flex items-start space-x-3 cursor-pointer">
-                  <input type="checkbox" name="mlh_code_of_conduct" required checked={formData.mlh_code_of_conduct} onChange={handleInputChange} className="w-5 h-5 mt-0.5 rounded" />
+                  <input type="checkbox" name="mlh_code_of_conduct" required checked={formData.mlh_code_of_conduct} onChange={handleInputChange} className="w-5 h-5 mt-0.5 rounded flex-shrink-0" />
                   <span className="text-gray-300 text-sm">
-                    <span className="text-red-400">*</span> I agree to the <a href="https://github.com/MLH/mlh-policies/blob/main/code-of-conduct.md" target="_blank" className="text-blue-400 underline">MLH Code of Conduct</a>
+                    <span className="text-red-400">*</span> I have read and agree to the <a href="https://github.com/MLH/mlh-policies/blob/main/code-of-conduct.md" target="_blank" rel="noopener noreferrer" className="text-blue-400 underline">MLH Code of Conduct</a>.
                   </span>
                 </label>
                 <label className="flex items-start space-x-3 cursor-pointer">
-                  <input type="checkbox" name="mlh_privacy_policy" required checked={formData.mlh_privacy_policy} onChange={handleInputChange} className="w-5 h-5 mt-0.5 rounded" />
+                  <input type="checkbox" name="mlh_privacy_policy" required checked={formData.mlh_privacy_policy} onChange={handleInputChange} className="w-5 h-5 mt-0.5 rounded flex-shrink-0" />
                   <span className="text-gray-300 text-sm">
-                    <span className="text-red-400">*</span> I authorize sharing my information with MLH per their <a href="https://github.com/MLH/mlh-policies/blob/main/privacy-policy.md" target="_blank" className="text-blue-400 underline">Privacy Policy</a>
+                    <span className="text-red-400">*</span> I authorize you to share my application/registration information with Major League Hacking for event administration, ranking, and MLH administration in-line with the <a href="https://github.com/MLH/mlh-policies/blob/main/privacy-policy.md" target="_blank" rel="noopener noreferrer" className="text-blue-400 underline">MLH Privacy Policy</a>. I further agree to the terms of both the <a href="https://github.com/MLH/mlh-policies/blob/main/contest-terms.md" target="_blank" rel="noopener noreferrer" className="text-blue-400 underline">MLH Contest Terms and Conditions</a> and the <a href="https://github.com/MLH/mlh-policies/blob/main/privacy-policy.md" target="_blank" rel="noopener noreferrer" className="text-blue-400 underline">MLH Privacy Policy</a>.
                   </span>
                 </label>
                 <label className="flex items-start space-x-3 cursor-pointer">
-                  <input type="checkbox" name="mlh_marketing_emails" checked={formData.mlh_marketing_emails} onChange={handleInputChange} className="w-5 h-5 mt-0.5 rounded" />
-                  <span className="text-gray-300 text-sm">I authorize MLH to send me occasional emails</span>
+                  <input type="checkbox" name="mlh_marketing_emails" checked={formData.mlh_marketing_emails} onChange={handleInputChange} className="w-5 h-5 mt-0.5 rounded flex-shrink-0" />
+                  <span className="text-gray-300 text-sm">I authorize MLH to send me occasional emails about relevant events, career opportunities, and community announcements.</span>
                 </label>
               </div>
             </section>
