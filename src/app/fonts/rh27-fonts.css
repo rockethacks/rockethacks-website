@@ -1,0 +1,17 @@
+/*
+ * TAN Meringue — commercial font by Tan Type.
+ * Purchase at: https://tantype.com/
+ * Place the font file at: public/fonts/TAN-Meringue.otf
+ *
+ * Until the file is present the browser falls back to the system serif stack,
+ * which is fine for development. The CSS @font-face declaration is always
+ * safe to ship — the browser just skips it if the src resolves to 404.
+ */
+@font-face {
+  font-family: "TAN Meringue";
+  src: url("/fonts/TAN-Meringue.otf") format("opentype"),
+    url("/fonts/TAN-Meringue.woff2") format("woff2"),
+    url("/fonts/TAN-Meringue.woff") format("woff");
+  font-weight: 400 900;
+  font-display: swap;
+}

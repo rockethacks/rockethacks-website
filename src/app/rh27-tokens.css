@@ -1,0 +1,88 @@
+/* RocketHacks 27 — scoped to .rh27 */
+
+.rh27 {
+  --rh27-ink: #ffffff;
+  --rh27-pond-deep: oklch(0.22 0.06 220);
+  --rh27-pond-mid: oklch(0.35 0.08 195);
+  --rh27-pond-glow: oklch(0.42 0.1 190);
+  --rh27-lily: oklch(0.55 0.14 145);
+  --rh27-lily-dark: oklch(0.38 0.12 150);
+  --rh27-frog-gold: oklch(0.78 0.12 85);
+  --rh27-frame-ms: 83ms;
+  --rh27-ease-out: cubic-bezier(0.16, 1, 0.3, 1);
+  --rh27-halftone: radial-gradient(
+    circle,
+    oklch(0.15 0.02 220) 0.6px,
+    transparent 0.6px
+  );
+
+  color: var(--rh27-ink);
+  background-color: var(--rh27-pond-deep);
+}
+
+.rh27-halftone::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background-image: var(--rh27-halftone);
+  background-size: 4px 4px;
+  opacity: 0.45;
+  pointer-events: none;
+  mix-blend-mode: multiply;
+}
+
+@keyframes rh27-lily-bob {
+  0%,
+  100% {
+    transform: translateY(0) rotate(var(--rh27-pad-rot, 0deg));
+  }
+  50% {
+    transform: translateY(-6px) rotate(calc(var(--rh27-pad-rot, 0deg) + 2deg));
+  }
+}
+
+@keyframes rh27-ribbon-drift {
+  0%,
+  100% {
+    transform: translate(0, 0) scale(1);
+  }
+  50% {
+    transform: translate(12px, -8px) scale(1.02);
+  }
+}
+
+.rh27-lily-bob {
+  animation: rh27-lily-bob 5s var(--rh27-ease-out) infinite;
+}
+
+.rh27-ribbon-drift {
+  animation: rh27-ribbon-drift 18s var(--rh27-ease-out) infinite;
+}
+
+@keyframes rh27-impact-flash {
+  0% {
+    opacity: 0;
+    transform: translateX(-50%) scale(0.6);
+  }
+  15% {
+    opacity: 0.85;
+    transform: translateX(-50%) scale(1);
+  }
+  100% {
+    opacity: 0;
+    transform: translateX(-50%) scale(1.1);
+  }
+}
+
+.rh27-impact-flash {
+  animation: rh27-impact-flash calc(var(--rh27-frame-ms) * 3) var(--rh27-ease-out)
+    forwards;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .rh27-lily-bob,
+  .rh27-ribbon-drift,
+  .rh27-impact-flash {
+    animation: none;
+  }
+}

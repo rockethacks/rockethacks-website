@@ -15,6 +15,15 @@ const config: Config = {
    theme: {
    	extend: {
       colors: {
+        'rh27': {
+          'ink': 'var(--rh27-ink)',
+          'pond-deep': 'var(--rh27-pond-deep)',
+          'pond-mid': 'var(--rh27-pond-mid)',
+          'pond-glow': 'var(--rh27-pond-glow)',
+          'lily': 'var(--rh27-lily)',
+          'lily-dark': 'var(--rh27-lily-dark)',
+          'frog-gold': 'var(--rh27-frog-gold)',
+        },
         'rh': {
           'white': '#ffffff',
           'yellow': '#ffc65a',

@@ -1,5 +1,6 @@
 import type { Metadata, Viewport } from "next";
 import { terminal, jakarta } from "./fonts/fonts";
+import MlhBadgeGate from "@/components/rh27/MlhBadgeGate";
 import "./globals.css";
 
 export const viewport: Viewport = {
@@ -17,9 +18,9 @@ export const viewport: Viewport = {
 };
 
 export const metadata: Metadata = {
-  title: "RocketHacks 2026 | Hack the Horizon",
+  title: "RocketHacks 2027 | February 27–28",
   description:
-    "RocketHacks is a 24-hour Hackathon hosted by The University of Toledo. Join us in 2026 for the biggest hackathon in the Midwest!",
+    "RocketHacks returns February 27–28, 2027 at the University of Toledo. In-person event, MLH Official Member.",
   keywords:
     "hackathon, programming, technology, university of toledo, coding, innovation",
   authors: [{ name: "RocketHacks Team" }],
@@ -27,9 +28,9 @@ export const metadata: Metadata = {
     icon: "/assets/rh_26/rh_26_folder/rh_26_bundle_png/rh_26_arrow_transparent.png",
   },
   openGraph: {
-    title: "RocketHacks 2026 | Hack the Horizon",
+    title: "RocketHacks 2027 | February 27–28",
     description:
-      "Join the biggest hackathon in the Midwest at the University of Toledo",
+      "RocketHacks February 27–28, 2027 at the University of Toledo. In-person, MLH Official Member.",
     url: "https://rockethacks.org",
     siteName: "RocketHacks",
     images: [
@@ -45,9 +46,9 @@ export const metadata: Metadata = {
   },
   twitter: {
     card: "summary_large_image",
-    title: "RocketHacks 2026 | Hack the Horizon",
+    title: "RocketHacks 2027 | February 27–28",
     description:
-      "Join the biggest hackathon in the Midwest at the University of Toledo",
+      "RocketHacks February 27–28, 2027 at the University of Toledo. In-person, MLH Official Member.",
   },
 };
 
@@ -59,22 +60,7 @@ export default function RootLayout({
   return (
     <html lang="en" className={`${terminal.variable} ${jakarta.variable}`}>
       <body className={`${jakarta.className} antialiased`}>
-        {/* MLH 2026 Trust Badge - Positioned far right to avoid profile icon */}
-        <a
-          id="mlh-trust-badge"
-          className="fixed top-0 right-0 w-[50px] sm:w-[65px] md:w-[80px] lg:w-[100px] max-w-[100px] min-w-[50px] z-[45] hidden md:block transition-transform hover:scale-105 active:scale-95"
-          href="https://mlh.io/na?utm_source=na-hackathon&utm_medium=TrustBadge&utm_campaign=2026-season&utm_content=yellow"
-          target="_blank"
-          rel="noopener noreferrer"
-          aria-label="Major League Hacking 2026 Hackathon Season"
-        >
-          <img
-            src="https://s3.amazonaws.com/logged-assets/trust-badge/2026/mlh-trust-badge-2026-yellow.svg"
-            alt="Major League Hacking 2026 Hackathon Season"
-            style={{ width: "100%" }}
-            className="filter drop-shadow-lg"
-          />
-        </a>
+        <MlhBadgeGate />
         {children}
       </body>
     </html>

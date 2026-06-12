@@ -15,7 +15,7 @@ export default function Navbar() {
   const [scrolled, setScrolled] = useState(false);
   const [user, setUser] = useState<User | null>(null);
   const supabase = createClient();
-  const isHomePage = pathname === "/";
+  const isHomePage = pathname?.startsWith("/2026") ?? false;
 
   useEffect(() => {
     if (menuOpen) {
@@ -84,7 +84,7 @@ export default function Navbar() {
 
   const navLinks = [
     { href: "#about", label: "ABOUT" },
-    { href: "/gallery", label: "2025" },
+    { href: "/2026/", label: "2026" },
     { href: "#sponsor", label: "SPONSORS" },
     { href: "#contact", label: "CONTACT" },
     // Temporarily hidden - uncomment to enable team page
