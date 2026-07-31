@@ -5,8 +5,9 @@ import type { MotionValue } from "framer-motion";
 import Rh27ParallaxLayer from "./Rh27ParallaxLayer";
 import { rh27Assets, lilyPadPlacements } from "@/lib/rh27/assets";
 
-type Rh27EnvironmentProps = {
-  scrollYProgress: MotionValue<number>;
+type Props = {
+  mouseX: MotionValue<number>;
+  mouseY: MotionValue<number>;
   reducedMotion: boolean;
 };
 
@@ -50,18 +51,17 @@ function PondRibbons() {
   );
 }
 
-export default function Rh27Environment({
-  scrollYProgress,
-  reducedMotion,
-}: Rh27EnvironmentProps) {
+export default function Rh27Environment({ mouseX, mouseY, reducedMotion }: Props) {
   return (
     <div className="absolute inset-0 overflow-hidden pointer-events-none">
 
-      {/* ── Layer 0: Water background (horizontally flipped for better quality) ── */}
+      {/* ── Layer 0: Water background (flipped horizontally) ── */}
       <Rh27ParallaxLayer
-        scrollYProgress={scrollYProgress}
-        yRange={[0, -25]}
-        className="absolute inset-0 z-0"
+        mouseX={mouseX}
+        mouseY={mouseY}
+        depth={0.04}
+        className="absolute z-0"
+        style={{ inset: "-3%" }}
       >
         <div className="absolute inset-0" style={{ transform: "scaleX(-1)" }}>
           <Image
@@ -70,47 +70,57 @@ export default function Rh27Environment({
             fill
             priority
             className="object-cover object-center"
-            sizes="100vw"
+            sizes="110vw"
           />
         </div>
-        {/* Dark overlay — heavier on the left where copy lives */}
+        {/* Gradient darkens the left side where text lives */}
         <div
           className="absolute inset-0"
           style={{
             background:
-              "linear-gradient(105deg, oklch(0.14 0.05 228) 0%, oklch(0.18 0.05 222) 38%, transparent 60%)",
+              "linear-gradient(108deg, oklch(0.13 0.05 228 / 0.97) 0%, oklch(0.17 0.05 222 / 0.82) 32%, oklch(0.14 0.04 220 / 0.35) 55%, transparent 72%)",
+          }}
+        />
+        {/* Subtle vignette around all edges */}
+        <div
+          className="absolute inset-0"
+          style={{
+            background:
+              "radial-gradient(ellipse 110% 100% at 55% 50%, transparent 50%, oklch(0.10 0.04 225 / 0.55) 100%)",
           }}
         />
       </Rh27ParallaxLayer>
 
       {/* ── Layer 1: Flowing ribbon swirls ── */}
       <Rh27ParallaxLayer
-        scrollYProgress={scrollYProgress}
-        yRange={[0, -45]}
+        mouseX={mouseX}
+        mouseY={mouseY}
+        depth={0.07}
         className={`absolute inset-0 z-[5] ${reducedMotion ? "" : "rh27-ribbon-drift"}`}
       >
         <PondRibbons />
       </Rh27ParallaxLayer>
 
-      {/* ── Layer 2: Scattered lily pads (upper-right → center-right) ── */}
+      {/* ── Layer 2: Scattered lily pads ── */}
       {lilyPadPlacements.map((pad, i) => (
         <Rh27ParallaxLayer
           key={`pad-${i}`}
-          scrollYProgress={scrollYProgress}
-          yRange={[0, -35 - pad.depth * 55]}
-          xRange={[0, pad.depth * 18]}
-          className={`absolute z-[25] ${reducedMotion ? "" : "rh27-lily-bob"}`}
-          style={
-            {
-              left: pad.left,
-              top: pad.top,
-              width: pad.width,
-              transform: `rotate(${pad.rotation}deg)`,
-              animationDelay: `${pad.delay ?? 0}s`,
-            } as React.CSSProperties
-          }
+          mouseX={mouseX}
+          mouseY={mouseY}
+          depth={0.1 + pad.depth * 0.2}
+          className="absolute z-[25]"
+          style={{ left: pad.left, top: pad.top, width: pad.width }}
         >
-          <div className="relative w-full aspect-square">
+          <div
+            className={`relative w-full aspect-square ${reducedMotion ? "" : "rh27-lily-bob"}`}
+            style={
+              {
+                "--rh27-pad-rot": `${pad.rotation}deg`,
+                animationDelay: `${pad.delay ?? 0}s`,
+                transform: `rotate(${pad.rotation}deg)`,
+              } as React.CSSProperties
+            }
+          >
             <Image
               src={pad.src}
               alt=""
@@ -122,16 +132,13 @@ export default function Rh27Environment({
         </Rh27ParallaxLayer>
       ))}
 
-      {/* ── Layer 3: Monstera — bottom-left corner ── */}
+      {/* ── Layer 3: Monstera — bottom-left ── */}
       <Rh27ParallaxLayer
-        scrollYProgress={scrollYProgress}
-        yRange={[0, -100]}
+        mouseX={mouseX}
+        mouseY={mouseY}
+        depth={0.22}
         className="absolute z-[60]"
-        style={{
-          left: "-4%",
-          bottom: "-6%",
-          width: "clamp(220px, 34vw, 520px)",
-        }}
+        style={{ left: "-4%", bottom: "-6%", width: "clamp(200px, 32vw, 500px)" }}
       >
         <div
           className="relative w-full"
@@ -141,23 +148,19 @@ export default function Rh27Environment({
             src={rh27Assets.monstera}
             alt=""
             fill
-            className="object-contain object-bottom-left"
+            className="object-contain"
             sizes="40vw"
           />
         </div>
       </Rh27ParallaxLayer>
 
-      {/* ── Layer 4: Monstera — bottom-right corner ── */}
+      {/* ── Layer 4: Monstera — bottom-right (mirrored) ── */}
       <Rh27ParallaxLayer
-        scrollYProgress={scrollYProgress}
-        yRange={[0, -115]}
-        xRange={[0, 20]}
+        mouseX={mouseX}
+        mouseY={mouseY}
+        depth={0.28}
         className="absolute z-[60]"
-        style={{
-          right: "-3%",
-          bottom: "-4%",
-          width: "clamp(220px, 36vw, 560px)",
-        }}
+        style={{ right: "-3%", bottom: "-4%", width: "clamp(200px, 34vw, 540px)" }}
       >
         <div
           className="relative w-full"
@@ -167,7 +170,7 @@ export default function Rh27Environment({
             src={rh27Assets.monstera}
             alt=""
             fill
-            className="object-contain object-bottom-right"
+            className="object-contain"
             sizes="45vw"
           />
         </div>

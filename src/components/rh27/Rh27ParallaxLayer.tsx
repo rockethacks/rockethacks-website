@@ -3,26 +3,27 @@
 import { motion, useTransform, type MotionValue } from "framer-motion";
 import type { ReactNode } from "react";
 
-type Rh27ParallaxLayerProps = {
+type Props = {
   children: ReactNode;
-  scrollYProgress: MotionValue<number>;
-  /** Multiplier for vertical shift (negative = slower / farther). */
-  yRange?: [number, number];
-  xRange?: [number, number];
+  mouseX: MotionValue<number>;
+  mouseY: MotionValue<number>;
+  /** 0 = static, higher = moves more with cursor */
+  depth?: number;
   className?: string;
   style?: React.CSSProperties;
 };
 
 export default function Rh27ParallaxLayer({
   children,
-  scrollYProgress,
-  yRange = [0, -80],
-  xRange = [0, 0],
+  mouseX,
+  mouseY,
+  depth = 0.1,
   className = "",
   style,
-}: Rh27ParallaxLayerProps) {
-  const y = useTransform(scrollYProgress, [0, 1], yRange);
-  const x = useTransform(scrollYProgress, [0, 1], xRange);
+}: Props) {
+  const spread = depth * 70;
+  const x = useTransform(mouseX, [-0.5, 0.5], [-spread, spread]);
+  const y = useTransform(mouseY, [-0.5, 0.5], [-spread * 0.65, spread * 0.65]);
 
   return (
     <motion.div className={className} style={{ ...style, x, y }}>
