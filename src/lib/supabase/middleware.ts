@@ -60,6 +60,19 @@ export async function updateSession(request: NextRequest) {
     return data
   }
 
+  async function isOnJudgingOrgTeam() {
+    if (!user) return false
+    const { data } = await supabase
+      .from('organizer_team_members')
+      .select('team_id, org_teams(name)')
+      .eq('organizer_id', user.id)
+    return (data || []).some((row) => {
+      const team = row.org_teams as { name?: string } | { name?: string }[] | null
+      if (Array.isArray(team)) return team.some((t) => t.name === 'Judging')
+      return team?.name === 'Judging'
+    })
+  }
+
   // Protect admin routes
   if (path.startsWith('/admin')) {
     if (!user) {
@@ -71,9 +84,10 @@ export async function updateSession(request: NextRequest) {
 
     const organizer = await getOrganizerProfile()
     const isAdmin = organizer?.role === 'admin'
-    const isJudgingTeam = organizer?.role === 'judging_team'
+    const isJudgingRole = organizer?.role === 'judging_team'
+    const isJudgingTeam = isJudgingRole || (!isAdmin && !!organizer && (await isOnJudgingOrgTeam()))
 
-    // Head judges and judging_team staff may access /admin/judging/* only
+    // Head judges and judging staff may access /admin/judging/* only
     const isJudgingPath = path.startsWith('/admin/judging')
     let isHeadJudge = false
     if (!isAdmin && isJudgingPath) {

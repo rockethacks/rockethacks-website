@@ -1,6 +1,7 @@
 'use client'
 
 import { useCallback, useEffect, useMemo, useState } from 'react'
+import * as XLSX from 'xlsx'
 import { createClient } from '@/lib/supabase/client'
 import type {
   OrganizerInvite,
@@ -18,6 +19,24 @@ function randomCode() {
   let out = ''
   for (let i = 0; i < 8; i++) out += alphabet[Math.floor(Math.random() * alphabet.length)]
   return out
+}
+
+function PencilIcon({ className = 'h-4 w-4' }: { className?: string }) {
+  return (
+    <svg
+      className={className}
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      aria-hidden
+    >
+      <path d="M12 20h9" />
+      <path d="M16.5 3.5a2.12 2.12 0 0 1 3 3L7 19l-4 1 1-4Z" />
+    </svg>
+  )
 }
 
 type MemberRow = OrganizerProfile & {
@@ -38,6 +57,12 @@ export default function AdminTeamPage() {
   const [message, setMessage] = useState('')
   const [busy, setBusy] = useState(false)
   const [confirmRemove, setConfirmRemove] = useState(false)
+  const [editingContact, setEditingContact] = useState(false)
+  const [contactDraft, setContactDraft] = useState({
+    full_name: '',
+    email: '',
+    phone: '',
+  })
   const [origin, setOrigin] = useState('')
   const [search, setSearch] = useState('')
 
@@ -96,6 +121,7 @@ export default function AdminTeamPage() {
 
     const rows: MemberRow[] = ((p.data || []) as OrganizerProfile[]).map((profile) => ({
       ...profile,
+      phone: profile.phone ?? null,
       teams: memberships
         .filter((row) => row.organizer_id === profile.user_id)
         .map((row) => ({
@@ -121,6 +147,7 @@ export default function AdminTeamPage() {
       (m) =>
         m.email.toLowerCase().includes(q) ||
         (m.full_name || '').toLowerCase().includes(q) ||
+        (m.phone || '').toLowerCase().includes(q) ||
         m.teams.some((t) => t.name.toLowerCase().includes(q))
     )
   }, [members, search])
@@ -130,6 +157,25 @@ export default function AdminTeamPage() {
       team_id,
       is_leader: leaderTeamIds.includes(team_id),
     }))
+
+  const exportRoster = () => {
+    const rows = filteredMembers.map((m) => ({
+      Name: m.full_name || '',
+      Email: m.email,
+      'Phone Number': m.phone || '',
+    }))
+    if (rows.length === 0) {
+      setError('No staff members to export.')
+      return
+    }
+    const worksheet = XLSX.utils.json_to_sheet(rows)
+    worksheet['!cols'] = [{ wch: 28 }, { wch: 36 }, { wch: 18 }]
+    const workbook = XLSX.utils.book_new()
+    XLSX.utils.book_append_sheet(workbook, worksheet, 'Staff Roster')
+    const date = new Date().toISOString().split('T')[0]
+    XLSX.writeFile(workbook, `RocketHacks_2026_Staff_Roster_${date}.xlsx`)
+    setMessage(`Exported ${rows.length} staff member${rows.length === 1 ? '' : 's'}.`)
+  }
 
   const createInvite = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -212,11 +258,66 @@ export default function AdminTeamPage() {
     if (!selected) {
       setDraftTeamIds([])
       setDraftLeaderIds([])
+      setEditingContact(false)
       return
     }
     setDraftTeamIds(selected.teams.map((t) => t.team_id))
     setDraftLeaderIds(selected.teams.filter((t) => t.is_leader).map((t) => t.team_id))
+    setContactDraft({
+      full_name: selected.full_name || '',
+      email: selected.email || '',
+      phone: selected.phone || '',
+    })
+    setEditingContact(false)
   }, [selected])
+
+  const startEditContact = () => {
+    if (!selected) return
+    setContactDraft({
+      full_name: selected.full_name || '',
+      email: selected.email || '',
+      phone: selected.phone || '',
+    })
+    setEditingContact(true)
+    setError('')
+  }
+
+  const saveContact = async () => {
+    if (!selected) return
+    const email = contactDraft.email.trim().toLowerCase()
+    if (!email) {
+      setError('Email is required.')
+      return
+    }
+    setBusy(true)
+    setError('')
+    const supabase = createClient()
+    const { error: uErr } = await supabase
+      .from('organizer_profiles')
+      .update({
+        full_name: contactDraft.full_name.trim() || null,
+        email,
+        phone: contactDraft.phone.trim() || null,
+      })
+      .eq('user_id', selected.user_id)
+
+    if (uErr) {
+      setError(
+        uErr.message.includes('idx_organizer_profiles_email')
+          ? 'That email is already used by another staff member.'
+          : uErr.message.includes('phone')
+            ? 'Phone column missing — run migration 029_organizer_phone.sql.'
+            : uErr.message
+      )
+      setBusy(false)
+      return
+    }
+
+    setEditingContact(false)
+    setMessage('Contact details updated.')
+    await load()
+    setBusy(false)
+  }
 
   const requestRemoveMember = () => {
     if (!selected) return
@@ -488,12 +589,22 @@ export default function AdminTeamPage() {
         <div className="xl:col-span-2 bg-white/5 border border-white/10 rounded-2xl overflow-hidden">
           <div className="p-4 border-b border-white/10 flex flex-col sm:flex-row gap-3 sm:items-center sm:justify-between">
             <h3 className="text-lg font-semibold text-white">Staff members</h3>
-            <input
-              className={`${inputClass} sm:max-w-xs`}
-              placeholder="Search name, email, team…"
-              value={search}
-              onChange={(e) => setSearch(e.target.value)}
-            />
+            <div className="flex flex-col sm:flex-row gap-2 sm:items-center">
+              <input
+                className={`${inputClass} sm:max-w-xs`}
+                placeholder="Search name, email, phone, team…"
+                value={search}
+                onChange={(e) => setSearch(e.target.value)}
+              />
+              <button
+                type="button"
+                onClick={exportRoster}
+                disabled={filteredMembers.length === 0}
+                className="px-3 py-2 bg-white/5 hover:bg-white/10 disabled:opacity-40 border border-white/10 text-white text-xs font-semibold rounded-lg transition shrink-0"
+              >
+                Export Roster
+              </button>
+            </div>
           </div>
           <div className="divide-y divide-white/10 max-h-[480px] overflow-y-auto">
             {filteredMembers.map((m) => (
@@ -522,6 +633,7 @@ export default function AdminTeamPage() {
                   </span>
                 </div>
                 <div className="text-sm text-gray-400">{m.email}</div>
+                {m.phone && <div className="text-xs text-gray-500">{m.phone}</div>}
                 <div className="mt-1 flex flex-wrap gap-1">
                   {m.teams.map((t) => (
                     <span
@@ -547,13 +659,107 @@ export default function AdminTeamPage() {
         <div className="bg-white/5 border border-white/10 rounded-2xl p-5 space-y-4">
           <h3 className="text-lg font-semibold text-white">Member detail</h3>
           {!selected ? (
-            <p className="text-sm text-gray-400">Select a staff member to edit role and teams.</p>
+            <p className="text-sm text-gray-400">Select a staff member to edit contact, role, and teams.</p>
           ) : (
             <>
-              <div>
-                <p className="text-white font-semibold">{selected.full_name || '—'}</p>
-                <p className="text-sm text-gray-400">{selected.email}</p>
+              <div className="space-y-3">
+                <div className="flex items-start justify-between gap-2">
+                  <p className="text-xs font-semibold text-gray-400 uppercase">Contact</p>
+                  {!editingContact && (
+                    <button
+                      type="button"
+                      onClick={startEditContact}
+                      disabled={busy}
+                      className="inline-flex items-center gap-1.5 px-2 py-1 rounded-lg text-xs font-semibold text-gray-300 hover:text-white hover:bg-white/10 transition disabled:opacity-50"
+                      aria-label="Edit contact details"
+                      title="Edit name, email, phone"
+                    >
+                      <PencilIcon />
+                      Edit
+                    </button>
+                  )}
+                </div>
+
+                {editingContact ? (
+                  <div className="space-y-3">
+                    <label className="block space-y-1">
+                      <span className="text-xs text-gray-400">Name</span>
+                      <input
+                        className={inputClass}
+                        value={contactDraft.full_name}
+                        onChange={(e) =>
+                          setContactDraft({ ...contactDraft, full_name: e.target.value })
+                        }
+                        placeholder="Full name"
+                        disabled={busy}
+                      />
+                    </label>
+                    <label className="block space-y-1">
+                      <span className="text-xs text-gray-400">Email</span>
+                      <input
+                        className={inputClass}
+                        type="email"
+                        required
+                        value={contactDraft.email}
+                        onChange={(e) =>
+                          setContactDraft({ ...contactDraft, email: e.target.value })
+                        }
+                        placeholder="email@example.com"
+                        disabled={busy}
+                      />
+                    </label>
+                    <label className="block space-y-1">
+                      <span className="text-xs text-gray-400">Phone number</span>
+                      <input
+                        className={inputClass}
+                        type="tel"
+                        value={contactDraft.phone}
+                        onChange={(e) =>
+                          setContactDraft({ ...contactDraft, phone: e.target.value })
+                        }
+                        placeholder="+1 555 000 0000"
+                        disabled={busy}
+                      />
+                    </label>
+                    <p className="text-[11px] text-gray-500 leading-relaxed">
+                      Roster contact email. Sign-in still uses their Authentication account email unless
+                      they reset it separately.
+                    </p>
+                    <div className="flex gap-2">
+                      <button
+                        type="button"
+                        disabled={busy}
+                        onClick={() => {
+                          setEditingContact(false)
+                          setContactDraft({
+                            full_name: selected.full_name || '',
+                            email: selected.email || '',
+                            phone: selected.phone || '',
+                          })
+                        }}
+                        className="flex-1 py-2 bg-white/10 hover:bg-white/15 disabled:opacity-50 text-white text-sm font-semibold rounded-lg transition"
+                      >
+                        Cancel
+                      </button>
+                      <button
+                        type="button"
+                        disabled={busy}
+                        onClick={saveContact}
+                        className="flex-1 py-2 bg-blue-600 hover:bg-blue-700 disabled:opacity-50 text-white text-sm font-semibold rounded-lg transition"
+                      >
+                        {busy ? 'Saving…' : 'Save'}
+                      </button>
+                    </div>
+                  </div>
+                ) : (
+                  <div className="space-y-1">
+                    <p className="text-white font-semibold">{selected.full_name || '—'}</p>
+                    <p className="text-sm text-gray-400">{selected.email}</p>
+                    <p className="text-sm text-gray-500">{selected.phone || 'No phone number'}</p>
+                  </div>
+                )}
               </div>
+
               <label className="block space-y-1">
                 <span className="text-xs font-semibold text-gray-400 uppercase">Role</span>
                 <select
@@ -566,6 +772,9 @@ export default function AdminTeamPage() {
                   <option value="judging_team">Judging Team</option>
                   <option value="admin">Admin</option>
                 </select>
+                <p className="text-xs text-gray-500 pt-1">
+                  Judging tab: set Role to Judging Team, or add the Judging team tag below.
+                </p>
               </label>
               <TeamPicker
                 teamIds={draftTeamIds}
