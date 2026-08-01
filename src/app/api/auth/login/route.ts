@@ -1,9 +1,6 @@
 import { createClient } from '@/lib/supabase/server'
 import { NextResponse } from 'next/server'
-
-function staffHome(role: 'admin' | 'organizer') {
-  return role === 'admin' ? '/admin' : '/organizer'
-}
+import { parseAppRedirect, staffHome } from '@/lib/auth/routing'
 
 export async function POST(request: Request) {
   const { email, password, authMode, provider, redirect } = await request.json()
@@ -66,7 +63,20 @@ export async function POST(request: Request) {
         .eq('user_id', data.user.id)
     }
 
-    const wantsDefault = !redirect || redirect === '/dashboard'
+    const { path: redirectPath, params: redirectParams } = parseAppRedirect(
+      typeof redirect === 'string' ? redirect : '/dashboard'
+    )
+    const wantsDefault = !redirect || redirectPath === '/dashboard'
+    const orgCode = (redirectParams.get('org_code') || '').trim().toUpperCase()
+
+    // Redeem staff invite if code was carried in the redirect, else pending invite.
+    // Soft-fail: missing invite / not-yet-applied migration must not block login.
+    if (orgCode) {
+      await supabase.rpc('redeem_organizer_invite', { p_invite_code: orgCode })
+    } else {
+      await supabase.rpc('redeem_pending_organizer_invite')
+    }
+    // (errors ignored — profile lookup below decides routing)
 
     // Staff profiles take priority over hacker/judge homes
     const { data: organizerProfile } = await supabase
@@ -79,9 +89,12 @@ export async function POST(request: Request) {
       return NextResponse.json({
         message: 'Login successful',
         user: data.user,
-        redirect: wantsDefault || redirect === '/apply'
-          ? staffHome(organizerProfile.role)
-          : redirect,
+        redirect:
+          wantsDefault || redirectPath === '/apply' || redirectPath === '/login'
+            ? staffHome(organizerProfile.role)
+            : redirectPath.startsWith('/login')
+              ? staffHome(organizerProfile.role)
+              : redirect,
       })
     }
 
@@ -107,6 +120,7 @@ export async function POST(request: Request) {
     return NextResponse.json({
       message: 'Login successful',
       user: data.user,
+      redirect: wantsDefault ? '/dashboard' : redirect,
     })
   }
 

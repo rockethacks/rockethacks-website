@@ -1,5 +1,6 @@
 import { createServerClient, type CookieOptions } from '@supabase/ssr'
 import { NextResponse, type NextRequest } from 'next/server'
+import { staffHome } from '@/lib/auth/routing'
 
 /**
  * Middleware to refresh Supabase auth sessions
@@ -112,7 +113,12 @@ export async function updateSession(request: NextRequest) {
 
     const organizer = await getOrganizerProfile()
     if (!organizer) {
-      return NextResponse.redirect(new URL('/login', request.url))
+      // Keep session; send to login with context (invite may still need redeeming)
+      const redirectUrl = request.nextUrl.clone()
+      redirectUrl.pathname = '/login'
+      redirectUrl.searchParams.set('redirect', '/organizer')
+      redirectUrl.searchParams.set('error', 'staff_access_required')
+      return NextResponse.redirect(redirectUrl)
     }
   }
 
@@ -127,8 +133,7 @@ export async function updateSession(request: NextRequest) {
 
     const organizer = await getOrganizerProfile()
     if (organizer) {
-      const home = organizer.role === 'admin' ? '/admin' : '/organizer'
-      return NextResponse.redirect(new URL(home, request.url))
+      return NextResponse.redirect(new URL(staffHome(organizer.role), request.url))
     }
   }
 

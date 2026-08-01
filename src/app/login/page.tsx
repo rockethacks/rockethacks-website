@@ -37,20 +37,44 @@ function LoginForm() {
     }
   }, [orgCodeFromUrl])
 
+  useEffect(() => {
+    const err = searchParams.get('error')
+    if (err === 'staff_access_required') {
+      setError(
+        'You are signed in, but this account is not staff yet. Enter your invite code and sign in again, or use First time? Activate with invite code.'
+      )
+    } else if (err === 'auth_failed') {
+      setError('Authentication failed. Please try signing in again.')
+    }
+  }, [searchParams])
+
   const redeemStaffInvite = useCallback(
-    async (code: string) => {
+    async (code?: string) => {
       const supabase = createClient()
-      const { error: rpcError } = await supabase.rpc('redeem_organizer_invite', {
-        p_invite_code: code.trim().toUpperCase(),
-      })
-      if (rpcError) {
-        throw new Error(
-          rpcError.message.includes('hacker application')
-            ? 'This email has a hacker application. Staff must use a different email.'
-            : rpcError.message.includes('does not match')
-              ? 'This invite belongs to a different email. Sign out and use the invited address.'
-              : rpcError.message
+      const trimmed = (code || '').trim().toUpperCase()
+      if (trimmed) {
+        const { error: rpcError } = await supabase.rpc('redeem_organizer_invite', {
+          p_invite_code: trimmed,
+        })
+        if (rpcError) {
+          throw new Error(
+            rpcError.message.includes('hacker application')
+              ? 'This email has a hacker application. Staff must use a different email.'
+              : rpcError.message.includes('does not match')
+                ? 'This invite belongs to a different email. Sign out and use the invited address.'
+                : rpcError.message
+          )
+        }
+      } else {
+        const { data: redeemed, error: pendingErr } = await supabase.rpc(
+          'redeem_pending_organizer_invite'
         )
+        if (pendingErr) {
+          throw new Error(pendingErr.message)
+        }
+        if (!redeemed) {
+          throw new Error('No open staff invite found for this account. Ask an admin for a new invite.')
+        }
       }
       const auth = await fetch('/api/auth/user').then((r) => r.json())
       router.replace(auth.isAdmin ? '/admin' : '/organizer')
@@ -58,9 +82,8 @@ function LoginForm() {
     [router]
   )
 
-  // If already signed in with org_code, try redeem
+  // If already signed in, redeem org_code or any pending invite for this email
   useEffect(() => {
-    if (!orgCodeFromUrl) return
     let cancelled = false
     ;(async () => {
       const auth = await fetch('/api/auth/user').then((r) => r.json())
@@ -69,9 +92,11 @@ function LoginForm() {
         router.replace(auth.isAdmin ? '/admin' : '/organizer')
         return
       }
+      // Only auto-redeem when arriving from invite link or staff redirect
+      if (!orgCodeFromUrl && searchParams.get('error') !== 'staff_access_required') return
       try {
         setLoading(true)
-        await redeemStaffInvite(orgCodeFromUrl)
+        await redeemStaffInvite(orgCodeFromUrl || undefined)
       } catch (e) {
         if (!cancelled) setError(e instanceof Error ? e.message : 'Could not redeem invite')
       } finally {
@@ -81,7 +106,7 @@ function LoginForm() {
     return () => {
       cancelled = true
     }
-  }, [orgCodeFromUrl, redeemStaffInvite, router])
+  }, [orgCodeFromUrl, redeemStaffInvite, router, searchParams])
 
   const handleStaffActivate = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -422,6 +447,20 @@ function LoginForm() {
               className="w-full py-3 px-4 bg-white/5 hover:bg-white/10 border border-white/20 rounded-lg text-rh-white text-sm font-medium transition-all"
             >
               Back to Password Sign In
+            </button>
+          )}
+
+          {staffMode !== 'activate' && !orgCodeFromUrl && (
+            <button
+              type="button"
+              onClick={() => {
+                setStaffMode('activate')
+                setError('')
+                setMessage('')
+              }}
+              className="w-full py-3 px-4 bg-white/5 hover:bg-white/10 border border-white/20 rounded-lg text-rh-white text-sm font-medium transition-all"
+            >
+              First time? Activate with invite code
             </button>
           )}
 

@@ -16,7 +16,7 @@ export default function OrganizerLayout({ children }: { children: React.ReactNod
       const data = await res.json()
 
       if (!data.isOrganizer && !data.isAdmin) {
-        router.replace('/login')
+        router.replace('/login?redirect=/organizer&error=staff_access_required')
         return
       }
 
