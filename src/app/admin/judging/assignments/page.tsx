@@ -25,6 +25,7 @@ import {
   visitsPerJudge,
   type AssignmentLite,
 } from '@/lib/judging/visits'
+import { ConfirmRemoveDialog } from '@/components/staff/ConfirmRemoveDialog'
 
 type AssignmentRow = AssignmentLite & {
   judge: { full_name: string | null; email: string } | null
@@ -72,6 +73,7 @@ function AssignmentsAdminInner() {
   const [highlightProjectId, setHighlightProjectId] = useState('')
 
   const [busy, setBusy] = useState(false)
+  const [confirmRedo, setConfirmRedo] = useState(false)
   const [error, setError] = useState('')
   const [message, setMessage] = useState('')
 
@@ -351,13 +353,6 @@ function AssignmentsAdminInner() {
   }
 
   const redoPlan = async () => {
-    if (
-      !confirm(
-        'Redo the plan? This deletes every assignment and submitted score, then builds a fresh plan with the settings above. Table numbers stay as-is until you reseat on the Tables tab.'
-      )
-    )
-      return
-
     setBusy(true)
     setError('')
     setMessage('')
@@ -372,6 +367,7 @@ function AssignmentsAdminInner() {
       return
     }
 
+    setConfirmRedo(false)
     setPlan([])
     await load()
     await runSuggestPlan()
@@ -592,7 +588,7 @@ function AssignmentsAdminInner() {
             </div>
             {hasCommittedPlan && (
               <button
-                onClick={redoPlan}
+                onClick={() => setConfirmRedo(true)}
                 disabled={busy}
                 className="w-full px-4 py-2.5 bg-red-600/80 hover:bg-red-600 disabled:opacity-50 text-white font-semibold rounded-lg transition"
               >
@@ -735,7 +731,7 @@ function AssignmentsAdminInner() {
             <div className="flex gap-2">
               <ExportButton onClick={exportAssignments} />
               <button
-                onClick={redoPlan}
+                onClick={() => setConfirmRedo(true)}
                 disabled={busy}
                 className="px-3 py-1.5 bg-red-600/80 hover:bg-red-600 disabled:opacity-50 text-white text-xs font-semibold rounded-lg transition"
               >
@@ -942,6 +938,20 @@ function AssignmentsAdminInner() {
         </div>
       </Panel>
       </div>
+
+      <ConfirmRemoveDialog
+        open={confirmRedo}
+        title="Redo the plan?"
+        description={
+          'This deletes every assignment and submitted score, then builds a fresh plan with the settings above.\n\n' +
+          'Table numbers stay as-is until you reseat on the Tables tab.'
+        }
+        confirmLabel="Redo plan"
+        busyLabel="Working…"
+        busy={busy}
+        onCancel={() => setConfirmRedo(false)}
+        onConfirm={redoPlan}
+      />
     </div>
   )
 }

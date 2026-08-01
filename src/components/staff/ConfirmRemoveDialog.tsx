@@ -5,17 +5,19 @@ type ConfirmRemoveDialogProps = {
   title: string
   description: string
   confirmLabel?: string
+  busyLabel?: string
   busy?: boolean
   onCancel: () => void
   onConfirm: () => void
 }
 
-/** Modal card asking the admin to confirm a destructive person removal. */
+/** Modal card asking the admin to confirm a destructive action. */
 export function ConfirmRemoveDialog({
   open,
   title,
   description,
   confirmLabel = 'Remove permanently',
+  busyLabel = 'Working…',
   busy = false,
   onCancel,
   onConfirm,
@@ -52,7 +54,7 @@ export function ConfirmRemoveDialog({
             onClick={onConfirm}
             className="flex-1 py-3 bg-red-600 hover:bg-red-700 disabled:opacity-50 text-white font-bold rounded-lg transition"
           >
-            {busy ? 'Removing…' : confirmLabel}
+            {busy ? busyLabel : confirmLabel}
           </button>
         </div>
       </div>
