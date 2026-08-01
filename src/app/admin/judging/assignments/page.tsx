@@ -25,6 +25,7 @@ import {
   visitsPerJudge,
   type AssignmentLite,
 } from '@/lib/judging/visits'
+import { ConfirmRemoveDialog } from '@/components/staff/ConfirmRemoveDialog'
 
 type AssignmentRow = AssignmentLite & {
   judge: { full_name: string | null; email: string } | null
@@ -61,10 +62,16 @@ function AssignmentsAdminInner() {
   const [taggedProjects, setTaggedProjects] = useState(0)
   const [taggedJudges, setTaggedJudges] = useState(0)
 
-  const [perProject, setPerProject] = useState(3)
+  const [perProject, setPerProject] = useState(FALLBACK_SETTINGS.judges_per_project)
   const [windowMinutes, setWindowMinutes] = useState(60)
   const [transitionMinutes, setTransitionMinutes] = useState(1)
   const [plan, setPlan] = useState<PlannedVisit[]>([])
+  /** Settings the current preview was built with — cleared when inputs diverge. */
+  const [planBuiltWith, setPlanBuiltWith] = useState<{
+    perProject: number
+    windowMinutes: number
+    transitionMinutes: number
+  } | null>(null)
 
   const [trackId, setTrackId] = useState('')
   const [manualJudge, setManualJudge] = useState('')
@@ -72,6 +79,7 @@ function AssignmentsAdminInner() {
   const [highlightProjectId, setHighlightProjectId] = useState('')
 
   const [busy, setBusy] = useState(false)
+  const [confirmRedo, setConfirmRedo] = useState(false)
   const [error, setError] = useState('')
   const [message, setMessage] = useState('')
 
@@ -94,6 +102,7 @@ function AssignmentsAdminInner() {
       setSettings(s)
       setWindowMinutes(s.window_minutes)
       setTransitionMinutes(Math.round(s.transition_seconds / 60))
+      setPerProject(s.judges_per_project ?? FALLBACK_SETTINGS.judges_per_project)
     }
 
     const trackList = (trackRes.data || []) as Track[]
@@ -200,23 +209,66 @@ function AssignmentsAdminInner() {
   const feasibility = useMemo(() => {
     const withRubrics = tables.filter((t) => t.open.length > 0 || t.restricted.length > 0)
     const visitsNeeded = withRubrics.reduce((sum, t) => sum + t.neededOpen + t.neededRestricted, 0)
+    const openTargets = withRubrics.filter((t) => t.neededOpen > 0).map((t) => t.neededOpen)
+    const effectivePerProject = openTargets.length
+      ? Math.round(
+          (openTargets.reduce((sum, n) => sum + n, 0) / openTargets.length) * 10
+        ) / 10
+      : perProject
     const avgVisit = withRubrics.length
       ? Math.round(withRubrics.reduce((sum, t) => sum + t.seconds, 0) / withRubrics.length)
       : activeSettings.default_visit_seconds + activeSettings.transition_seconds
     const perJudge = visitsPerJudge(windowMinutes, avgVisit)
     const capacity = perJudge * judges.length
+    const judgesNeeded = perJudge > 0 ? Math.ceil(visitsNeeded / perJudge) : 0
+    const atLastResort =
+      perProject <= 1 && windowMinutes >= (settings.window_max_minutes || 90)
     return {
       tables: withRubrics.length,
       visitsNeeded,
+      effectivePerProject,
       avgVisit,
       perJudge,
       capacity,
-      judgesNeeded: perJudge > 0 ? Math.ceil(visitsNeeded / perJudge) : 0,
+      judgesNeeded,
       affordablePerProject:
         withRubrics.length > 0 ? Math.floor(capacity / withRubrics.length) : 0,
       feasible: capacity >= visitsNeeded,
+      atLastResort,
+      hardShortage: atLastResort && capacity < visitsNeeded,
     }
-  }, [tables, windowMinutes, judges.length, activeSettings])
+  }, [tables, windowMinutes, judges.length, activeSettings, perProject, settings.window_max_minutes])
+
+  /** Changing plan inputs invalidates an unsaved preview so shortfalls cannot lie. */
+  const updatePerProject = (value: number) => {
+    const next = Math.max(1, value || 1)
+    setPerProject(next)
+    if (plan.length > 0) {
+      setPlan([])
+      setPlanBuiltWith(null)
+      setMessage('Settings changed — rebuild the plan to preview with the new judges-per-project.')
+    }
+  }
+
+  const updateWindowMinutes = (value: number) => {
+    const next = Math.max(15, value || 60)
+    setWindowMinutes(next)
+    if (plan.length > 0) {
+      setPlan([])
+      setPlanBuiltWith(null)
+      setMessage('Settings changed — rebuild the plan to preview with the new window.')
+    }
+  }
+
+  const updateTransitionMinutes = (value: number) => {
+    const next = Math.max(0, value || 0)
+    setTransitionMinutes(next)
+    if (plan.length > 0) {
+      setPlan([])
+      setPlanBuiltWith(null)
+      setMessage('Settings changed — rebuild the plan to preview with the new walk time.')
+    }
+  }
 
   const currentVisits = useMemo(
     () => buildVisits(assignments, trackById, activeSettings),
@@ -268,6 +320,7 @@ function AssignmentsAdminInner() {
       .update({
         window_minutes: windowMinutes,
         transition_seconds: transitionMinutes * 60,
+        judges_per_project: perProject,
         updated_at: new Date().toISOString(),
       })
       .eq('id', true)
@@ -284,6 +337,13 @@ function AssignmentsAdminInner() {
 
     const rows = (data || []) as PlannedVisit[]
     setPlan(rows)
+    setPlanBuiltWith({ perProject, windowMinutes, transitionMinutes })
+    setSettings((prev) => ({
+      ...prev,
+      window_minutes: windowMinutes,
+      transition_seconds: transitionMinutes * 60,
+      judges_per_project: perProject,
+    }))
     const visits = rows.filter((r) => r.judge_id).length
     setMessage(
       visits === 0
@@ -346,18 +406,12 @@ function AssignmentsAdminInner() {
       `Committed ${rows.length} score sheets across ${planSummary.visits.length} visits. Open Tables → Reseat for short walks to pack co-judged projects together.`
     )
     setPlan([])
+    setPlanBuiltWith(null)
     await load()
     setBusy(false)
   }
 
   const redoPlan = async () => {
-    if (
-      !confirm(
-        'Redo the plan? This deletes every assignment and submitted score, then builds a fresh plan with the settings above. Table numbers stay as-is until you reseat on the Tables tab.'
-      )
-    )
-      return
-
     setBusy(true)
     setError('')
     setMessage('')
@@ -372,7 +426,9 @@ function AssignmentsAdminInner() {
       return
     }
 
+    setConfirmRedo(false)
     setPlan([])
+    setPlanBuiltWith(null)
     await load()
     await runSuggestPlan()
     setBusy(false)
@@ -536,7 +592,7 @@ function AssignmentsAdminInner() {
               min={1}
               max={10}
               value={perProject}
-              onChange={(e) => setPerProject(Math.max(1, Number(e.target.value) || 1))}
+              onChange={(e) => updatePerProject(Number(e.target.value))}
               className={inputClass}
             />
           </Field>
@@ -550,7 +606,7 @@ function AssignmentsAdminInner() {
               min={15}
               max={settings.window_max_minutes}
               value={windowMinutes}
-              onChange={(e) => setWindowMinutes(Math.max(15, Number(e.target.value) || 60))}
+              onChange={(e) => updateWindowMinutes(Number(e.target.value))}
               className={inputClass}
             />
           </Field>
@@ -564,7 +620,7 @@ function AssignmentsAdminInner() {
               min={0}
               max={10}
               value={transitionMinutes}
-              onChange={(e) => setTransitionMinutes(Math.max(0, Number(e.target.value) || 0))}
+              onChange={(e) => updateTransitionMinutes(Number(e.target.value))}
               className={inputClass}
             />
           </Field>
@@ -592,7 +648,7 @@ function AssignmentsAdminInner() {
             </div>
             {hasCommittedPlan && (
               <button
-                onClick={redoPlan}
+                onClick={() => setConfirmRedo(true)}
                 disabled={busy}
                 className="w-full px-4 py-2.5 bg-red-600/80 hover:bg-red-600 disabled:opacity-50 text-white font-semibold rounded-lg transition"
               >
@@ -615,7 +671,15 @@ function AssignmentsAdminInner() {
 
         <div className="px-5 pb-5 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
           <Stat label="Tables to cover" value={feasibility.tables} note={`avg visit ${minutesLabel(feasibility.avgVisit)}`} />
-          <Stat label="Visits needed" value={feasibility.visitsNeeded} note={`at ${perProject} judges each`} />
+          <Stat
+            label="Visits needed"
+            value={feasibility.visitsNeeded}
+            note={
+              feasibility.effectivePerProject === perProject
+                ? `at ${perProject} judges each`
+                : `~${feasibility.effectivePerProject} judges each (track overrides)`
+            }
+          />
           <Stat
             label="Your capacity"
             value={feasibility.capacity}
@@ -631,22 +695,30 @@ function AssignmentsAdminInner() {
         </div>
 
         <div className="px-5 pb-5 space-y-3">
-          {!feasibility.feasible && feasibility.tables > 0 && (
+          {feasibility.hardShortage && feasibility.tables > 0 && (
+            <Banner tone="error">
+              Not enough judges. At 1 judge per project and a {settings.window_max_minutes}-minute
+              window, this floor still needs about {feasibility.judgesNeeded} judges and you have{' '}
+              {judges.length}. Recruiting more is the remaining lever — the plan settings cannot
+              stretch further.
+            </Banner>
+          )}
+
+          {!feasibility.feasible && !feasibility.hardShortage && feasibility.tables > 0 && (
             <Banner tone="warning">
               {judges.length} judges can cover {feasibility.capacity} visits in {windowMinutes}{' '}
-              minutes, but this plan needs {feasibility.visitsNeeded}. Either bring{' '}
-              {feasibility.judgesNeeded} judges, stretch the window to{' '}
-              {settings.window_max_minutes} minutes, or drop to{' '}
+              minutes, but this plan needs {feasibility.visitsNeeded}. Drop to{' '}
               {Math.max(1, feasibility.affordablePerProject)} judge
-              {feasibility.affordablePerProject === 1 ? '' : 's'} per project — that is what fits
-              today.
+              {feasibility.affordablePerProject === 1 ? '' : 's'} per project, stretch the window
+              toward {settings.window_max_minutes} minutes, or add judges. Recruiting is a last
+              resort after 1 judge per project at the {settings.window_max_minutes}-minute max.
             </Banner>
           )}
 
           <p className="text-xs text-gray-500 leading-relaxed">
             Matching signal: {taggedProjects} of {projects.length} projects and {taggedJudges} of{' '}
-            {judges.length} judges carry tags. Tags only break ties — coverage and load balance come
-            first, so thin tags never leave a project unjudged.
+            {judges.length} judges carry tags. Affinity ranks who goes where after coverage and
+            minute load, so thin tags never leave a project unjudged.
             {restrictedTracks.length > 0 &&
               ` ${restrictedTracks.length} track${restrictedTracks.length === 1 ? ' is' : 's are'} limited to linked judges and cannot ride along on someone else's visit.`}
           </p>
@@ -659,7 +731,10 @@ function AssignmentsAdminInner() {
           description="Nothing is saved yet. Each row is one judge walking to one table and filling every rubric listed."
           actions={
             <button
-              onClick={() => setPlan([])}
+              onClick={() => {
+                setPlan([])
+                setPlanBuiltWith(null)
+              }}
               className="px-3 py-1.5 bg-white/5 hover:bg-white/10 border border-white/10 text-white text-xs font-semibold rounded-lg transition"
             >
               Discard
@@ -667,10 +742,23 @@ function AssignmentsAdminInner() {
           }
         >
           {planSummary.shortfalls.length > 0 && (
-            <div className="px-5 pt-5">
+            <div className="px-5 pt-5 space-y-3">
+              {planBuiltWith &&
+                planBuiltWith.perProject <= 1 &&
+                planBuiltWith.windowMinutes >= (settings.window_max_minutes || 90) && (
+                  <Banner tone="error">
+                    Not enough judges. This preview was built at 1 judge per project and a{' '}
+                    {planBuiltWith.windowMinutes}-minute window, and{' '}
+                    {planSummary.shortfalls.length} table
+                    {planSummary.shortfalls.length === 1 ? '' : 's'} still could not be covered.
+                    Recruit about {feasibility.judgesNeeded} judges for this floor — plan settings
+                    cannot stretch further.
+                  </Banner>
+                )}
               <Banner tone="warning">
                 {planSummary.shortfalls.length} coverage gap
-                {planSummary.shortfalls.length === 1 ? '' : 's'} the plan could not fill:
+                {planSummary.shortfalls.length === 1 ? '' : 's'} the plan could not fill
+                {planBuiltWith ? ` (built at ${planBuiltWith.perProject} judges/project)` : ''}:
                 <ul className="mt-2 space-y-1">
                   {planSummary.shortfalls.slice(0, 6).map((s, i) => (
                     <li key={i} className="text-xs">
@@ -735,7 +823,7 @@ function AssignmentsAdminInner() {
             <div className="flex gap-2">
               <ExportButton onClick={exportAssignments} />
               <button
-                onClick={redoPlan}
+                onClick={() => setConfirmRedo(true)}
                 disabled={busy}
                 className="px-3 py-1.5 bg-red-600/80 hover:bg-red-600 disabled:opacity-50 text-white text-xs font-semibold rounded-lg transition"
               >
@@ -942,6 +1030,20 @@ function AssignmentsAdminInner() {
         </div>
       </Panel>
       </div>
+
+      <ConfirmRemoveDialog
+        open={confirmRedo}
+        title="Redo the plan?"
+        description={
+          'This deletes every assignment and submitted score, then builds a fresh plan with the settings above.\n\n' +
+          'Table numbers stay as-is until you reseat on the Tables tab.'
+        }
+        confirmLabel="Redo plan"
+        busyLabel="Working…"
+        busy={busy}
+        onCancel={() => setConfirmRedo(false)}
+        onConfirm={redoPlan}
+      />
     </div>
   )
 }

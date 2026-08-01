@@ -4,10 +4,13 @@
 // Auto-generated type definitions for Supabase database
 // These types match the schema defined in supabase/schema.sql
 
-export type UserRole = 'participant' | 'organizer' | 'admin';
+export type StaffRole = 'organizer' | 'judging_team' | 'admin';
+/** @deprecated Use StaffRole / OrganizerRole — applicants no longer store role */
+export type UserRole = 'participant' | StaffRole;
 
-// Judging portal types (additive; does not change applicants roles)
+// Judging + organizer portal types
 export * from './judging';
+export * from './organizer';
 
 export type ApplicationStatus = 'pending' | 'accepted' | 'rejected' | 'waitlisted';
 
@@ -31,9 +34,6 @@ export interface Applicant {
 
   // User reference
   user_id: string; // UUID - References auth.users(id)
-
-  // Role & Permissions
-  role: UserRole;
 
   // Check-in fields
   checked_in: boolean;
@@ -132,7 +132,6 @@ export interface ApplicantUpdate {
   school?: string;
   level_of_study?: LevelOfStudy;
   country_of_residence?: string;
-  role?: UserRole;
   checked_in?: boolean;
   checked_in_at?: string | null;
   checked_in_by?: string | null;
@@ -174,7 +173,8 @@ export interface User {
   email_confirmed_at: string | null;
   created_at: string;
   updated_at: string;
-  role?: UserRole; // Added from applicants table
+  /** Staff role from organizer_profiles when present */
+  role?: UserRole | 'participant';
   isAdmin?: boolean;
   isOrganizer?: boolean;
 }
@@ -199,16 +199,15 @@ export interface CheckInPayload {
   checked_in_by: string; // user_id of organizer/admin
 }
 
-// Role update payload
+// Role update payload (organizer_profiles)
 export interface RoleUpdatePayload {
-  applicant_id: string;
-  new_role: UserRole;
+  user_id: string;
+  new_role: StaffRole;
 }
 
 // Filter options for admin/organizer portals
 export interface ApplicantFilters {
   status?: ApplicationStatus | 'all';
-  role?: UserRole | 'all';
   checked_in?: boolean | 'all';
   application_complete?: boolean | 'all';
   search?: string; // Search by name, email, school
@@ -250,7 +249,7 @@ export interface CompletenessCheck {
 }
 
 // Database function return types
-export type GetUserRoleResult = UserRole;
+export type GetUserRoleResult = string;
 export type CheckApplicationCompletenessResult = boolean;
 
 // Supabase database schema type (for type-safe queries)

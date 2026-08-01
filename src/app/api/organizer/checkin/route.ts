@@ -1,30 +1,31 @@
 import { createClient } from '@/lib/supabase/server'
 import { NextResponse } from 'next/server'
 
+async function requireStaff(supabase: Awaited<ReturnType<typeof createClient>>) {
+  const { data: { user }, error: authError } = await supabase.auth.getUser()
+  if (authError || !user) {
+    return { error: NextResponse.json({ error: 'Unauthorized' }, { status: 401 }) }
+  }
+
+  const { data: organizer } = await supabase
+    .from('organizer_profiles')
+    .select('role')
+    .eq('user_id', user.id)
+    .maybeSingle()
+
+  if (!organizer) {
+    return { error: NextResponse.json({ error: 'Forbidden - Organizer or Admin only' }, { status: 403 }) }
+  }
+
+  return { user, organizer }
+}
+
 // Get check-in stats
 export async function GET() {
   const supabase = await createClient()
+  const gate = await requireStaff(supabase)
+  if (gate.error) return gate.error
 
-  // Check if user is authenticated
-  const { data: { user }, error: authError } = await supabase.auth.getUser()
-  if (authError || !user) {
-    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
-  }
-
-  // Check if user is organizer or admin (database role only)
-  const { data: userData } = await supabase
-    .from('applicants')
-    .select('role')
-    .eq('user_id', user.id)
-    .single()
-
-  const isAuthorized = userData?.role === 'admin' || userData?.role === 'organizer'
-
-  if (!isAuthorized) {
-    return NextResponse.json({ error: 'Forbidden - Organizer or Admin only' }, { status: 403 })
-  }
-
-  // Get check-in stats
   const { data: stats, error: statsError } = await supabase
     .from('checkin_stats')
     .select('*')
@@ -40,36 +41,16 @@ export async function GET() {
 // Update check-in status
 export async function POST(request: Request) {
   const supabase = await createClient()
+  const gate = await requireStaff(supabase)
+  if (gate.error) return gate.error
 
-  // Check if user is authenticated
-  const { data: { user }, error: authError } = await supabase.auth.getUser()
-  if (authError || !user) {
-    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
-  }
-
-  // Check if user is organizer or admin (database role only)
-  const { data: userData } = await supabase
-    .from('applicants')
-    .select('role')
-    .eq('user_id', user.id)
-    .single()
-
-  const isAuthorized = userData?.role === 'admin' || userData?.role === 'organizer'
-
-  if (!isAuthorized) {
-    return NextResponse.json({ error: 'Forbidden - Organizer or Admin only' }, { status: 403 })
-  }
-
-  // Get request body
   const { applicant_id, checked_in } = await request.json()
 
-  // Update check-in status
-  const updateData: any = {
+  const updateData: Record<string, unknown> = {
     checked_in,
-    checked_in_by: user.id,
+    checked_in_by: gate.user!.id,
   }
 
-  // Set or clear timestamp based on check-in status
   if (checked_in) {
     updateData.checked_in_at = new Date().toISOString()
   } else {

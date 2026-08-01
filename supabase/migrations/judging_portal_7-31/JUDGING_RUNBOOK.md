@@ -88,7 +88,8 @@ from tracks order by sort_order, name;
 ```
 
 ```sql
--- Dry run of the planner. Returns visit rows; a null judge_id row is a shortfall.
+-- Dry run of the planner (layered coverage, scarcity-first, affinity after load).
+-- Returns visit rows; a null judge_id row is a shortfall.
 select * from public.suggest_judging_plan(3, 3600);
 ```
 

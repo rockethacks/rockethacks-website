@@ -1,5 +1,6 @@
 import { createClient } from '@/lib/supabase/server'
 import { NextResponse } from 'next/server'
+import { parseAppRedirect, staffHome } from '@/lib/auth/routing'
 
 export async function POST(request: Request) {
   const { email, password, authMode, provider, redirect } = await request.json()
@@ -62,6 +63,41 @@ export async function POST(request: Request) {
         .eq('user_id', data.user.id)
     }
 
+    const { path: redirectPath, params: redirectParams } = parseAppRedirect(
+      typeof redirect === 'string' ? redirect : '/dashboard'
+    )
+    const wantsDefault = !redirect || redirectPath === '/dashboard'
+    const orgCode = (redirectParams.get('org_code') || '').trim().toUpperCase()
+
+    // Redeem staff invite if code was carried in the redirect, else pending invite.
+    // Soft-fail: missing invite / not-yet-applied migration must not block login.
+    if (orgCode) {
+      await supabase.rpc('redeem_organizer_invite', { p_invite_code: orgCode })
+    } else {
+      await supabase.rpc('redeem_pending_organizer_invite')
+    }
+    // (errors ignored — profile lookup below decides routing)
+
+    // Staff profiles take priority over hacker/judge homes
+    const { data: organizerProfile } = await supabase
+      .from('organizer_profiles')
+      .select('role')
+      .eq('user_id', data.user.id)
+      .maybeSingle()
+
+    if (organizerProfile) {
+      return NextResponse.json({
+        message: 'Login successful',
+        user: data.user,
+        redirect:
+          wantsDefault || redirectPath === '/apply' || redirectPath === '/login'
+            ? staffHome(organizerProfile.role)
+            : redirectPath.startsWith('/login')
+              ? staffHome(organizerProfile.role)
+              : redirect,
+      })
+    }
+
     // Judges are guests with no application, so the hacker dashboard is not
     // their home. Send them to the judge portal unless they asked for somewhere
     // specific.
@@ -73,7 +109,6 @@ export async function POST(request: Request) {
         .maybeSingle()
 
       if (judgeProfile) {
-        const wantsDefault = !redirect || redirect === '/dashboard'
         return NextResponse.json({
           message: 'Login successful',
           user: data.user,
@@ -85,6 +120,7 @@ export async function POST(request: Request) {
     return NextResponse.json({
       message: 'Login successful',
       user: data.user,
+      redirect: wantsDefault ? '/dashboard' : redirect,
     })
   }
 

@@ -9,11 +9,11 @@ export const JUDGING_TIPS = {
   sheet:
     'A sheet is one judge filling one rubric for one project. One visit can produce several sheets when the table has a main track plus sponsor prizes.',
   window:
-    'The judging floor window (usually 60 minutes, stretch to 90). The planner never silently assigns more visits than fit; it reports shortfalls instead.',
+    'The judging floor window (usually 60 minutes, stretch to 90). Changing this clears an unsaved preview. Recruiting more judges is a last resort after n=1 at the 90-minute max.',
   walkTime:
-    'Minutes added between table stops. Visit length = longest rubric timer at that table + this walk time.',
+    'Minutes added between table stops. Visit length = longest rubric timer at that table + this walk time. Changing this clears an unsaved preview.',
   judgesPerProject:
-    'How many judges should see each table. Plan against visits in the window, not against sheets per track.',
+    'How many judges should see each table. Saved with the plan settings; changing it clears an unsaved preview. Coverage and load come first; affinity ranks who goes where.',
   linkedJudgesOnly:
     'Only judges linked to this sponsor track may fill its rubric. It cannot ride along on another judge\'s visit, so it costs extra stops.',
   trackNames:
@@ -33,7 +33,7 @@ export const JUDGING_TIPS = {
   resultsVsScorecards:
     'Results is the ranking. Scorecards is whether to trust it: open near-ties sorted by disagreement and see which criterion judges split on.',
   tags:
-    'Bias the planner toward relevant projects but never leave a table short. Matching also uses industry ↔ track and company ↔ sponsor when tags are thin.',
+    'Affinity ranks judges after coverage and minute load — shared tags, industry ↔ track, and company ↔ sponsor. Thin tags never leave a table unjudged.',
   headJudge:
     'Head judges get the judging portal but not applicant management. Same invite flow with role head_judge.',
   workloadVisits:
@@ -58,7 +58,7 @@ export const NAV_TIPS: Record<string, string> = {
   '/admin/judging/import':
     'Upload the Devpost CSV, then map and import. Need an additional project? Use Add a project on this page — assign lightest-loaded judges there; the new table lands last until you reseat.',
   '/admin/judging/assignments':
-    'Build a visit-based plan once, then commit. If a plan already exists, use Redo plan to clear assignments and rebuild. Manual add / reassign / remove / reopen stay for fixes.',
+    'Build a visit-based plan once, then commit. Changing judges-per-project, window, or walk time clears an unsaved preview. If a plan already exists, use Redo plan. Recruit more judges only after n=1 at a 90-minute window still falls short.',
   '/admin/judging/tables':
     'Floor board by table number. See who goes where, move judges, reseat for short walks, and export a seating sheet.',
   '/admin/judging/workload':

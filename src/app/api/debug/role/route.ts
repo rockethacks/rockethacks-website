@@ -13,20 +13,29 @@ export async function GET() {
     return NextResponse.json({
       error: 'Not authenticated',
       user: null,
-      applicantData: null
     })
   }
 
-  // Get user's full applicant record
-  const { data: applicantData, error: dbError } = await supabase
-    .from('applicants')
+  const { data: organizerProfile, error: orgError } = await supabase
+    .from('organizer_profiles')
     .select('*')
     .eq('user_id', user.id)
-    .single()
+    .maybeSingle()
 
-  const dbRole = applicantData?.role || 'participant'
-  const isAdmin = dbRole === 'admin'
-  const isOrganizer = dbRole === 'organizer' || isAdmin
+  const { data: applicantData, error: dbError } = await supabase
+    .from('applicants')
+    .select('id, email, status, password_setup_completed')
+    .eq('user_id', user.id)
+    .maybeSingle()
+
+  const { data: judgeProfile } = await supabase
+    .from('judge_profiles')
+    .select('role, email, full_name')
+    .eq('user_id', user.id)
+    .maybeSingle()
+
+  const isAdmin = organizerProfile?.role === 'admin'
+  const isOrganizer = !!organizerProfile
 
   return NextResponse.json({
     authenticated: true,
@@ -35,10 +44,13 @@ export async function GET() {
       email: user.email,
       created_at: user.created_at
     },
-    applicantData: applicantData,
-    dbError: dbError,
+    organizerProfile,
+    orgError,
+    applicantData,
+    dbError,
+    judgeProfile,
     computed: {
-      role: dbRole,
+      role: organizerProfile?.role ?? 'participant',
       isAdmin,
       isOrganizer
     }

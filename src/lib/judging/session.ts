@@ -1,6 +1,7 @@
 export type JudgingSession = {
   isAdmin: boolean
   isOrganizer: boolean
+  isJudgingTeam?: boolean
   isJudge: boolean
   isHeadJudge: boolean
   judgeRole: string | null
