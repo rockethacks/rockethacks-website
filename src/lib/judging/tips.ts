@@ -52,7 +52,7 @@ export const NAV_TIPS: Record<string, string> = {
   '/admin/judging/criteria':
     'Build rubrics: one shared in-house set plus one per sponsor track. Eligibility gates and scored items with point bands.',
   '/admin/judging/judges':
-    'Invite judges (never added to applicants), copy sign-in links, set tags and track links. Track links are required for Linked judges only prizes.',
+    'Invite judges (never added to applicants), copy sign-in links, set tags and track links, or remove a judge to revoke access. Track links are required for Linked judges only prizes.',
   '/admin/judging/import':
     'Upload the Devpost export, map columns, review, then write. Blank tables auto-fill by main track. Re-import updates by submission URL.',
   '/admin/judging/assignments':

@@ -43,6 +43,7 @@ export default function JudgesAdminPage() {
   const [error, setError] = useState('')
   const [message, setMessage] = useState('')
   const [creating, setCreating] = useState(false)
+  const [removing, setRemoving] = useState(false)
   const [newTag, setNewTag] = useState('')
   const [origin, setOrigin] = useState('')
 
@@ -144,6 +145,48 @@ export default function JudgesAdminPage() {
     const { error: dErr } = await supabase.from('judge_invites').delete().eq('id', id)
     if (dErr) setError(dErr.message)
     else await load()
+  }
+
+  const removeJudge = async () => {
+    if (!selected) return
+    const label = selected.full_name || selected.email
+    const sheets = assignments.length
+    const ok = confirm(
+      `Remove ${label} and revoke their judging access?\n\n` +
+        `This deletes their judge profile, tags, track links, top-3 picks, and ${sheets} assignment` +
+        `${sheets === 1 ? '' : 's'} (including any scores). Invites for ${selected.email} are revoked too.\n\n` +
+        `Their login account is left in place so it is not deleted if they also use it elsewhere.`
+    )
+    if (!ok) return
+
+    setError('')
+    setMessage('')
+    setRemoving(true)
+    const supabase = createClient()
+    const email = selected.email.trim().toLowerCase()
+
+    const { error: invErr } = await supabase.from('judge_invites').delete().eq('email', email)
+    if (invErr) {
+      setError(invErr.message)
+      setRemoving(false)
+      return
+    }
+
+    const { error: delErr } = await supabase
+      .from('judge_profiles')
+      .delete()
+      .eq('user_id', selected.user_id)
+    if (delErr) {
+      setError(delErr.message)
+      setRemoving(false)
+      return
+    }
+
+    setSelected(null)
+    setAssignments([])
+    setMessage(`Removed ${label}. Judging access is revoked.`)
+    await load()
+    setRemoving(false)
   }
 
   const copyInvite = async (invite: JudgeInvite) => {
@@ -389,7 +432,7 @@ export default function JudgesAdminPage() {
       <div className="grid lg:grid-cols-2 gap-6">
         <Panel
           title={`Judges (${judges.length})`}
-          description="Judges appear here after they open their invite link. Click one to edit their profile, tags, and assignments."
+          description="Judges appear here after they open their invite link. Click one to edit their profile, tags, and assignments, or remove them to revoke access."
           actions={<ExportButton onClick={exportJudges} disabled={judges.length === 0} />}
         >
           <div className="p-4 border-b border-white/10">
@@ -641,6 +684,21 @@ export default function JudgesAdminPage() {
                     ))}
                   </ul>
                 )}
+              </div>
+
+              <div className="pt-4 border-t border-white/10 space-y-2">
+                <p className="text-xs text-gray-500 leading-relaxed">
+                  Removing a judge revokes portal access and deletes their assignments and scores.
+                  Create a new invite later if you want them back.
+                </p>
+                <button
+                  type="button"
+                  onClick={removeJudge}
+                  disabled={removing}
+                  className="px-4 py-2 bg-red-600/80 hover:bg-red-600 disabled:opacity-50 text-white text-sm font-semibold rounded-lg transition"
+                >
+                  {removing ? 'Removing…' : 'Remove judge & access'}
+                </button>
               </div>
             </div>
           </div>
