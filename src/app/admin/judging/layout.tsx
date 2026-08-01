@@ -31,7 +31,7 @@ export default function JudgingAdminLayout({ children }: { children: React.React
     setError('')
     try {
       const data = await loadSession()
-      if (!data.isAdmin && !data.isHeadJudge) {
+      if (!data.isAdmin && !data.isHeadJudge && !data.isJudgingTeam) {
         router.push('/login')
         return
       }

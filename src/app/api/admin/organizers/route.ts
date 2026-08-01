@@ -61,7 +61,7 @@ export async function POST(request: Request) {
   const full_name = typeof body.full_name === 'string' ? body.full_name.trim() : null
   const team_assignments = Array.isArray(body.team_assignments) ? body.team_assignments : []
 
-  if (!email || !['organizer', 'admin'].includes(role)) {
+  if (!email || !['organizer', 'judging_team', 'admin'].includes(role)) {
     return NextResponse.json({ error: 'Invalid email or role' }, { status: 400 })
   }
 
@@ -86,7 +86,7 @@ export async function PUT(request: Request) {
   const { supabase } = gate
 
   const { user_id, role } = await request.json()
-  if (!user_id || !['organizer', 'admin'].includes(role)) {
+  if (!user_id || !['organizer', 'judging_team', 'admin'].includes(role)) {
     return NextResponse.json({ error: 'Invalid payload' }, { status: 400 })
   }
 

@@ -4,7 +4,7 @@
 // Auto-generated type definitions for Supabase database
 // These types match the schema defined in supabase/schema.sql
 
-export type StaffRole = 'organizer' | 'admin';
+export type StaffRole = 'organizer' | 'judging_team' | 'admin';
 /** @deprecated Use StaffRole / OrganizerRole — applicants no longer store role */
 export type UserRole = 'participant' | StaffRole;
 

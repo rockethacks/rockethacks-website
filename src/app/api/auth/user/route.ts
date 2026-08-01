@@ -14,6 +14,7 @@ export async function GET() {
     return NextResponse.json({
       isAdmin: false,
       isOrganizer: false,
+      isJudgingTeam: false,
       isJudge: false,
       isHeadJudge: false,
       role: 'participant',
@@ -30,6 +31,7 @@ export async function GET() {
     .maybeSingle()
 
   const isAdmin = organizerProfile?.role === 'admin'
+  const isJudgingTeam = organizerProfile?.role === 'judging_team' || isAdmin
   const isOrganizer = !!organizerProfile
   const organizerRole = organizerProfile?.role ?? null
   const role = organizerRole ?? 'participant'
@@ -46,6 +48,7 @@ export async function GET() {
   return NextResponse.json({
     isAdmin,
     isOrganizer,
+    isJudgingTeam,
     isJudge,
     isHeadJudge,
     role,

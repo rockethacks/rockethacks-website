@@ -17,12 +17,14 @@ export type StaffNavItem = {
   exact?: boolean
   /** Only shown to admins */
   adminOnly?: boolean
+  /** Shown to admins and judging_team staff */
+  judgingAccess?: boolean
 }
 
 export const STAFF_NAV: StaffNavItem[] = [
   { href: '/admin', label: 'Applicants', exact: true, adminOnly: true },
   { href: '/admin/team', label: 'Team', adminOnly: true },
-  { href: '/admin/judging', label: 'Judging', adminOnly: true },
+  { href: '/admin/judging', label: 'Judging', judgingAccess: true },
   { href: '/organizer', label: 'Check-In' },
 ]
 
@@ -126,6 +128,8 @@ function StaffTabs({ items }: { items: StaffNavItem[] }) {
 type StaffShellProps = {
   children: React.ReactNode
   isAdmin: boolean
+  /** Admin or judging_team — unlocks Judging tab */
+  canAccessJudging?: boolean
   title?: string
   subtitle?: string
 }
@@ -133,12 +137,17 @@ type StaffShellProps = {
 export function StaffShell({
   children,
   isAdmin,
+  canAccessJudging = false,
   title,
   subtitle = 'RocketHacks 2026 staff',
 }: StaffShellProps) {
   const router = useRouter()
 
-  const nav = STAFF_NAV.filter((item) => isAdmin || !item.adminOnly)
+  const nav = STAFF_NAV.filter((item) => {
+    if (item.adminOnly) return isAdmin
+    if (item.judgingAccess) return isAdmin || canAccessJudging
+    return true
+  })
   const heading = title ?? (isAdmin ? 'Admin Portal' : 'Organizer Portal')
 
   const handleLogout = async () => {

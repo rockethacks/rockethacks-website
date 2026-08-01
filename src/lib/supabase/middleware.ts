@@ -70,8 +70,9 @@ export async function updateSession(request: NextRequest) {
 
     const organizer = await getOrganizerProfile()
     const isAdmin = organizer?.role === 'admin'
+    const isJudgingTeam = organizer?.role === 'judging_team'
 
-    // Head judges may access /admin/judging/* only
+    // Head judges and judging_team staff may access /admin/judging/* only
     const isJudgingPath = path.startsWith('/admin/judging')
     let isHeadJudge = false
     if (!isAdmin && isJudgingPath) {
@@ -83,7 +84,16 @@ export async function updateSession(request: NextRequest) {
       isHeadJudge = jp?.role === 'head_judge'
     }
 
-    if (!isAdmin && !isHeadJudge) {
+    const canAccessJudging = isAdmin || isHeadJudge || isJudgingTeam
+
+    if (isJudgingPath) {
+      if (!canAccessJudging) {
+        if (organizer) {
+          return NextResponse.redirect(new URL('/organizer', request.url))
+        }
+        return NextResponse.redirect(new URL('/login', request.url))
+      }
+    } else if (!isAdmin) {
       if (organizer) {
         return NextResponse.redirect(new URL('/organizer', request.url))
       }

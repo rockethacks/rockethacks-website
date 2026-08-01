@@ -11,7 +11,7 @@
 do $$
 begin
   if not exists (select 1 from pg_type where typname = 'organizer_role') then
-    create type organizer_role as enum ('organizer', 'admin');
+    create type organizer_role as enum ('organizer', 'judging_team', 'admin');
   end if;
 end $$;
 
@@ -85,5 +85,6 @@ insert into org_teams (name, sort_order) values
   ('Development', 3),
   ('Corporate Relations', 4),
   ('Safety', 5),
-  ('Volunteer', 6)
+  ('Volunteer', 6),
+  ('Judging', 7)
 on conflict (name) do nothing;

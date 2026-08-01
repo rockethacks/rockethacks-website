@@ -1,6 +1,12 @@
 // Organizer / staff portal types (exclusive from applicants)
 
-export type OrganizerRole = 'organizer' | 'admin';
+export type OrganizerRole = 'organizer' | 'judging_team' | 'admin';
+
+export const ORGANIZER_ROLE_LABELS: Record<OrganizerRole, string> = {
+  organizer: 'Organizer',
+  judging_team: 'Judging Team',
+  admin: 'Admin',
+};
 
 export interface OrganizerProfile {
   user_id: string;

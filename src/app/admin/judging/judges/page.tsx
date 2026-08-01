@@ -14,6 +14,7 @@ import {
   inputClass,
   selectClass,
 } from '@/components/judging/ui'
+import { CopyLinkButton } from '@/components/staff/CopyLinkButton'
 import { exportWorkbook, yesNo } from '@/lib/judging/export'
 
 function randomCode() {
@@ -187,12 +188,6 @@ export default function JudgesAdminPage() {
     setMessage(`Removed ${label}. Judging access is revoked.`)
     await load()
     setRemoving(false)
-  }
-
-  const copyInvite = async (invite: JudgeInvite) => {
-    const link = `${origin}/judge/login?code=${invite.invite_code}`
-    await navigator.clipboard.writeText(link)
-    setMessage(`Copied sign-in link for ${invite.email}`)
   }
 
   const updateJudge = async (patch: Partial<JudgeProfile>) => {
@@ -507,12 +502,11 @@ export default function JudgesAdminPage() {
                     </p>
                     {!inv.used && !expired && (
                       <div className="flex gap-2">
-                        <button
-                          onClick={() => copyInvite(inv)}
-                          className="px-3 py-1.5 bg-white/10 hover:bg-white/20 text-white text-xs font-semibold rounded-lg transition"
-                        >
-                          Copy sign-in link
-                        </button>
+                        <CopyLinkButton
+                          text={`${origin}/judge/login?code=${inv.invite_code}`}
+                          label="Copy sign-in link"
+                          variant="ghost"
+                        />
                         <button
                           onClick={() => revokeInvite(inv.id)}
                           className="px-3 py-1.5 bg-red-600/80 hover:bg-red-600 text-white text-xs font-semibold rounded-lg transition"

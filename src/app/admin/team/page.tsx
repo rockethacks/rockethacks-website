@@ -9,6 +9,8 @@ import type {
   OrganizerRole,
   OrgTeam,
 } from '@/types/organizer'
+import { ORGANIZER_ROLE_LABELS } from '@/types/organizer'
+import { CopyLinkButton } from '@/components/staff/CopyLinkButton'
 
 function randomCode() {
   const alphabet = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789'
@@ -199,12 +201,6 @@ export default function AdminTeamPage() {
     const { error: dErr } = await supabase.from('organizer_invites').delete().eq('id', id)
     if (dErr) setError(dErr.message)
     else await load()
-  }
-
-  const copyInvite = async (invite: OrganizerInvite) => {
-    const link = `${origin}/login?org_code=${invite.invite_code}`
-    await navigator.clipboard.writeText(link)
-    setMessage(`Copied staff sign-in link for ${invite.email}`)
   }
 
   const [draftTeamIds, setDraftTeamIds] = useState<string[]>([])
@@ -409,6 +405,7 @@ export default function AdminTeamPage() {
             }
           >
             <option value="organizer">Organizer</option>
+            <option value="judging_team">Judging Team</option>
             <option value="admin">Admin</option>
           </select>
           <TeamPicker
@@ -459,6 +456,7 @@ export default function AdminTeamPage() {
             onChange={(e) => setAddForm({ ...addForm, role: e.target.value as OrganizerRole })}
           >
             <option value="organizer">Organizer</option>
+            <option value="judging_team">Judging Team</option>
             <option value="admin">Admin</option>
           </select>
           <TeamPicker
@@ -511,10 +509,12 @@ export default function AdminTeamPage() {
                     className={`px-2 py-0.5 rounded text-[10px] font-bold uppercase ${
                       m.role === 'admin'
                         ? 'bg-yellow-500/20 text-yellow-300'
-                        : 'bg-blue-500/20 text-blue-300'
+                        : m.role === 'judging_team'
+                          ? 'bg-purple-500/20 text-purple-300'
+                          : 'bg-blue-500/20 text-blue-300'
                     }`}
                   >
-                    {m.role}
+                    {ORGANIZER_ROLE_LABELS[m.role] || m.role}
                   </span>
                 </div>
                 <div className="text-sm text-gray-400">{m.email}</div>
@@ -559,6 +559,7 @@ export default function AdminTeamPage() {
                   onChange={(e) => updateSelectedRole(e.target.value as OrganizerRole)}
                 >
                   <option value="organizer">Organizer</option>
+                  <option value="judging_team">Judging Team</option>
                   <option value="admin">Admin</option>
                 </select>
               </label>
@@ -604,7 +605,9 @@ export default function AdminTeamPage() {
               <div>
                 <div className="text-white font-medium">
                   {inv.full_name || inv.email}{' '}
-                  <span className="text-xs text-gray-400 uppercase">{inv.role}</span>
+                  <span className="text-xs text-gray-400 uppercase">
+                    {ORGANIZER_ROLE_LABELS[inv.role] || inv.role}
+                  </span>
                 </div>
                 <div className="text-sm text-gray-400">
                   {inv.email} · code {inv.invite_code} ·{' '}
@@ -613,13 +616,10 @@ export default function AdminTeamPage() {
               </div>
               <div className="flex gap-2">
                 {!inv.used && (
-                  <button
-                    type="button"
-                    onClick={() => copyInvite(inv)}
-                    className="px-3 py-1.5 bg-blue-600 hover:bg-blue-700 text-white text-xs font-semibold rounded-lg"
-                  >
-                    Copy link
-                  </button>
+                  <CopyLinkButton
+                    text={`${origin}/login?org_code=${inv.invite_code}`}
+                    label="Copy link"
+                  />
                 )}
                 <button
                   type="button"
