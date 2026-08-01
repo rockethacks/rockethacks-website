@@ -126,7 +126,10 @@ function SignupForm() {
                 <div>
                   <p className="font-semibold mb-1">Account created successfully!</p>
                   <p className="text-green-300/90">
-                    Please check your email inbox for a verification link. Click the link to verify your account and complete the signup process.
+                    Please check your email for a verification link. Click the link to verify your
+                    account and complete signup. If you do not see it within a few minutes, check
+                    Junk, Spam, Updates, Promotions, and Quarantine — school inboxes often filter
+                    these.
                   </p>
                 </div>
               </div>

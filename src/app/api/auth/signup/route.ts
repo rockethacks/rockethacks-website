@@ -1,3 +1,4 @@
+import { withEmailDeliveryHint } from '@/lib/emailDeliveryHint'
 import { createClient } from '@/lib/supabase/server'
 import { NextResponse } from 'next/server'
 
@@ -62,7 +63,9 @@ export async function POST(request: Request) {
   } else if (data.user && !data.session) {
     // Email confirmation required
     return NextResponse.json({
-      message: 'Account created! Please check your email to confirm your account.',
+      message: withEmailDeliveryHint(
+        'Account created! Please check your email to confirm your account.'
+      ),
       requiresConfirmation: true,
       user: data.user,
     })

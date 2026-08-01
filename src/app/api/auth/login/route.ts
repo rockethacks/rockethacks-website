@@ -1,6 +1,7 @@
+import { parseAppRedirect, staffHome } from '@/lib/auth/routing'
+import { withEmailDeliveryHint } from '@/lib/emailDeliveryHint'
 import { createClient } from '@/lib/supabase/server'
 import { NextResponse } from 'next/server'
-import { parseAppRedirect, staffHome } from '@/lib/auth/routing'
 
 export async function POST(request: Request) {
   const { email, password, authMode, provider, redirect } = await request.json()
@@ -152,7 +153,7 @@ export async function POST(request: Request) {
     }
 
     return NextResponse.json({
-      message: 'Check your email for the login link!',
+      message: withEmailDeliveryHint('Check your email for the login link!'),
     })
   }
 
