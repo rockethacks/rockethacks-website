@@ -25,27 +25,39 @@ export async function GET(request: NextRequest) {
       if (type === 'recovery' || redirectPath === '/reset-password') {
         finalRedirectPath = '/reset-password'
       } else {
-        const { data: { user } } = await supabase.auth.getUser()
+        const {
+          data: { user },
+        } = await supabase.auth.getUser()
 
         if (user) {
-          // Staff invite email-confirm: redeem before routing (do not send to /apply)
-          const orgCode = (redirectParams.get('org_code') || '').trim().toUpperCase()
-          if (orgCode) {
-            const { error: redeemErr } = await supabase.rpc('redeem_organizer_invite', {
-              p_invite_code: orgCode,
-            })
-            if (redeemErr) {
-              // Fallback: pending invite for this email (code typo / already used)
+          // Hackers with an application are never staff/judge-redeemed here.
+          const { data: existingApplicant } = await supabase
+            .from('applicants')
+            .select('id')
+            .eq('user_id', user.id)
+            .maybeSingle()
+
+          if (!existingApplicant) {
+            // Staff invite: redeem with org_code when present, otherwise any pending
+            // invite for this email. Always try pending when not a hacker — email
+            // confirm links often drop org_code and land on /dashboard.
+            const orgCode = (redirectParams.get('org_code') || '').trim().toUpperCase()
+            if (orgCode) {
+              const { error: redeemErr } = await supabase.rpc('redeem_organizer_invite', {
+                p_invite_code: orgCode,
+              })
+              if (redeemErr) {
+                await supabase.rpc('redeem_pending_organizer_invite')
+              }
+            } else {
               await supabase.rpc('redeem_pending_organizer_invite')
             }
-          } else if (redirectPath === '/login' || redirectPath.startsWith('/login')) {
-            await supabase.rpc('redeem_pending_organizer_invite')
-          }
 
-          // Judge invite email-confirm
-          const judgeCode = (redirectParams.get('code') || '').trim().toUpperCase()
-          if (redirectPath.startsWith('/judge') && judgeCode) {
-            await supabase.rpc('redeem_judge_invite', { p_invite_code: judgeCode })
+            // Judge invite email-confirm (code only travels on judge redirects)
+            const judgeCode = (redirectParams.get('code') || '').trim().toUpperCase()
+            if (judgeCode && redirectPath.startsWith('/judge')) {
+              await supabase.rpc('redeem_judge_invite', { p_invite_code: judgeCode })
+            }
           }
           // Redeem RPC failures are non-fatal; profile checks below decide the destination.
 
@@ -62,43 +74,46 @@ export async function GET(request: NextRequest) {
               redirectPath === '/dashboard' ||
               redirectPath === '/apply' ||
               redirectPath === '/login' ||
+              redirectPath.startsWith('/login') ||
               (organizerProfile.role !== 'admin' &&
                 redirectPath.startsWith('/admin') &&
                 !redirectPath.startsWith('/admin/judging'))
             ) {
               finalRedirectPath = home
             } else {
-              finalRedirectPath = redirectPath.startsWith('/login') ? home : redirect
+              finalRedirectPath = redirect
+            }
+          } else if (existingApplicant) {
+            // Applicant stays in hacker flows. Never send them to staff/judge portals.
+            if (
+              redirectPath.startsWith('/admin') ||
+              redirectPath.startsWith('/organizer') ||
+              redirectPath.startsWith('/judge') ||
+              redirectPath === '/login' ||
+              redirectPath.startsWith('/login')
+            ) {
+              finalRedirectPath = '/dashboard'
+            } else {
+              finalRedirectPath = redirect
             }
           } else if (redirectPath.startsWith('/judge')) {
             // Keep judge activate/sign-in redirects intact (never divert to /apply)
             finalRedirectPath = redirect
-          } else if (redirectPath === '/login' || redirectPath.startsWith('/login')) {
-            // Preserve staff login/redeem links; never force hacker /apply
-            finalRedirectPath = redirect
           } else {
-            const { data: application, error: appError } = await supabase
-              .from('applicants')
-              .select('id')
+            const { data: judgeProfile } = await supabase
+              .from('judge_profiles')
+              .select('user_id')
               .eq('user_id', user.id)
               .maybeSingle()
 
-            if (appError) {
-              console.error('Error checking for application:', appError)
-            }
-
-            if (!application) {
-              const { data: judgeProfile } = await supabase
-                .from('judge_profiles')
-                .select('user_id')
-                .eq('user_id', user.id)
-                .maybeSingle()
-
-              if (judgeProfile) {
-                finalRedirectPath = '/judge'
-              } else if (redirectPath !== '/apply') {
-                finalRedirectPath = '/apply'
-              }
+            if (judgeProfile) {
+              finalRedirectPath = '/judge'
+            } else if (redirectPath === '/login' || redirectPath.startsWith('/login')) {
+              // Preserve staff login/redeem links; never force hacker /apply
+              finalRedirectPath = redirect
+            } else if (redirectPath !== '/apply') {
+              // Brand-new account with no application yet → start apply flow
+              finalRedirectPath = '/apply'
             }
           }
         }

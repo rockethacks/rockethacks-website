@@ -69,12 +69,14 @@ export async function POST(request: Request) {
     const wantsDefault = !redirect || redirectPath === '/dashboard'
     const orgCode = (redirectParams.get('org_code') || '').trim().toUpperCase()
 
-    // Redeem staff invite if code was carried in the redirect, else pending invite.
-    // Soft-fail: missing invite / not-yet-applied migration must not block login.
-    if (orgCode) {
-      await supabase.rpc('redeem_organizer_invite', { p_invite_code: orgCode })
-    } else {
-      await supabase.rpc('redeem_pending_organizer_invite')
+    // Redeem staff invite only for non-hackers. Applicants must never be pulled
+    // into organizer_profiles (DB also refuses, but skip the RPC entirely).
+    if (!applicant) {
+      if (orgCode) {
+        await supabase.rpc('redeem_organizer_invite', { p_invite_code: orgCode })
+      } else {
+        await supabase.rpc('redeem_pending_organizer_invite')
+      }
     }
     // (errors ignored — profile lookup below decides routing)
 

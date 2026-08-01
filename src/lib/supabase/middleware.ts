@@ -145,7 +145,21 @@ export async function updateSession(request: NextRequest) {
       return NextResponse.redirect(redirectUrl)
     }
 
-    const organizer = await getOrganizerProfile()
+    let organizer = await getOrganizerProfile()
+    // Email-confirm can establish a session without password login (which normally
+    // redeems a pending staff invite). Only attempt redeem for non-hackers so
+    // applicant dashboard traffic is untouched.
+    if (!organizer) {
+      const { data: applicant } = await supabase
+        .from('applicants')
+        .select('id')
+        .eq('user_id', user.id)
+        .maybeSingle()
+      if (!applicant) {
+        await supabase.rpc('redeem_pending_organizer_invite')
+        organizer = await getOrganizerProfile()
+      }
+    }
     if (organizer) {
       return NextResponse.redirect(new URL(staffHome(organizer.role), request.url))
     }
