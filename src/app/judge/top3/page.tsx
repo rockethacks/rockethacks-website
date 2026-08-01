@@ -122,6 +122,16 @@ export default function JudgeTop3Page() {
     setMessage('')
   }
 
+  const setRank = (index: number, rank: 1 | 2 | 3) => {
+    const slot = rank - 1
+    if (index === slot) return
+    const next = [...ranked]
+    const [item] = next.splice(index, 1)
+    next.splice(slot, 0, item)
+    setRanked(next)
+    setMessage('')
+  }
+
   const saveTop3 = async () => {
     setSaving(true)
     setError('')
@@ -145,17 +155,18 @@ export default function JudgeTop3Page() {
   if (loading) return <LoadingScreen message="Tallying your scores…" />
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-[#030c1b] via-[#0a1628] to-[#030c1b] py-8 px-4">
+    <div className="min-h-dvh bg-gradient-to-br from-[#030c1b] via-[#0a1628] to-[#030c1b] py-8 px-4 pb-[max(7rem,env(safe-area-inset-bottom))]">
       <div className="max-w-xl mx-auto space-y-5">
         <div>
-          <Link href="/judge" className="text-sm text-blue-400">
+          <Link
+            href="/judge"
+            className="inline-flex items-center min-h-11 text-sm text-blue-400 font-medium"
+          >
             ← Your projects
           </Link>
-          <h1 className="text-3xl font-bold text-white mt-2">Confirm your Top 3</h1>
+          <h1 className="text-3xl font-bold text-white mt-1">Confirm your Top 3</h1>
           <p className="text-gray-400 text-sm mt-2 leading-relaxed">
-            These are your projects ranked by the scores you gave. Your top 3 decides the overall
-            main-track winner across all judges, so adjust the order if your gut ranking differs from
-            the raw points.
+            Ranked by your scores. Use Set as #1–#3 if your gut order differs from the points.
           </p>
         </div>
 
@@ -167,7 +178,7 @@ export default function JudgeTop3Page() {
               action={
                 <Link
                   href="/judge"
-                  className="inline-block px-5 py-2.5 bg-blue-600 hover:bg-blue-700 text-white text-sm font-semibold rounded-lg transition"
+                  className="inline-flex items-center justify-center min-h-11 px-5 py-2.5 bg-blue-600 hover:bg-blue-700 text-white text-sm font-semibold rounded-lg transition"
                 >
                   Back to your projects
                 </Link>
@@ -179,11 +190,11 @@ export default function JudgeTop3Page() {
             {error && <Banner tone="error">{error}</Banner>}
             {message && <Banner tone="success">{message}</Banner>}
 
-            <ul className="space-y-2">
+            <ul className="space-y-3">
               {ranked.map((p, i) => (
                 <li
                   key={p.project_id}
-                  className={`rounded-xl p-4 flex items-center justify-between gap-3 border ${
+                  className={`rounded-xl p-4 space-y-3 border ${
                     i < 3 ? 'bg-yellow-500/10 border-yellow-500/40' : 'bg-white/5 border-white/10'
                   }`}
                 >
@@ -193,40 +204,71 @@ export default function JudgeTop3Page() {
                     ) : (
                       <Pill>Not in top 3</Pill>
                     )}
-                    <p className="text-white font-semibold mt-1.5 truncate">{p.title}</p>
+                    <p className="text-white font-semibold mt-1.5 line-clamp-2">{p.title}</p>
                     <p className="text-sm text-gray-400">
                       {p.total} pts · Table {p.table_number || 'TBD'}
                     </p>
                   </div>
-                  <div className="flex flex-col gap-1 shrink-0">
-                    <button
-                      onClick={() => move(i, -1)}
-                      disabled={i === 0}
-                      className="px-3 py-1.5 bg-white/10 hover:bg-white/20 disabled:opacity-30 rounded text-white text-sm transition"
-                      aria-label={`Move ${p.title} up`}
-                    >
-                      ↑
-                    </button>
-                    <button
-                      onClick={() => move(i, 1)}
-                      disabled={i === ranked.length - 1}
-                      className="px-3 py-1.5 bg-white/10 hover:bg-white/20 disabled:opacity-30 rounded text-white text-sm transition"
-                      aria-label={`Move ${p.title} down`}
-                    >
-                      ↓
-                    </button>
+                  <div className="flex flex-wrap items-center gap-2">
+                    {([1, 2, 3] as const).map((rank) => {
+                      const active = i === rank - 1
+                      return (
+                        <button
+                          key={rank}
+                          type="button"
+                          onClick={() => setRank(i, rank)}
+                          className={`min-h-11 min-w-[3.25rem] px-3 rounded-lg text-sm font-bold transition ${
+                            active
+                              ? 'bg-yellow-400 text-[#030c1b]'
+                              : 'bg-white/10 hover:bg-white/20 text-white'
+                          }`}
+                          aria-label={`Set ${p.title} as #${rank}`}
+                          aria-pressed={active}
+                        >
+                          #{rank}
+                        </button>
+                      )
+                    })}
+                    <div className="flex gap-1 ml-auto">
+                      <button
+                        type="button"
+                        onClick={() => move(i, -1)}
+                        disabled={i === 0}
+                        className="min-h-9 min-w-9 px-2 bg-white/10 hover:bg-white/20 disabled:opacity-30 rounded text-white text-sm transition"
+                        aria-label={`Move ${p.title} up`}
+                      >
+                        ↑
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => move(i, 1)}
+                        disabled={i === ranked.length - 1}
+                        className="min-h-9 min-w-9 px-2 bg-white/10 hover:bg-white/20 disabled:opacity-30 rounded text-white text-sm transition"
+                        aria-label={`Move ${p.title} down`}
+                      >
+                        ↓
+                      </button>
+                    </div>
                   </div>
                 </li>
               ))}
             </ul>
 
-            <button
-              onClick={saveTop3}
-              disabled={saving}
-              className="w-full py-4 bg-green-600 hover:bg-green-700 disabled:opacity-50 text-white font-bold rounded-xl transition"
+            <div
+              className="fixed bottom-0 inset-x-0 z-40 px-4 pt-3 bg-[#0a1628]/95 border-t border-white/10 backdrop-blur"
+              style={{ paddingBottom: 'max(0.75rem, env(safe-area-inset-bottom))' }}
             >
-              {saving ? 'Saving…' : `Confirm top ${Math.min(3, ranked.length)}`}
-            </button>
+              <div className="max-w-xl mx-auto">
+                <button
+                  type="button"
+                  onClick={saveTop3}
+                  disabled={saving}
+                  className="w-full min-h-12 py-3.5 bg-green-600 hover:bg-green-700 disabled:opacity-50 text-white font-bold rounded-xl transition"
+                >
+                  {saving ? 'Saving…' : `Confirm top ${Math.min(3, ranked.length)}`}
+                </button>
+              </div>
+            </div>
           </>
         )}
       </div>

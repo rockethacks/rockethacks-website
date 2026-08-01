@@ -179,8 +179,10 @@ function JudgeLoginForm() {
 
   const showCodeOnly = !!signedInEmail
 
+  const touchInput = `${inputClass} min-h-12 text-base`
+
   return (
-    <div className="min-h-screen bg-gradient-to-br from-[#030c1b] via-[#0a1628] to-[#030c1b] flex items-center justify-center px-4 py-12">
+    <div className="min-h-dvh bg-gradient-to-br from-[#030c1b] via-[#0a1628] to-[#030c1b] flex items-center justify-center px-4 py-12 pb-[max(3rem,env(safe-area-inset-bottom))]">
       <div className="max-w-md w-full space-y-4">
         <div className="text-center space-y-2">
           <p className="text-yellow-400 text-sm font-semibold uppercase tracking-[0.2em]">RocketHacks</p>
@@ -225,7 +227,7 @@ function JudgeLoginForm() {
                   required
                   value={inviteCode}
                   onChange={(e) => setInviteCode(e.target.value.toUpperCase())}
-                  className={`${inputClass} font-mono tracking-widest`}
+                  className={`${touchInput} font-mono tracking-widest`}
                   placeholder="XXXXXXXX"
                   maxLength={16}
                 />
@@ -234,7 +236,7 @@ function JudgeLoginForm() {
               <button
                 type="submit"
                 disabled={redeeming}
-                className="w-full px-6 py-3 bg-green-600 hover:bg-green-700 disabled:opacity-50 text-white font-semibold rounded-lg transition"
+                className="w-full min-h-12 px-6 py-3 bg-green-600 hover:bg-green-700 disabled:opacity-50 text-white font-semibold rounded-lg transition"
               >
                 {redeeming ? 'Activating…' : 'Activate judge access'}
               </button>
@@ -242,7 +244,7 @@ function JudgeLoginForm() {
               <button
                 type="button"
                 onClick={signOut}
-                className="w-full px-6 py-2.5 bg-white/5 hover:bg-white/10 border border-white/10 text-gray-300 text-sm font-semibold rounded-lg transition"
+                className="w-full min-h-11 px-6 py-2.5 bg-white/5 hover:bg-white/10 border border-white/10 text-gray-300 text-sm font-semibold rounded-lg transition"
               >
                 Use a different account
               </button>
@@ -260,7 +262,7 @@ function JudgeLoginForm() {
                   autoComplete="email"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
-                  className={inputClass}
+                  className={touchInput}
                   placeholder="you@company.com"
                 />
               </Field>
@@ -275,7 +277,7 @@ function JudgeLoginForm() {
                   required
                   value={inviteCode}
                   onChange={(e) => setInviteCode(e.target.value.toUpperCase())}
-                  className={`${inputClass} font-mono tracking-widest`}
+                  className={`${touchInput} font-mono tracking-widest`}
                   placeholder="XXXXXXXX"
                   maxLength={16}
                 />
@@ -289,14 +291,13 @@ function JudgeLoginForm() {
                     autoComplete="new-password"
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
-                    className={inputClass}
+                    className={`${touchInput} pr-14`}
                     placeholder="Choose a strong password"
                   />
                   <button
                     type="button"
                     onClick={() => setShowPassword(!showPassword)}
-                    className="absolute right-3 top-1/2 -translate-y-1/2 text-xs text-gray-400 hover:text-white"
-                    tabIndex={-1}
+                    className="absolute right-1.5 top-1/2 -translate-y-1/2 min-h-11 min-w-11 px-2 text-xs text-gray-400 hover:text-white font-semibold rounded-md"
                   >
                     {showPassword ? 'Hide' : 'Show'}
                   </button>
@@ -310,7 +311,7 @@ function JudgeLoginForm() {
                   autoComplete="new-password"
                   value={confirmPassword}
                   onChange={(e) => setConfirmPassword(e.target.value)}
-                  className={inputClass}
+                  className={touchInput}
                   placeholder="Repeat your password"
                 />
               </Field>
@@ -324,7 +325,7 @@ function JudgeLoginForm() {
               <button
                 type="submit"
                 disabled={busy || redeeming}
-                className="w-full px-6 py-3 bg-blue-600 hover:bg-blue-700 disabled:opacity-50 text-white font-semibold rounded-lg transition"
+                className="w-full min-h-12 px-6 py-3 bg-blue-600 hover:bg-blue-700 disabled:opacity-50 text-white font-semibold rounded-lg transition"
               >
                 {busy ? 'Creating account…' : 'Create judge account'}
               </button>
@@ -336,7 +337,7 @@ function JudgeLoginForm() {
                   setError('')
                   setMessage('')
                 }}
-                className="w-full px-6 py-2.5 bg-white/5 hover:bg-white/10 border border-white/10 text-gray-300 text-sm font-semibold rounded-lg transition"
+                className="w-full min-h-11 px-6 py-2.5 bg-white/5 hover:bg-white/10 border border-white/10 text-gray-300 text-sm font-semibold rounded-lg transition"
               >
                 I already have an account
               </button>
@@ -350,21 +351,30 @@ function JudgeLoginForm() {
                   autoComplete="email"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
-                  className={inputClass}
+                  className={touchInput}
                   placeholder="you@company.com"
                 />
               </Field>
 
               <Field label="Password" required>
-                <input
-                  type="password"
-                  required
-                  autoComplete="current-password"
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                  className={inputClass}
-                  placeholder="Your password"
-                />
+                <div className="relative">
+                  <input
+                    type={showPassword ? 'text' : 'password'}
+                    required
+                    autoComplete="current-password"
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
+                    className={`${touchInput} pr-14`}
+                    placeholder="Your password"
+                  />
+                  <button
+                    type="button"
+                    onClick={() => setShowPassword(!showPassword)}
+                    className="absolute right-1.5 top-1/2 -translate-y-1/2 min-h-11 min-w-11 px-2 text-xs text-gray-400 hover:text-white font-semibold rounded-md"
+                  >
+                    {showPassword ? 'Hide' : 'Show'}
+                  </button>
+                </div>
               </Field>
 
               <Field
@@ -375,7 +385,7 @@ function JudgeLoginForm() {
                   type="text"
                   value={inviteCode}
                   onChange={(e) => setInviteCode(e.target.value.toUpperCase())}
-                  className={`${inputClass} font-mono tracking-widest`}
+                  className={`${touchInput} font-mono tracking-widest`}
                   placeholder="XXXXXXXX"
                   maxLength={16}
                 />
@@ -384,12 +394,12 @@ function JudgeLoginForm() {
               <button
                 type="submit"
                 disabled={busy || redeeming}
-                className="w-full px-6 py-3 bg-blue-600 hover:bg-blue-700 disabled:opacity-50 text-white font-semibold rounded-lg transition"
+                className="w-full min-h-12 px-6 py-3 bg-blue-600 hover:bg-blue-700 disabled:opacity-50 text-white font-semibold rounded-lg transition"
               >
                 {busy ? 'Signing in…' : 'Sign in'}
               </button>
 
-              <div className="flex justify-between text-xs">
+              <div className="flex flex-col gap-1 sm:flex-row sm:justify-between">
                 <button
                   type="button"
                   onClick={() => {
@@ -397,11 +407,14 @@ function JudgeLoginForm() {
                     setError('')
                     setMessage('')
                   }}
-                  className="text-gray-400 hover:text-white"
+                  className="min-h-11 text-left text-sm text-gray-400 hover:text-white font-medium"
                 >
                   ← Activate a new invite
                 </button>
-                <Link href="/forgot-password" className="text-blue-400 hover:underline">
+                <Link
+                  href="/forgot-password"
+                  className="inline-flex items-center min-h-11 text-sm text-blue-400 hover:underline font-medium"
+                >
                   Forgot password?
                 </Link>
               </div>

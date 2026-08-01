@@ -257,6 +257,42 @@ export default function JudgeTablePage() {
     [openRubrics]
   )
 
+  const firstUnansweredId = useMemo(() => {
+    for (const rubric of openRubrics) {
+      for (const item of rubric.eligibility) {
+        const d = drafts[key(rubric.assignmentId, item.id)]
+        if (d?.eligibility_value === null || d?.eligibility_value === undefined) {
+          return `q-${rubric.assignmentId}-${item.id}`
+        }
+      }
+      for (const item of rubric.scored) {
+        if (!drafts[key(rubric.assignmentId, item.id)]?.band_id) {
+          return `q-${rubric.assignmentId}-${item.id}`
+        }
+      }
+    }
+    return null
+  }, [openRubrics, drafts])
+
+  const scrollToId = useCallback((id: string) => {
+    const el = document.getElementById(id)
+    if (!el) return
+    const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches
+    el.scrollIntoView({ behavior: reduce ? 'auto' : 'smooth', block: 'start' })
+  }, [])
+
+  const goNextUnanswered = useCallback(() => {
+    if (firstUnansweredId) scrollToId(firstUnansweredId)
+  }, [firstUnansweredId, scrollToId])
+
+  // Deep-link from /judge/score/[id] → #rubric-{assignmentId}
+  useEffect(() => {
+    if (loading || rubrics.length === 0) return
+    const hash = typeof window !== 'undefined' ? window.location.hash.slice(1) : ''
+    if (!hash) return
+    requestAnimationFrame(() => scrollToId(hash))
+  }, [loading, rubrics.length, scrollToId])
+
   const rubricTotal = useCallback(
     (rubric: Rubric) =>
       rubric.scored.reduce(
@@ -354,115 +390,155 @@ export default function JudgeTablePage() {
   }
 
   const noRubrics = rubrics.every((r) => !r.hasRubric)
+  const answeredCount = totalQuestions - unanswered
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-[#030c1b] via-[#0a1628] to-[#030c1b] pb-32">
+    <div className="min-h-dvh bg-gradient-to-br from-[#030c1b] via-[#0a1628] to-[#030c1b] pb-[calc(7.5rem+env(safe-area-inset-bottom))]">
       <div className="sticky top-0 z-40 bg-[#0a1628]/95 border-b border-white/10 backdrop-blur">
-        <div className="max-w-xl mx-auto px-4 py-3 flex items-center justify-between gap-3">
-          <Link href="/judge" className="text-sm text-blue-400 shrink-0">
+        <div
+          className="max-w-xl mx-auto px-4 pb-2 flex items-center justify-between gap-2"
+          style={{ paddingTop: 'max(0.75rem, env(safe-area-inset-top))' }}
+        >
+          <Link
+            href="/judge"
+            className="inline-flex items-center justify-center min-h-11 px-3 rounded-lg bg-white/5 border border-white/10 text-sm font-semibold text-blue-300 shrink-0"
+          >
             ← Tables
           </Link>
-          <div className="text-center">
+          <div className="text-center min-w-0 flex-1">
             <p className={`text-2xl font-bold tabular-nums leading-none ${timerTone}`}>
               {formatTime(secondsLeft)}
             </p>
             {!allSubmitted && (
-              <div className="flex gap-2 justify-center mt-1">
+              <div className="flex gap-2 justify-center mt-1.5">
                 <button
+                  type="button"
                   onClick={() => setTimerRunning((r) => !r)}
-                  className="text-[11px] text-gray-400 hover:text-white"
+                  className="min-h-11 px-3 rounded-lg bg-white/10 border border-white/15 text-sm font-semibold text-white"
                 >
                   {timerRunning ? 'Pause' : 'Start'}
                 </button>
                 <button
+                  type="button"
                   onClick={() => {
                     setSecondsLeft(visitSeconds)
                     setTimerRunning(true)
                   }}
-                  className="text-[11px] text-gray-400 hover:text-white"
+                  className="min-h-11 px-3 rounded-lg bg-white/10 border border-white/15 text-sm font-semibold text-white"
                 >
                   Reset
                 </button>
               </div>
             )}
           </div>
-          <div className="text-right shrink-0">
-            <p className="text-[11px] text-gray-400 leading-none">Rubrics</p>
-            <p className="text-lg font-bold text-white leading-tight">
+          <div className="text-right shrink-0 min-w-[3.5rem]">
+            <p className="text-xs text-gray-400 leading-none">Done</p>
+            <p className="text-lg font-bold text-white leading-tight tabular-nums">
               {rubrics.filter((r) => r.status === 'submitted').length}
               <span className="text-gray-500 text-sm">/{rubrics.length}</span>
             </p>
           </div>
         </div>
+        {rubrics.length > 1 && (
+          <div className="max-w-xl mx-auto px-4 pb-2.5 flex gap-1.5 overflow-x-auto custom-scrollbar">
+            {rubrics.map((r) => {
+              const done = r.status === 'submitted'
+              return (
+                <button
+                  key={r.assignmentId}
+                  type="button"
+                  onClick={() => scrollToId(`rubric-${r.assignmentId}`)}
+                  className={`shrink-0 min-h-10 px-3 rounded-lg text-xs font-semibold border whitespace-nowrap ${
+                    done
+                      ? 'bg-green-500/15 border-green-500/40 text-green-200'
+                      : r.trackType === 'sponsor'
+                        ? 'bg-orange-500/10 border-orange-500/35 text-orange-100'
+                        : 'bg-white/5 border-white/15 text-gray-200'
+                  }`}
+                >
+                  {(r.trackName || 'Rubric').slice(0, 22)}
+                  {(r.trackName || '').length > 22 ? '…' : ''}
+                </button>
+              )
+            })}
+          </div>
+        )}
       </div>
 
-      <div className="max-w-xl mx-auto px-4 py-5 space-y-5">
+      <div className="max-w-xl mx-auto px-4 py-4 space-y-4">
         {error && <Banner tone="error">{error}</Banner>}
         {secondsLeft === 0 && !allSubmitted && (
           <Banner tone="warning">
-            Time is up for this table. You can still finish — the timer paces the room, it does not
+            Time is up for this table. You can still finish. The timer paces the room; it does not
             block you.
           </Banner>
         )}
 
-        <div className="bg-white/5 backdrop-blur-lg rounded-2xl border border-white/10 p-5 space-y-3">
+        <div className="bg-white/5 rounded-2xl border border-white/10 p-4 space-y-2">
           <div className="flex flex-wrap items-center gap-2">
             <Pill tone="yellow">Table {project?.table_number || 'TBD'}</Pill>
             {allSubmitted && <Pill tone="green">Submitted</Pill>}
           </div>
-          <h1 className="text-2xl font-bold text-white leading-snug">{project?.title}</h1>
+          <h1 className="text-xl font-bold text-white leading-snug text-balance">{project?.title}</h1>
           {rubrics.length > 1 && (
             <p className="text-sm text-gray-400 leading-relaxed">
-              This team entered {rubrics.length} prizes you are judging. Watch the demo once, then
-              answer all {rubrics.length} rubrics below before you move on.
+              {rubrics.length} rubrics at this stop. Demo once, then score each below.
             </p>
           )}
-          {project?.about && (
-            <p className="text-sm text-gray-400 leading-relaxed whitespace-pre-wrap">
-              {project.about.length > 400 ? `${project.about.slice(0, 400)}…` : project.about}
-            </p>
-          )}
-          {tags.length > 0 && (
-            <div className="flex flex-wrap gap-2 pt-1">
-              {tags.slice(0, 8).map((t) => (
-                <span key={t} className="px-2 py-1 text-xs rounded-lg bg-white/10 text-gray-300">
-                  {t}
-                </span>
-              ))}
+          <details className="group pt-1">
+            <summary className="cursor-pointer list-none min-h-11 flex items-center text-sm font-semibold text-blue-300">
+              <span className="group-open:hidden">Show project details</span>
+              <span className="hidden group-open:inline">Hide project details</span>
+            </summary>
+            <div className="mt-3 space-y-3">
+              {project?.about && (
+                <p className="text-sm text-gray-400 leading-relaxed whitespace-pre-wrap">
+                  {project.about.length > 400 ? `${project.about.slice(0, 400)}…` : project.about}
+                </p>
+              )}
+              {tags.length > 0 && (
+                <div className="flex flex-wrap gap-2">
+                  {tags.slice(0, 8).map((t) => (
+                    <span key={t} className="px-2 py-1 text-xs rounded-lg bg-white/10 text-gray-300">
+                      {t}
+                    </span>
+                  ))}
+                </div>
+              )}
+              <div className="flex flex-wrap gap-2">
+                {project?.submission_url && (
+                  <a
+                    href={project.submission_url}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="inline-flex items-center min-h-11 px-3 text-sm font-semibold bg-white/10 text-white rounded-lg"
+                  >
+                    Devpost ↗
+                  </a>
+                )}
+                {project?.video_url && (
+                  <a
+                    href={project.video_url}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="inline-flex items-center min-h-11 px-3 text-sm font-semibold bg-white/10 text-white rounded-lg"
+                  >
+                    Demo video ↗
+                  </a>
+                )}
+                {project?.github_url && (
+                  <a
+                    href={project.github_url}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="inline-flex items-center min-h-11 px-3 text-sm font-semibold bg-white/10 text-white rounded-lg"
+                  >
+                    Code ↗
+                  </a>
+                )}
+              </div>
             </div>
-          )}
-          <div className="flex flex-wrap gap-2 pt-1">
-            {project?.submission_url && (
-              <a
-                href={project.submission_url}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="px-3 py-1.5 text-xs font-semibold bg-white/10 hover:bg-white/20 text-white rounded-lg transition"
-              >
-                Devpost ↗
-              </a>
-            )}
-            {project?.video_url && (
-              <a
-                href={project.video_url}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="px-3 py-1.5 text-xs font-semibold bg-white/10 hover:bg-white/20 text-white rounded-lg transition"
-              >
-                Demo video ↗
-              </a>
-            )}
-            {project?.github_url && (
-              <a
-                href={project.github_url}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="px-3 py-1.5 text-xs font-semibold bg-white/10 hover:bg-white/20 text-white rounded-lg transition"
-              >
-                Code ↗
-              </a>
-            )}
-          </div>
+          </details>
         </div>
 
         {allSubmitted && (
@@ -487,7 +563,7 @@ export default function JudgeTablePage() {
               <section
                 key={rubric.assignmentId}
                 id={`rubric-${rubric.assignmentId}`}
-                className="space-y-3 scroll-mt-24"
+                className="space-y-3 scroll-mt-[8.5rem]"
               >
                 <div className="flex flex-wrap items-center justify-between gap-2 border-b border-white/10 pb-2">
                   <div className="flex items-center gap-2 min-w-0">
@@ -519,7 +595,8 @@ export default function JudgeTablePage() {
                     {rubric.eligibility.map((item) => (
                       <div
                         key={item.id}
-                        className="bg-white/5 border border-white/10 rounded-xl p-4 space-y-3"
+                        id={`q-${rubric.assignmentId}-${item.id}`}
+                        className="bg-white/5 border border-white/10 rounded-xl p-4 space-y-3 scroll-mt-[8.5rem]"
                       >
                         <div>
                           <p className="text-white font-medium">{item.title}</p>
@@ -544,7 +621,7 @@ export default function JudgeTablePage() {
                                     points_value: null,
                                   })
                                 }
-                                className={`py-3 rounded-lg font-semibold border transition disabled:opacity-60 ${
+                                className={`min-h-12 py-3 rounded-lg font-semibold border transition disabled:opacity-60 ${
                                   selected
                                     ? val
                                       ? 'bg-green-600 border-green-500 text-white'
@@ -567,7 +644,8 @@ export default function JudgeTablePage() {
                   return (
                     <div
                       key={item.id}
-                      className="bg-white/5 border border-white/10 rounded-xl p-4 space-y-3"
+                      id={`q-${rubric.assignmentId}-${item.id}`}
+                      className="bg-white/5 border border-white/10 rounded-xl p-4 space-y-3 scroll-mt-[8.5rem]"
                     >
                       <div>
                         <div className="flex justify-between gap-2 items-start">
@@ -598,7 +676,7 @@ export default function JudgeTablePage() {
                                   points_value: band.points,
                                 })
                               }
-                              className={`text-left p-3 rounded-lg border transition disabled:opacity-60 ${
+                              className={`text-left min-h-12 p-3.5 rounded-lg border transition disabled:opacity-60 ${
                                 selected
                                   ? 'bg-blue-600/40 border-blue-400 text-white'
                                   : 'bg-white/5 border-white/10 text-gray-300 hover:bg-white/10'
@@ -656,32 +734,49 @@ export default function JudgeTablePage() {
       </div>
 
       {!allSubmitted && !noRubrics && (
-        <div className="fixed bottom-0 inset-x-0 p-4 bg-[#0a1628]/95 border-t border-white/10 backdrop-blur">
+        <div
+          className="fixed bottom-0 inset-x-0 z-40 px-4 pt-3 bg-[#0a1628]/95 border-t border-white/10 backdrop-blur"
+          style={{ paddingBottom: 'max(0.75rem, env(safe-area-inset-bottom))' }}
+        >
           <div className="max-w-xl mx-auto space-y-2">
-            <div className="flex justify-between text-xs">
+            <div className="flex justify-between items-center gap-2 text-xs">
               <span className="text-gray-400">
                 {saveState === 'saving' && 'Saving…'}
                 {saveState === 'saved' && 'Saved'}
                 {saveState === 'error' && 'Save failed'}
-                {saveState === 'idle' && 'Answers save as you tap'}
+                {saveState === 'idle' && `${answeredCount}/${totalQuestions} answered`}
               </span>
-              {unanswered > 0 && <span className="text-yellow-400">{unanswered} left</span>}
+              {unanswered > 0 && (
+                <button
+                  type="button"
+                  onClick={goNextUnanswered}
+                  className="min-h-9 px-2.5 rounded-md text-yellow-300 font-semibold underline-offset-2 hover:underline"
+                >
+                  {unanswered} left · Next
+                </button>
+              )}
             </div>
             <button
-              onClick={() => setConfirming(true)}
-              disabled={submitting || unanswered > 0}
-              className="w-full py-4 bg-green-600 hover:bg-green-700 disabled:bg-white/10 disabled:text-gray-500 text-white font-bold rounded-xl transition"
+              type="button"
+              onClick={() => (unanswered > 0 ? goNextUnanswered() : setConfirming(true))}
+              disabled={submitting}
+              className={`w-full min-h-12 py-3.5 font-bold rounded-xl transition ${
+                unanswered > 0
+                  ? 'bg-yellow-500/20 border border-yellow-500/40 text-yellow-100'
+                  : 'bg-green-600 hover:bg-green-700 text-white'
+              }`}
             >
-              {unanswered > 0
-                ? `Answer everything to submit (${totalQuestions - unanswered}/${totalQuestions})`
-                : `Submit ${openRubrics.length} rubric${openRubrics.length === 1 ? '' : 's'} and leave the table`}
+              {unanswered > 0 ? `Next unanswered · ${unanswered} left` : 'Submit table'}
             </button>
           </div>
         </div>
       )}
 
       {confirming && (
-        <div className="fixed inset-0 bg-black/80 z-50 flex items-end sm:items-center justify-center p-4">
+        <div
+          className="fixed inset-0 bg-black/80 z-50 flex items-end sm:items-center justify-center p-4"
+          style={{ paddingBottom: 'max(1rem, env(safe-area-inset-bottom))' }}
+        >
           <div className="bg-[#0a1628] border border-white/10 rounded-2xl max-w-sm w-full p-6 space-y-4">
             <h3 className="text-lg font-bold text-white">Submit this table?</h3>
             <div className="text-sm text-gray-400 leading-relaxed space-y-2">
@@ -699,19 +794,21 @@ export default function JudgeTablePage() {
                   </li>
                 ))}
               </ul>
-              <p>After submitting you cannot change it — an organizer would need to reopen it.</p>
+              <p>After submitting you cannot change it. An organizer would need to reopen it.</p>
             </div>
             <div className="flex gap-2">
               <button
+                type="button"
                 onClick={() => setConfirming(false)}
-                className="flex-1 py-3 bg-white/10 hover:bg-white/20 text-white font-semibold rounded-lg transition"
+                className="flex-1 min-h-12 py-3 bg-white/10 hover:bg-white/20 text-white font-semibold rounded-lg transition"
               >
                 Keep editing
               </button>
               <button
+                type="button"
                 onClick={handleSubmit}
                 disabled={submitting}
-                className="flex-1 py-3 bg-green-600 hover:bg-green-700 disabled:opacity-50 text-white font-bold rounded-lg transition"
+                className="flex-1 min-h-12 py-3 bg-green-600 hover:bg-green-700 disabled:opacity-50 text-white font-bold rounded-lg transition"
               >
                 {submitting ? 'Submitting…' : 'Submit'}
               </button>

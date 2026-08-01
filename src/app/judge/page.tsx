@@ -90,15 +90,18 @@ export default function JudgeHomePage() {
       if (row.status === 'submitted') card.done++
       byProject.set(projectId, card)
     }
-    return Array.from(byProject.values()).sort((a, b) =>
-      (a.tableNumber || 'zz').localeCompare(b.tableNumber || 'zz')
-    )
+    return Array.from(byProject.values()).sort((a, b) => {
+      const aDone = a.done === a.rubrics.length
+      const bDone = b.done === b.rubrics.length
+      if (aDone !== bDone) return aDone ? 1 : -1
+      return (a.tableNumber || 'zz').localeCompare(b.tableNumber || 'zz')
+    })
   }, [assignments])
 
   const tablesDone = tables.filter((t) => t.done === t.rubrics.length).length
   const allSubmitted = assignments.length > 0 && tablesDone === tables.length
   const progress = tables.length ? Math.round((tablesDone / tables.length) * 100) : 0
-  const bundled = assignments.length - tables.length
+  const firstIncomplete = tables.find((t) => t.done < t.rubrics.length)
 
   const signOut = async () => {
     const supabase = createClient()
@@ -109,19 +112,20 @@ export default function JudgeHomePage() {
   if (loading) return <LoadingScreen message="Loading your tables…" />
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-[#030c1b] via-[#0a1628] to-[#030c1b] py-8 px-4">
-      <div className="max-w-3xl mx-auto space-y-6">
+    <div className="min-h-dvh bg-gradient-to-br from-[#030c1b] via-[#0a1628] to-[#030c1b] py-8 px-4 pb-[max(2rem,env(safe-area-inset-bottom))]">
+      <div className="max-w-3xl mx-auto space-y-5">
         <header className="flex justify-between items-start gap-4">
-          <div>
+          <div className="min-w-0">
             <p className="text-yellow-400 text-xs font-semibold uppercase tracking-[0.2em]">
               Judge Portal
             </p>
             <h1 className="text-3xl font-bold text-white mt-1">Your tables</h1>
-            {name && <p className="text-sm text-gray-400 mt-1">Signed in as {name}</p>}
+            {name && <p className="text-sm text-gray-400 mt-1 truncate">Signed in as {name}</p>}
           </div>
           <button
+            type="button"
             onClick={signOut}
-            className="px-4 py-2 bg-white/5 hover:bg-white/10 border border-white/10 text-white text-sm font-semibold rounded-lg transition"
+            className="min-h-11 px-4 py-2 bg-white/5 hover:bg-white/10 border border-white/10 text-white text-sm font-semibold rounded-lg transition shrink-0"
           >
             Log out
           </button>
@@ -143,19 +147,25 @@ export default function JudgeHomePage() {
                 style={{ width: `${progress}%` }}
               />
             </div>
-            <p className="text-xs text-gray-500 leading-relaxed">
-              You visit each table once and score every rubric it qualifies for while you are there.
-              {bundled > 0 &&
-                ` ${bundled} of your ${assignments.length} score sheets are extra prizes on tables you were already visiting.`}{' '}
-              When every table is done you will confirm your top 3 overall.
+            <p className="text-xs text-gray-500">
+              Score every rubric at a table before you leave. Top 3 comes after all tables are done.
             </p>
           </div>
+        )}
+
+        {firstIncomplete && (
+          <Link
+            href={`/judge/table/${firstIncomplete.projectId}`}
+            className="flex items-center justify-center min-h-12 w-full text-center px-6 py-3.5 bg-blue-600 hover:bg-blue-700 text-white font-bold rounded-xl transition"
+          >
+            Continue · Table {firstIncomplete.tableNumber || 'TBD'}
+          </Link>
         )}
 
         {allSubmitted && (
           <Link
             href="/judge/top3"
-            className="block w-full text-center px-6 py-4 bg-green-600 hover:bg-green-700 text-white font-bold rounded-xl transition"
+            className="flex items-center justify-center min-h-12 w-full text-center px-6 py-3.5 bg-green-600 hover:bg-green-700 text-white font-bold rounded-xl transition"
           >
             {hasTop3 ? 'Review your Top 3' : 'Confirm your Top 3'}
           </Link>
@@ -177,14 +187,14 @@ export default function JudgeHomePage() {
                   <li key={table.projectId}>
                     <Link
                       href={`/judge/table/${table.projectId}`}
-                      className="block p-4 hover:bg-white/5 transition space-y-2"
+                      className="block py-4 px-4 min-h-[4.5rem] hover:bg-white/5 transition space-y-2"
                     >
-                      <div className="flex items-start justify-between gap-4">
+                      <div className="flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between sm:gap-4">
                         <div className="min-w-0">
                           <p className="text-xs text-gray-500 uppercase tracking-wide">
                             Table {table.tableNumber || 'TBD'}
                           </p>
-                          <p className="text-white font-semibold truncate mt-0.5">{table.title}</p>
+                          <p className="text-white font-semibold mt-0.5 line-clamp-2">{table.title}</p>
                         </div>
                         <Pill tone={complete ? 'green' : table.done > 0 ? 'blue' : 'yellow'}>
                           {complete

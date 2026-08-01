@@ -292,10 +292,43 @@ export default function CriteriaAdminPage() {
     [scoredItems, bandsByItem]
   )
 
-  const setLabel = (s: CriteriaSet) =>
-    s.applies_to === 'in_house_shared'
-      ? `${s.name} · all in-house tracks`
-      : `${s.name} · ${tracks.find((t) => t.id === s.track_id)?.name || 'sponsor track'}`
+  const orderedSets = useMemo(() => {
+    const trackRank = new Map(tracks.map((t) => [t.id, t.sort_order]))
+    return [...sets].sort((a, b) => {
+      if (a.applies_to !== b.applies_to) return a.applies_to === 'in_house_shared' ? -1 : 1
+      const ra = a.track_id ? trackRank.get(a.track_id) ?? 999 : 0
+      const rb = b.track_id ? trackRank.get(b.track_id) ?? 999 : 0
+      if (ra !== rb) return ra - rb
+      return a.name.localeCompare(b.name)
+    })
+  }, [sets, tracks])
+
+  const jumpMeta = (s: CriteriaSet) => {
+    if (s.applies_to === 'in_house_shared') {
+      return {
+        eyebrow: 'In-house',
+        title: 'Main track',
+        subtitle: s.name,
+        placeholder: /placeholder/i.test(s.name),
+      }
+    }
+    const track = tracks.find((t) => t.id === s.track_id)
+    return {
+      eyebrow: 'Sponsor',
+      title: track?.sponsor_name || track?.name || 'Sponsor track',
+      subtitle: track?.name || s.name,
+      placeholder: /placeholder/i.test(s.name),
+    }
+  }
+
+  const glanceDescription =
+    scoredItems.length > 0
+      ? `What judges can award on the selected rubric. Maximum: ${maxTotal} points across ${scoredItems.length} criteria${
+          eligibilityItems.length
+            ? `, plus ${eligibilityItems.length} eligibility check${eligibilityItems.length === 1 ? '' : 's'}`
+            : ''
+        }.`
+      : 'Jump between rubrics below. The band table fills in once this set has scored criteria.'
 
   return (
     <div className="space-y-6">
@@ -387,7 +420,10 @@ export default function CriteriaAdminPage() {
       </Panel>
 
       {sets.length === 0 ? (
-        <Panel>
+        <Panel
+          title="Rubric at a glance"
+          description="Jump between main and sponsor rubrics once you create sets. The band summary appears when a set has scored criteria."
+        >
           <EmptyState
             title="No rubrics yet"
             description="Create your shared in-house set above. Judges cannot score anything until at least one criteria set exists for the track they are assigned to."
@@ -395,236 +431,275 @@ export default function CriteriaAdminPage() {
         </Panel>
       ) : (
         <>
-          <div className="flex flex-wrap gap-2">
-            {sets.map((s) => (
-              <button
-                key={s.id}
-                onClick={() => setSelectedSetId(s.id)}
-                className={`px-4 py-2 rounded-lg text-sm font-semibold border transition ${
-                  selectedSetId === s.id
-                    ? 'bg-blue-600 border-blue-500 text-white'
-                    : 'bg-white/5 border-white/10 text-gray-300 hover:bg-white/10'
-                }`}
-              >
-                {setLabel(s)}
-              </button>
-            ))}
-          </div>
+          <Panel
+            title="Rubric at a glance"
+            tip="scoredBands"
+            description={glanceDescription}
+            actions={<ExportButton onClick={exportCriteria} label="Export all rubrics" />}
+          >
+            <div className="p-5 space-y-5">
+              <div>
+                <p className="text-xs font-medium text-gray-400 mb-2">Jump to a rubric</p>
+                <div className="grid gap-2 sm:grid-cols-2 lg:grid-cols-3">
+                  {orderedSets.map((s) => {
+                    const meta = jumpMeta(s)
+                    const active = selectedSetId === s.id
+                    return (
+                      <button
+                        key={s.id}
+                        type="button"
+                        onClick={() => setSelectedSetId(s.id)}
+                        className={`text-left rounded-xl border px-3 py-3 transition-colors duration-150 motion-reduce:transition-none ${
+                          active
+                            ? 'bg-blue-600/30 border-blue-400/60 ring-1 ring-blue-400/40'
+                            : 'bg-white/[0.03] border-white/10 hover:bg-white/[0.06] hover:border-white/20'
+                        }`}
+                      >
+                        <div className="flex items-center justify-between gap-2 mb-1">
+                          <Pill tone={s.applies_to === 'sponsor' ? 'orange' : 'blue'}>
+                            {meta.eyebrow}
+                          </Pill>
+                          {meta.placeholder && <Pill tone="yellow">Placeholder</Pill>}
+                        </div>
+                        <p className="text-sm font-semibold text-white truncate">{meta.title}</p>
+                        <p className="text-xs text-gray-400 mt-0.5 line-clamp-2 leading-snug">
+                          {meta.subtitle}
+                        </p>
+                      </button>
+                    )
+                  })}
+                </div>
+              </div>
+
+              {scoredItems.length === 0 ? (
+                <div className="rounded-xl border border-dashed border-white/15 bg-white/[0.02] px-4 py-8">
+                  <EmptyState
+                    title="No scored criteria yet"
+                    description="This set is still empty. Add criteria in the editor below — the band table will show up here."
+                  />
+                </div>
+              ) : (
+                <div className="overflow-x-auto custom-scrollbar rounded-xl border border-white/10">
+                  <table className="w-full text-sm text-left min-w-[640px]">
+                    <thead className="bg-white/5 text-gray-400">
+                      <tr>
+                        <th className="p-3 font-medium">Criterion</th>
+                        {Array.from({ length: maxColumns }).map((_, i) => (
+                          <th key={i} className="p-3 font-medium">
+                            Band {i + 1}
+                          </th>
+                        ))}
+                        <th className="p-3 font-medium">Max</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {scoredItems.map((item) => {
+                        const bands = bandsByItem[item.id] || []
+                        return (
+                          <tr key={item.id} className="border-t border-white/10 text-white">
+                            <td className="p-3 font-medium">{item.title}</td>
+                            {Array.from({ length: maxColumns }).map((_, i) => (
+                              <td key={i} className="p-3 text-gray-300">
+                                {bands[i] ? (
+                                  <>
+                                    <span className="text-yellow-400 font-bold">{bands[i].points}</span>{' '}
+                                    <span className="text-xs">{bands[i].label}</span>
+                                  </>
+                                ) : (
+                                  '—'
+                                )}
+                              </td>
+                            ))}
+                            <td className="p-3 text-yellow-400 font-bold">
+                              {Math.max(0, ...bands.map((b) => b.points), 0)}
+                            </td>
+                          </tr>
+                        )
+                      })}
+                    </tbody>
+                  </table>
+                </div>
+              )}
+
+              {eligibilityItems.length > 0 && (
+                <div>
+                  <p className="text-xs font-medium text-gray-400 mb-2">Eligibility gates</p>
+                  <ul className="flex flex-wrap gap-2">
+                    {eligibilityItems.map((item) => (
+                      <li key={item.id}>
+                        <Pill tone="yellow">{item.title}</Pill>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              )}
+            </div>
+          </Panel>
 
           {selectedSet && (
-            <>
-              <Panel
-                title={selectedSet.name}
-                tip="eligibility"
-                description="Eligibility items are yes/no gates that do not add points. Scored items give judges one row of tappable bands."
-                actions={
-                  <div className="flex flex-wrap gap-2 items-center">
-                    <ExportButton onClick={exportCriteria} label="Export all rubrics" />
-                    <button
-                      onClick={() => addItem('eligibility')}
-                      title="Yes/no gates. If any fail, the sheet cannot win."
-                      className="px-4 py-2 bg-white/10 hover:bg-white/20 text-white rounded-lg text-sm font-semibold transition"
+            <Panel
+              title={`Edit · ${jumpMeta(selectedSet).title}`}
+              tip="eligibility"
+              description="Eligibility items are yes/no gates that do not add points. Scored items give judges one row of tappable bands."
+              actions={
+                <div className="flex flex-wrap gap-2 items-center">
+                  <button
+                    onClick={() => addItem('eligibility')}
+                    title="Yes/no gates. If any fail, the sheet cannot win."
+                    className="px-4 py-2 bg-white/10 hover:bg-white/20 text-white rounded-lg text-sm font-semibold transition"
+                  >
+                    + Eligibility check
+                  </button>
+                  <button
+                    onClick={() => addItem('scored')}
+                    title="Point bands for a criterion. Judges pick a band; points feed the sheet total."
+                    className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg text-sm font-semibold transition"
+                  >
+                    + Scored criterion
+                  </button>
+                  <button
+                    onClick={() => setConfirmDeleteSet(true)}
+                    className="px-4 py-2 bg-red-600/80 hover:bg-red-600 text-white rounded-lg text-sm font-semibold transition"
+                  >
+                    Delete set
+                  </button>
+                </div>
+              }
+            >
+              {items.length === 0 ? (
+                <EmptyState
+                  title="This rubric is empty"
+                  description="Add scored criteria for the things judges award points for, and eligibility checks for any hard requirements a sponsor has."
+                />
+              ) : (
+                <div className="p-5 space-y-4">
+                  {items.map((item, index) => (
+                    <div
+                      key={item.id}
+                      className="bg-white/5 border border-white/10 rounded-xl p-4 space-y-3"
                     >
-                      + Eligibility check
-                    </button>
-                    <button
-                      onClick={() => addItem('scored')}
-                      title="Point bands for a criterion. Judges pick a band; points feed the sheet total."
-                      className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg text-sm font-semibold transition"
-                    >
-                      + Scored criterion
-                    </button>
-                    <button
-                      onClick={() => setConfirmDeleteSet(true)}
-                      className="px-4 py-2 bg-red-600/80 hover:bg-red-600 text-white rounded-lg text-sm font-semibold transition"
-                    >
-                      Delete set
-                    </button>
-                  </div>
-                }
-              >
-                {items.length === 0 ? (
-                  <EmptyState
-                    title="This rubric is empty"
-                    description="Add scored criteria for the things judges award points for, and eligibility checks for any hard requirements a sponsor has."
-                  />
-                ) : (
-                  <div className="p-5 space-y-4">
-                    {items.map((item, index) => (
-                      <div key={item.id} className="bg-white/5 border border-white/10 rounded-xl p-4 space-y-3">
-                        <div className="flex flex-wrap gap-3 items-start justify-between">
-                          <div className="flex-1 min-w-[220px] space-y-3">
-                            <div className="flex items-center gap-2">
-                              <Pill tone={item.type === 'scored' ? 'blue' : 'yellow'}>
-                                {item.type === 'scored' ? 'Scored' : 'Eligibility'}
-                              </Pill>
-                              <span className="text-xs text-gray-500">#{index + 1}</span>
-                            </div>
-                            <Field label="Title" hint="Short and scannable — judges read this first.">
-                              <input
-                                defaultValue={item.title}
-                                onBlur={(e) => {
-                                  if (e.target.value !== item.title)
-                                    updateItem(item, { title: e.target.value })
-                                }}
-                                className={inputClass}
-                              />
-                            </Field>
-                            <Field
-                              label="Description"
-                              hint={
-                                item.type === 'scored'
-                                  ? 'Explain what you are judging. One or two sentences.'
-                                  : 'State the requirement plainly, e.g. “Uses the sponsor API in the submitted build”.'
-                              }
-                            >
-                              <textarea
-                                defaultValue={item.description || ''}
-                                onBlur={(e) => updateItem(item, { description: e.target.value })}
-                                rows={2}
-                                className={inputClass}
-                              />
-                            </Field>
+                      <div className="flex flex-wrap gap-3 items-start justify-between">
+                        <div className="flex-1 min-w-[220px] space-y-3">
+                          <div className="flex items-center gap-2">
+                            <Pill tone={item.type === 'scored' ? 'blue' : 'yellow'}>
+                              {item.type === 'scored' ? 'Scored' : 'Eligibility'}
+                            </Pill>
+                            <span className="text-xs text-gray-500">#{index + 1}</span>
                           </div>
-                          <div className="flex flex-col gap-2">
-                            <div className="flex gap-1">
-                              <button
-                                onClick={() => moveItem(index, -1)}
-                                disabled={index === 0}
-                                className="px-2.5 py-1.5 bg-white/10 hover:bg-white/20 disabled:opacity-30 text-white rounded text-sm transition"
-                              >
-                                ↑
-                              </button>
-                              <button
-                                onClick={() => moveItem(index, 1)}
-                                disabled={index === items.length - 1}
-                                className="px-2.5 py-1.5 bg-white/10 hover:bg-white/20 disabled:opacity-30 text-white rounded text-sm transition"
-                              >
-                                ↓
-                              </button>
-                            </div>
+                          <Field label="Title" hint="Short and scannable — judges read this first.">
+                            <input
+                              defaultValue={item.title}
+                              onBlur={(e) => {
+                                if (e.target.value !== item.title)
+                                  updateItem(item, { title: e.target.value })
+                              }}
+                              className={inputClass}
+                            />
+                          </Field>
+                          <Field
+                            label="Description"
+                            hint={
+                              item.type === 'scored'
+                                ? 'Explain what you are judging. One or two sentences.'
+                                : 'State the requirement plainly, e.g. “Uses the sponsor API in the submitted build”.'
+                            }
+                          >
+                            <textarea
+                              defaultValue={item.description || ''}
+                              onBlur={(e) => updateItem(item, { description: e.target.value })}
+                              rows={2}
+                              className={inputClass}
+                            />
+                          </Field>
+                        </div>
+                        <div className="flex flex-col gap-2">
+                          <div className="flex gap-1">
                             <button
-                              onClick={() => deleteItem(item.id)}
-                              className="px-3 py-1.5 bg-red-600/80 hover:bg-red-600 text-white text-xs font-semibold rounded-lg transition"
+                              onClick={() => moveItem(index, -1)}
+                              disabled={index === 0}
+                              className="px-2.5 py-1.5 bg-white/10 hover:bg-white/20 disabled:opacity-30 text-white rounded text-sm transition"
                             >
-                              Delete
+                              ↑
+                            </button>
+                            <button
+                              onClick={() => moveItem(index, 1)}
+                              disabled={index === items.length - 1}
+                              className="px-2.5 py-1.5 bg-white/10 hover:bg-white/20 disabled:opacity-30 text-white rounded text-sm transition"
+                            >
+                              ↓
                             </button>
                           </div>
+                          <button
+                            onClick={() => deleteItem(item.id)}
+                            className="px-3 py-1.5 bg-red-600/80 hover:bg-red-600 text-white text-xs font-semibold rounded-lg transition"
+                          >
+                            Delete
+                          </button>
                         </div>
-
-                        {item.type === 'scored' && (
-                          <div className="space-y-2">
-                            <div className="flex justify-between items-center">
-                              <p className="text-sm font-medium text-gray-200">Score bands</p>
-                              <button
-                                onClick={() => addBand(item)}
-                                className="px-3 py-1 bg-white/10 hover:bg-white/20 text-white text-xs font-semibold rounded-lg transition"
-                              >
-                                + Band
-                              </button>
-                            </div>
-                            <p className="text-xs text-gray-500 leading-relaxed">
-                              Each band is one tappable option. The label and description are what a
-                              judge reads to decide; the points are what gets recorded.
-                            </p>
-                            <div className="grid md:grid-cols-2 gap-2">
-                              {(bandsByItem[item.id] || []).map((band) => (
-                                <div key={band.id} className="bg-black/20 rounded-lg p-3 space-y-2">
-                                  <div className="flex gap-2">
-                                    <input
-                                      defaultValue={band.label}
-                                      onBlur={(e) => updateBand(band, { label: e.target.value })}
-                                      className="flex-1 px-2 py-1.5 bg-white/5 border border-white/10 rounded text-white text-sm"
-                                      placeholder="Band label"
-                                    />
-                                    <input
-                                      type="number"
-                                      defaultValue={band.points}
-                                      onBlur={(e) =>
-                                        updateBand(band, { points: Number(e.target.value) })
-                                      }
-                                      className="w-16 px-2 py-1.5 bg-white/5 border border-white/10 rounded text-white text-sm"
-                                    />
-                                    <button
-                                      onClick={() => deleteBand(band.id)}
-                                      className="px-2 text-red-400 hover:text-red-300 text-sm"
-                                      aria-label="Delete band"
-                                    >
-                                      ✕
-                                    </button>
-                                  </div>
-                                  <input
-                                    defaultValue={band.description || ''}
-                                    onBlur={(e) => updateBand(band, { description: e.target.value })}
-                                    placeholder="What this band means"
-                                    className="w-full px-2 py-1.5 bg-white/5 border border-white/10 rounded text-gray-300 text-xs"
-                                  />
-                                </div>
-                              ))}
-                              {(bandsByItem[item.id] || []).length === 0 && (
-                                <p className="text-xs text-red-300">
-                                  No bands yet — judges would see nothing to tap. Add at least two.
-                                </p>
-                              )}
-                            </div>
-                          </div>
-                        )}
                       </div>
-                    ))}
-                  </div>
-                )}
-              </Panel>
 
-              {scoredItems.length > 0 && (
-                <Panel
-                  title="Rubric at a glance"
-                  description={`What judges can award. Maximum possible score: ${maxTotal} points across ${scoredItems.length} criteria${
-                    eligibilityItems.length ? `, plus ${eligibilityItems.length} eligibility checks` : ''
-                  }.`}
-                >
-                  <div className="overflow-x-auto custom-scrollbar">
-                    <table className="w-full text-sm text-left min-w-[640px]">
-                      <thead className="bg-white/5 text-gray-400">
-                        <tr>
-                          <th className="p-3 font-medium">Criterion</th>
-                          {Array.from({ length: maxColumns }).map((_, i) => (
-                            <th key={i} className="p-3 font-medium">
-                              Band {i + 1}
-                            </th>
-                          ))}
-                          <th className="p-3 font-medium">Max</th>
-                        </tr>
-                      </thead>
-                      <tbody>
-                        {scoredItems.map((item) => {
-                          const bands = bandsByItem[item.id] || []
-                          return (
-                            <tr key={item.id} className="border-t border-white/10 text-white">
-                              <td className="p-3">{item.title}</td>
-                              {Array.from({ length: maxColumns }).map((_, i) => (
-                                <td key={i} className="p-3 text-gray-300">
-                                  {bands[i] ? (
-                                    <>
-                                      <span className="text-yellow-400 font-bold">{bands[i].points}</span>{' '}
-                                      <span className="text-xs">{bands[i].label}</span>
-                                    </>
-                                  ) : (
-                                    '—'
-                                  )}
-                                </td>
-                              ))}
-                              <td className="p-3 text-yellow-400 font-bold">
-                                {Math.max(0, ...bands.map((b) => b.points), 0)}
-                              </td>
-                            </tr>
-                          )
-                        })}
-                      </tbody>
-                    </table>
-                  </div>
-                </Panel>
+                      {item.type === 'scored' && (
+                        <div className="space-y-2">
+                          <div className="flex justify-between items-center">
+                            <p className="text-sm font-medium text-gray-200">Score bands</p>
+                            <button
+                              onClick={() => addBand(item)}
+                              className="px-3 py-1 bg-white/10 hover:bg-white/20 text-white text-xs font-semibold rounded-lg transition"
+                            >
+                              + Band
+                            </button>
+                          </div>
+                          <p className="text-xs text-gray-500 leading-relaxed">
+                            Each band is one tappable option. The label and description are what a
+                            judge reads to decide; the points are what gets recorded.
+                          </p>
+                          <div className="grid md:grid-cols-2 gap-2">
+                            {(bandsByItem[item.id] || []).map((band) => (
+                              <div key={band.id} className="bg-black/20 rounded-lg p-3 space-y-2">
+                                <div className="flex gap-2">
+                                  <input
+                                    defaultValue={band.label}
+                                    onBlur={(e) => updateBand(band, { label: e.target.value })}
+                                    className="flex-1 px-2 py-1.5 bg-white/5 border border-white/10 rounded text-white text-sm"
+                                    placeholder="Band label"
+                                  />
+                                  <input
+                                    type="number"
+                                    defaultValue={band.points}
+                                    onBlur={(e) =>
+                                      updateBand(band, { points: Number(e.target.value) })
+                                    }
+                                    className="w-16 px-2 py-1.5 bg-white/5 border border-white/10 rounded text-white text-sm"
+                                  />
+                                  <button
+                                    onClick={() => deleteBand(band.id)}
+                                    className="px-2 text-red-400 hover:text-red-300 text-sm"
+                                    aria-label="Delete band"
+                                  >
+                                    ✕
+                                  </button>
+                                </div>
+                                <input
+                                  defaultValue={band.description || ''}
+                                  onBlur={(e) => updateBand(band, { description: e.target.value })}
+                                  placeholder="What this band means"
+                                  className="w-full px-2 py-1.5 bg-white/5 border border-white/10 rounded text-gray-300 text-xs"
+                                />
+                              </div>
+                            ))}
+                            {(bandsByItem[item.id] || []).length === 0 && (
+                              <p className="text-xs text-red-300">
+                                No bands yet — judges would see nothing to tap. Add at least two.
+                              </p>
+                            )}
+                          </div>
+                        </div>
+                      )}
+                    </div>
+                  ))}
+                </div>
               )}
-            </>
+            </Panel>
           )}
         </>
       )}
