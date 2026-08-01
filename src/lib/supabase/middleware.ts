@@ -149,19 +149,58 @@ export async function updateSession(request: NextRequest) {
     // Email-confirm can establish a session without password login (which normally
     // redeems a pending staff invite). Only attempt redeem for non-hackers so
     // applicant dashboard traffic is untouched.
-    if (!organizer) {
-      const { data: applicant } = await supabase
-        .from('applicants')
-        .select('id')
-        .eq('user_id', user.id)
-        .maybeSingle()
-      if (!applicant) {
+    const { data: applicant } = await supabase
+      .from('applicants')
+      .select('id')
+      .eq('user_id', user.id)
+      .maybeSingle()
+
+    if (!organizer && !applicant) {
+      const meta = user.user_metadata || {}
+      const staffCode =
+        typeof meta.staff_invite_code === 'string'
+          ? meta.staff_invite_code.trim().toUpperCase()
+          : ''
+      if (staffCode) {
+        await supabase.rpc('redeem_organizer_invite', { p_invite_code: staffCode })
+      } else {
         await supabase.rpc('redeem_pending_organizer_invite')
-        organizer = await getOrganizerProfile()
       }
+      organizer = await getOrganizerProfile()
     }
     if (organizer) {
       return NextResponse.redirect(new URL(staffHome(organizer.role), request.url))
+    }
+
+    // Confirmed account with no application → never leave an empty dashboard
+    if (path.startsWith('/dashboard') && !applicant) {
+      const { data: judgeProfile } = await supabase
+        .from('judge_profiles')
+        .select('user_id')
+        .eq('user_id', user.id)
+        .maybeSingle()
+      if (judgeProfile) {
+        return NextResponse.redirect(new URL('/judge', request.url))
+      }
+      const judgeCode =
+        typeof user.user_metadata?.judge_invite_code === 'string'
+          ? user.user_metadata.judge_invite_code.trim().toUpperCase()
+          : ''
+      if (judgeCode) {
+        return NextResponse.redirect(
+          new URL(`/judge/login?code=${encodeURIComponent(judgeCode)}`, request.url)
+        )
+      }
+      const staffCode =
+        typeof user.user_metadata?.staff_invite_code === 'string'
+          ? user.user_metadata.staff_invite_code.trim().toUpperCase()
+          : ''
+      if (staffCode) {
+        return NextResponse.redirect(
+          new URL(`/login?org_code=${encodeURIComponent(staffCode)}`, request.url)
+        )
+      }
+      return NextResponse.redirect(new URL('/apply', request.url))
     }
   }
 
