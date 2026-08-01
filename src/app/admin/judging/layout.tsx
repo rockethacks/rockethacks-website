@@ -12,7 +12,7 @@ const NAV = [
   { href: '/admin/judging/tracks', label: 'Tracks' },
   { href: '/admin/judging/criteria', label: 'Criteria' },
   { href: '/admin/judging/judges', label: 'Judges' },
-  { href: '/admin/judging/import', label: 'CSV Import' },
+  { href: '/admin/judging/import', label: 'Import' },
   { href: '/admin/judging/assignments', label: 'Assignments' },
   { href: '/admin/judging/tables', label: 'Tables' },
   { href: '/admin/judging/workload', label: 'Workload' },
@@ -84,7 +84,7 @@ export default function JudgingAdminLayout({ children }: { children: React.React
               Judging Portal
             </h1>
             <HelpTip
-              text="Day-of order: Tracks → Criteria → Judges → CSV Import → Assignments → Tables → Workload → (judges score) → Results / Scorecards. Hover any tab or ? for what it means."
+              text="Day-of order: Tracks → Criteria → Judges → Import → Assignments → Tables → Workload → (judges score) → Results / Scorecards. Hover any tab or ? for what it means."
               label="About the judging portal"
             />
           </div>

@@ -96,6 +96,7 @@ type OpenSections = {
 }
 
 const PAGE = 1000
+const ALL_TRACKS = '__all__'
 
 function chunk<T>(arr: T[], size: number): T[][] {
   const out: T[][] = []
@@ -209,7 +210,11 @@ function ScorecardsAdminInner() {
   }, [searchParams, cards])
 
   const trackById = useMemo(() => new Map(tracks.map((t) => [t.id, t])), [tracks])
-  const focusTrack = useMemo(() => tracks.find((t) => t.id === trackId), [tracks, trackId])
+  const focusTrack = useMemo(
+    () => (trackId && trackId !== ALL_TRACKS ? tracks.find((t) => t.id === trackId) : undefined),
+    [tracks, trackId]
+  )
+  const viewingAll = trackId === ALL_TRACKS
 
   const load = useCallback(
     async (focusId: string) => {
@@ -347,20 +352,35 @@ function ScorecardsAdminInner() {
         assignmentsByProject.set(a.project_id, list)
       }
 
-      const focusProjects = projects.filter((p) => {
-        if (p.main_track_id === focusId) return true
-        return (sponsorsByProject.get(p.id) || []).includes(focusId)
-      })
-
-      // Also include projects that only appear via assignments on the focus track
-      // (covers edge cases where main_track_id is null but they were scored there).
-      const assignedFocusIds = new Set(
-        assignments.filter((a) => a.track_context_id === focusId).map((a) => a.project_id)
-      )
       const byId = new Map(projects.map((p) => [p.id, p]))
-      for (const id of assignedFocusIds) {
-        if (!focusProjects.some((p) => p.id === id) && byId.has(id)) {
-          focusProjects.push(byId.get(id)!)
+      const focusProjects: typeof projects = []
+
+      if (focusId === ALL_TRACKS) {
+        const seen = new Set<string>()
+        for (const a of assignments) {
+          if (seen.has(a.project_id)) continue
+          const p = byId.get(a.project_id)
+          if (p) {
+            focusProjects.push(p)
+            seen.add(a.project_id)
+          }
+        }
+        focusProjects.sort((a, b) => a.title.localeCompare(b.title))
+      } else {
+        for (const p of projects) {
+          if (p.main_track_id === focusId || (sponsorsByProject.get(p.id) || []).includes(focusId)) {
+            focusProjects.push(p)
+          }
+        }
+        // Also include projects that only appear via assignments on the focus track
+        // (covers edge cases where main_track_id is null but they were scored there).
+        const assignedFocusIds = new Set(
+          assignments.filter((a) => a.track_context_id === focusId).map((a) => a.project_id)
+        )
+        for (const id of assignedFocusIds) {
+          if (!focusProjects.some((p) => p.id === id) && byId.has(id)) {
+            focusProjects.push(byId.get(id)!)
+          }
         }
       }
 
@@ -400,16 +420,31 @@ function ScorecardsAdminInner() {
         }
 
         bundles.sort((a, b) => {
-          if (a.track.id === focusId) return -1
-          if (b.track.id === focusId) return 1
+          if (focusId !== ALL_TRACKS) {
+            if (a.track.id === focusId) return -1
+            if (b.track.id === focusId) return 1
+          } else if (project.main_track_id) {
+            if (a.track.id === project.main_track_id) return -1
+            if (b.track.id === project.main_track_id) return 1
+          }
           if (a.track.type !== b.track.type) return a.track.type === 'in_house' ? -1 : 1
           return a.track.sort_order - b.track.sort_order || a.track.name.localeCompare(b.track.name)
         })
 
         if (bundles.length === 0) continue
 
-        const focus = bundles.find((b) => b.track.id === focusId) || null
-        const otherTracks = bundles.filter((b) => b.track.id !== focusId)
+        const focus =
+          focusId === ALL_TRACKS
+            ? (project.main_track_id
+                ? bundles.find((b) => b.track.id === project.main_track_id)
+                : null) ||
+              bundles.find((b) => b.track.type === 'in_house') ||
+              bundles[0] ||
+              null
+            : bundles.find((b) => b.track.id === focusId) || null
+        const otherTracks = focus
+          ? bundles.filter((b) => b.track.id !== focus.track.id)
+          : bundles
         const split = bundles.some((b) => b.disagreement >= 0.4 || b.eligibilityDisputed)
 
         built.push({
@@ -449,9 +484,10 @@ function ScorecardsAdminInner() {
   const ensureSections = (card: ProjectCard): OpenSections => {
     const existing = sections[card.project_id]
     if (existing) return existing
+    // Start collapsed so the blade opens quiet; organizer expands what they need.
     return {
-      meta: true,
-      trackIds: new Set(card.focus ? [card.focus.track.id] : []),
+      meta: false,
+      trackIds: new Set(),
     }
   }
 
@@ -530,7 +566,8 @@ function ScorecardsAdminInner() {
   }
 
   const exportScorecards = () => {
-    const focusName = focusTrack?.name || 'Track'
+    const focusName = viewingAll ? 'All projects' : focusTrack?.name || 'Track'
+    const avgLabel = viewingAll ? 'Primary avg' : `${focusName} avg`
     const answer = (sheet: Sheet, criterion: CriterionRow) => {
       const cell = sheet.cells.get(criterion.id)
       if (!cell) return ''
@@ -570,7 +607,8 @@ function ScorecardsAdminInner() {
       Project: c.title,
       'Main track': c.main_track?.name || '',
       Sponsors: c.sponsor_tracks.map((t) => t.sponsor_name || t.name).join(', '),
-      [`${focusName} avg`]: c.focus?.avg ?? '',
+      [avgLabel]: c.focus?.avg ?? '',
+      'Tracks scored': c.allTracks.length,
       'Other tracks scored': c.otherTracks.length,
       'Submission URL': c.submission_url || '',
       GitHub: c.github_url || '',
@@ -583,11 +621,12 @@ function ScorecardsAdminInner() {
         .join(', '),
     }))
 
-    const ok = exportWorkbook(`Scorecards_${focusName.slice(0, 20)}`, [
+    const fileLabel = viewingAll ? 'All' : focusName.slice(0, 20)
+    const ok = exportWorkbook(`Scorecards_${fileLabel}`, [
       { name: 'Summary', rows: summary },
       { name: 'Long format', rows: long },
     ])
-    if (!ok) setError('Nothing to export for this track yet.')
+    if (!ok) setError(viewingAll ? 'Nothing to export yet.' : 'Nothing to export for this track yet.')
   }
 
   return (
@@ -598,16 +637,20 @@ function ScorecardsAdminInner() {
       <Panel
         title="Scorecards"
         tip="resultsVsScorecards"
-        description="Pick a track to browse its projects. Open any project to see main-track and sponsor scores together, plus the Devpost links and team."
+        description="Browse by track or view every scored project. Open any project to see main-track and sponsor scores together, plus the Devpost links and team."
         actions={<ExportButton onClick={exportScorecards} disabled={cards.length === 0} />}
       >
-        <div className="p-5 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-          <Field label="Browse by track" hint="Filters the list. Opening a project still shows every track it was scored in.">
+        <div className="p-5 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+          <Field
+            label="Browse by track"
+            hint="View all shows every project with score sheets. Opening a project still shows every track it was scored in."
+          >
             <select
               value={trackId}
               onChange={(e) => setTrackId(e.target.value)}
               className={selectClass}
             >
+              <option value={ALL_TRACKS}>View all projects</option>
               {tracks.map((t) => (
                 <option key={t.id} value={t.id}>
                   {t.name} ({t.type === 'sponsor' ? 'sponsor' : 'in-house'})
@@ -621,23 +664,17 @@ function ScorecardsAdminInner() {
               onChange={(e) => setSortBy(e.target.value as typeof sortBy)}
               className={selectClass}
             >
-              <option value="score">Focus-track average</option>
+              <option value="score">
+                {viewingAll ? 'Primary-track average' : 'Focus-track average'}
+              </option>
               <option value="disagreement">Judge disagreement</option>
               <option value="table">Table number</option>
             </select>
           </Field>
-          <Field label="Find a project" hint="Title, table, track, or team member.">
-            <input
-              value={search}
-              onChange={(e) => setSearch(e.target.value)}
-              placeholder="Search projects"
-              className={inputClass}
-            />
-          </Field>
           <div className="flex items-end">
             <button
               onClick={() => load(trackId)}
-              disabled={loading}
+              disabled={loading || !trackId}
               className="w-full px-4 py-2.5 bg-white/5 hover:bg-white/10 disabled:opacity-50 border border-white/10 text-white text-sm font-semibold rounded-lg transition"
             >
               {loading ? 'Loading…' : 'Refresh'}
@@ -649,7 +686,10 @@ function ScorecardsAdminInner() {
           {[
             { label: 'Projects in view', value: totals.projects },
             { label: 'Also in sponsor tracks', value: totals.withSponsors },
-            { label: 'Focus sheets submitted', value: totals.submitted },
+            {
+              label: viewingAll ? 'Primary sheets submitted' : 'Focus sheets submitted',
+              value: totals.submitted,
+            },
             {
               label: 'Worth a second look',
               value: totals.split,
@@ -667,17 +707,36 @@ function ScorecardsAdminInner() {
       </Panel>
 
       <Panel
-        title={focusTrack ? `${focusTrack.name}` : 'Projects'}
-        description="Collapsed rows stay quiet. Expand a project for identity, links, team, then score grids per track."
+        title={viewingAll ? 'All projects' : focusTrack ? focusTrack.name : 'Projects'}
+        description="Collapsed rows stay quiet. Expand a project — details and score tracks start collapsed so you can open only what you need."
+        actions={
+          <div className="w-full sm:w-64">
+            <input
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+              placeholder="Search title, table, track, team…"
+              className={inputClass}
+              aria-label="Search projects"
+            />
+          </div>
+        }
       >
         {loading ? (
           <div className="p-10 text-center text-sm text-gray-400">Loading scorecards…</div>
         ) : visible.length === 0 ? (
           <EmptyState
-            title={cards.length === 0 ? 'Nothing assigned in this track' : 'No project matches'}
+            title={
+              cards.length === 0
+                ? viewingAll
+                  ? 'No scored projects yet'
+                  : 'Nothing assigned in this track'
+                : 'No project matches'
+            }
             description={
               cards.length === 0
-                ? 'Assign judges to this track first, then scores appear here as they submit.'
+                ? viewingAll
+                  ? 'Assign judges and wait for sheets, or pick a track to browse a smaller set.'
+                  : 'Assign judges to this track first, then scores appear here as they submit.'
                 : 'Clear the search box to see every project again.'
             }
           />
@@ -698,8 +757,8 @@ function ScorecardsAdminInner() {
                         setSections((prev) => ({
                           ...prev,
                           [card.project_id]: {
-                            meta: true,
-                            trackIds: new Set(card.focus ? [card.focus.track.id] : []),
+                            meta: false,
+                            trackIds: new Set(),
                           },
                         }))
                       }
@@ -874,14 +933,16 @@ function ScorecardsAdminInner() {
                         )}
                       </section>
 
-                      {/* 2. Scores per track, focus open by default */}
+                      {/* 2. Scores per track — collapsed until opened */}
                       <div className="space-y-2">
                         <p className="text-xs font-medium text-gray-400 px-1">
                           Scores by track · {card.allTracks.length} total
                         </p>
                         {card.allTracks.map((bundle) => {
                           const trackOpen = open.trackIds.has(bundle.track.id)
-                          const isFocus = bundle.track.id === trackId
+                          const isFocus = viewingAll
+                            ? card.focus?.track.id === bundle.track.id
+                            : bundle.track.id === trackId
                           return (
                             <section
                               key={bundle.track.id}
@@ -902,7 +963,9 @@ function ScorecardsAdminInner() {
                                   <Pill tone={bundle.track.type === 'sponsor' ? 'orange' : 'blue'}>
                                     {bundle.track.type === 'sponsor' ? 'Sponsor' : 'Main'}
                                   </Pill>
-                                  {isFocus && <Pill tone="yellow">Browsing</Pill>}
+                                  {isFocus && (
+                                    <Pill tone="yellow">{viewingAll ? 'Primary' : 'Browsing'}</Pill>
+                                  )}
                                   {bundle.disagreement >= 0.4 && (
                                     <Pill tone="orange">Judges split</Pill>
                                   )}

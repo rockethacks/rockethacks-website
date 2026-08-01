@@ -42,6 +42,17 @@ export function formatTableNumber(n: number, width = 2): string {
   return `T${String(n).padStart(w, '0')}`
 }
 
+/** Next free table after the highest existing number (for last-minute walk-ups). */
+export function nextTableNumber(projects: { table_number: string | null }[]): string {
+  let maxExisting = 0
+  for (const p of projects) {
+    const idx = parseTableIndex(p.table_number)
+    if (idx != null) maxExisting = Math.max(maxExisting, idx)
+  }
+  const next = maxExisting + 1
+  return formatTableNumber(next, Math.max(2, String(next).length))
+}
+
 /** Fill null/empty table numbers by main-track clusters; leave existing numbers alone. */
 export function clusterAssignTables(
   projects: TableProject[],

@@ -258,10 +258,9 @@ function AssignmentsAdminInner() {
     return { visits, shortfalls, sheets, rows }
   }, [plan, windowMinutes])
 
-  const buildPlan = async () => {
-    setBusy(true)
-    setError('')
-    setMessage('')
+  const hasCommittedPlan = assignments.length > 0
+
+  const runSuggestPlan = async () => {
     const supabase = createClient()
 
     await supabase
@@ -278,21 +277,43 @@ function AssignmentsAdminInner() {
       p_window_seconds: windowMinutes * 60,
     })
 
-    if (rpcErr) setError(rpcErr.message)
-    else {
-      const rows = (data || []) as PlannedVisit[]
-      setPlan(rows)
-      const visits = rows.filter((r) => r.judge_id).length
-      setMessage(
-        visits === 0
-          ? 'Nothing to plan. Check that projects are imported, tracks are active and judges exist.'
-          : `${visits} visits ready to review. Nothing is saved until you commit.`
-      )
+    if (rpcErr) {
+      setError(rpcErr.message)
+      return false
     }
+
+    const rows = (data || []) as PlannedVisit[]
+    setPlan(rows)
+    const visits = rows.filter((r) => r.judge_id).length
+    setMessage(
+      visits === 0
+        ? 'Nothing to plan. Check that projects are imported, tracks are active and judges exist.'
+        : `${visits} visits ready to review. Nothing is saved until you commit.`
+    )
+    return true
+  }
+
+  const buildPlan = async () => {
+    if (hasCommittedPlan) {
+      setError(
+        'A plan is already committed. Building again on top of it would mess up the existing visits. Use Redo plan to clear everything and build fresh.'
+      )
+      return
+    }
+    setBusy(true)
+    setError('')
+    setMessage('')
+    await runSuggestPlan()
     setBusy(false)
   }
 
   const commitPlan = async () => {
+    if (hasCommittedPlan) {
+      setError(
+        'Assignments already exist. Discard this preview, or use Redo plan if you want a full replacement.'
+      )
+      return
+    }
     const rows = plan
       .filter((p) => p.judge_id && p.track_ids?.length)
       .flatMap((p) =>
@@ -329,20 +350,31 @@ function AssignmentsAdminInner() {
     setBusy(false)
   }
 
-  const clearAll = async () => {
-    if (!confirm('Delete every assignment and start the plan over? Submitted scores are deleted too.'))
+  const redoPlan = async () => {
+    if (
+      !confirm(
+        'Redo the plan? This deletes every assignment and submitted score, then builds a fresh plan with the settings above. Table numbers stay as-is until you reseat on the Tables tab.'
+      )
+    )
       return
+
     setBusy(true)
+    setError('')
+    setMessage('')
     const supabase = createClient()
     const { error: dErr } = await supabase
       .from('judge_assignments')
       .delete()
       .not('id', 'is', null)
-    if (dErr) setError(dErr.message)
-    else {
-      setMessage('All assignments cleared.')
-      await load()
+    if (dErr) {
+      setError(dErr.message)
+      setBusy(false)
+      return
     }
+
+    setPlan([])
+    await load()
+    await runSuggestPlan()
     setBusy(false)
   }
 
@@ -536,23 +568,50 @@ function AssignmentsAdminInner() {
               className={inputClass}
             />
           </Field>
-          <div className="flex items-end gap-2">
-            <button
-              onClick={buildPlan}
-              disabled={busy}
-              className="flex-1 px-4 py-2.5 bg-blue-600 hover:bg-blue-700 disabled:opacity-50 text-white font-semibold rounded-lg transition"
-            >
-              {busy ? 'Working…' : 'Build plan'}
-            </button>
-            <button
-              onClick={commitPlan}
-              disabled={busy || planSummary.visits.length === 0}
-              className="flex-1 px-4 py-2.5 bg-green-600 hover:bg-green-700 disabled:opacity-40 text-white font-semibold rounded-lg transition"
-            >
-              Commit
-            </button>
+          <div className="flex flex-col gap-2">
+            <div className="flex items-end gap-2">
+              <button
+                onClick={buildPlan}
+                disabled={busy || hasCommittedPlan}
+                title={
+                  hasCommittedPlan
+                    ? 'A plan is already committed. Use Redo plan to replace it.'
+                    : undefined
+                }
+                className="flex-1 px-4 py-2.5 bg-blue-600 hover:bg-blue-700 disabled:opacity-50 text-white font-semibold rounded-lg transition"
+              >
+                {busy ? 'Working…' : 'Build plan'}
+              </button>
+              <button
+                onClick={commitPlan}
+                disabled={busy || planSummary.visits.length === 0 || hasCommittedPlan}
+                className="flex-1 px-4 py-2.5 bg-green-600 hover:bg-green-700 disabled:opacity-40 text-white font-semibold rounded-lg transition"
+              >
+                Commit
+              </button>
+            </div>
+            {hasCommittedPlan && (
+              <button
+                onClick={redoPlan}
+                disabled={busy}
+                className="w-full px-4 py-2.5 bg-red-600/80 hover:bg-red-600 disabled:opacity-50 text-white font-semibold rounded-lg transition"
+              >
+                {busy ? 'Working…' : 'Redo plan'}
+              </button>
+            )}
           </div>
         </div>
+
+        {hasCommittedPlan && (
+          <div className="px-5 pb-2">
+            <Banner tone="info">
+              A plan is already committed ({assignments.length} sheets). Building again on top of it
+              is blocked because it overlays the existing visits. Use <span className="font-semibold text-white">Redo plan</span> to
+              clear assignments and scores, then build fresh with the settings above. Late walk-ups
+              belong on Import → Add a project.
+            </Banner>
+          </div>
+        )}
 
         <div className="px-5 pb-5 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
           <Stat label="Tables to cover" value={feasibility.tables} note={`avg visit ${minutesLabel(feasibility.avgVisit)}`} />
@@ -676,11 +735,11 @@ function AssignmentsAdminInner() {
             <div className="flex gap-2">
               <ExportButton onClick={exportAssignments} />
               <button
-                onClick={clearAll}
+                onClick={redoPlan}
                 disabled={busy}
                 className="px-3 py-1.5 bg-red-600/80 hover:bg-red-600 disabled:opacity-50 text-white text-xs font-semibold rounded-lg transition"
               >
-                Clear all and replan
+                Redo plan
               </button>
             </div>
           ) : undefined

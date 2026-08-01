@@ -1,7 +1,8 @@
 'use client'
 
 import Link from 'next/link'
-import { useCallback, useEffect, useMemo, useState, type CSSProperties } from 'react'
+import { Suspense, useCallback, useEffect, useMemo, useRef, useState, type CSSProperties } from 'react'
+import { useSearchParams } from 'next/navigation'
 import { createClient } from '@/lib/supabase/client'
 import type { AssignmentStatus, JudgingSettings, Track } from '@/types/judging'
 import {
@@ -10,6 +11,7 @@ import {
   ExportButton,
   Field,
   HelpTip,
+  LoadingScreen,
   Panel,
   Pill,
   inputClass,
@@ -95,6 +97,17 @@ function tableSortKey(table: string | null) {
 }
 
 export default function TablesAdminPage() {
+  return (
+    <Suspense fallback={<LoadingScreen message="Loading tables…" />}>
+      <TablesAdminInner />
+    </Suspense>
+  )
+}
+
+function TablesAdminInner() {
+  const searchParams = useSearchParams()
+  const deepLinkApplied = useRef(false)
+
   const [settings, setSettings] = useState<JudgingSettings>(FALLBACK_SETTINGS)
   const [tracks, setTracks] = useState<Track[]>([])
   const [projects, setProjects] = useState<ProjectRow[]>([])
@@ -318,6 +331,17 @@ export default function TablesAdminPage() {
     () => cards.find((c) => c.project.id === selectedId) || null,
     [cards, selectedId]
   )
+
+  useEffect(() => {
+    if (deepLinkApplied.current || cards.length === 0) return
+    const projectParam = searchParams.get('project')
+    if (!projectParam) return
+    if (!cards.some((c) => c.project.id === projectParam)) return
+    deepLinkApplied.current = true
+    setSelectedId(projectParam)
+    setSearch('')
+    setFilter('all')
+  }, [searchParams, cards])
 
   const stats = useMemo(
     () => ({

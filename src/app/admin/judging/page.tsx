@@ -108,8 +108,8 @@ export default function JudgingOverviewPage() {
     },
     {
       done: stats.projects > 0,
-      label: 'Import the Devpost export',
-      detail: 'Brings in projects, teams, tech tags, and sponsor opt-ins.',
+      label: 'Import projects (CSV or late add)',
+      detail: 'Brings in projects, teams, tech tags, and sponsor opt-ins — or add a walk-up by hand.',
       href: '/admin/judging/import',
     },
     {

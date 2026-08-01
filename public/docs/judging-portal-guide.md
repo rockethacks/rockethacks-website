@@ -64,8 +64,8 @@ Judges are guests. They are never added to `applicants`. You create an invite, t
 | **Tracks** | Create in-house and sponsor tracks, optional judges-per-project override, and the **Linked judges only** switch for sponsor tracks. |
 | **Criteria** | Build rubrics: one shared in-house set plus one per sponsor track. Eligibility (yes/no) items and scored items with point bands, with a preview of max score. |
 | **Judges** | Invites with copyable sign-in links, judge profiles, expertise tags, track links, and each judge's assignments. |
-| **CSV Import** | Upload the Devpost export, map columns, then review a summary before anything is written. Also writes main-track and sponsor names as project tags so affinity has a floor when Built With is empty. Blank table numbers are auto-filled as `T01…` clustered by main track (mapped CSV table values are never overwritten). |
-| **Assignments** | Build a visit-based judging plan: judges per project, window minutes, walk time. Preview visits against the window, see shortfalls, then commit. Per-track manual add / reassign / remove / reopen stay. Accepts `?project=&track=` deep links from Tables. |
+| **Import** | Upload the Devpost CSV, map columns, then review a summary before anything is written. Or add a single late project by hand (next free table, lightest-loaded judges). Also writes main-track and sponsor names as project tags so affinity has a floor when Built With is empty. Blank table numbers on CSV import are auto-filled as `T01…` clustered by main track (mapped CSV table values are never overwritten). |
+| **Assignments** | Build a visit-based judging plan once: judges per project, window minutes, walk time. Preview visits against the window, see shortfalls, then commit. If a plan already exists, **Redo plan** clears assignments/scores and rebuilds — building on top of an existing plan is blocked. Per-track manual add / reassign / remove / reopen stay. Accepts `?project=&track=` deep links from Tables. |
 | **Tables** | Floor board of every submitted project by table number. Each tile shows judges and track coverage. Open a tile to move a judge to another table (sheets transfer only when the destination still qualifies for that track) or jump into Assignments for a full edit. After a plan is committed, **Reseat for short walks** rewrites tables from the visit graph so co-judged projects sit near each other. **Export to Excel** includes a Seating sheet (table → team name, tracks, members, judges). |
 | **Workload** | Visits per judge against the window, sheets as a secondary count, estimated minutes, which tables each judge holds, and how many judges you would need at these settings. |
 | **Results** | Per-track leaderboard using the average of submitted sheets, near-tie flags, eligibility fail and dispute flags, plus the overall top-3 tally. |
@@ -74,7 +74,7 @@ Judges are guests. They are never added to `applicants`. You create an invite, t
 
 Every tab has **Export to Excel** with the fields that matter for that view.
 
-**Day-of order:** Tracks → Criteria → Judges → CSV Import → Assignments (build + commit plan) → Tables (Reseat for short walks, spot empty / thin tables, move judges) → Workload check → (judges score) → Results / Scorecards.
+**Day-of order:** Tracks → Criteria → Judges → Import → Assignments (build + commit plan) → Tables (Reseat for short walks, spot empty / thin tables, move judges) → Workload check → (judges score) → Results / Scorecards.
 
 ### Things worth knowing
 
@@ -141,7 +141,7 @@ Forgot password, password reset, and changing your password all work through the
 2. Create tracks (and mark any sponsor-only tracks), then a shared in-house rubric with at least two scored criteria.
 3. Invite yourself at a second email address, activate it, then sign out and sign back in at `/login` to confirm you land on `/judge`.
 4. Import a small CSV, or add one project, and confirm the counts on Overview.
-5. On Assignments: set judges per project and the window, **Build plan**, read the feasibility numbers, then **Commit**.
+5. On Assignments: set judges per project and the window, **Build plan**, read the feasibility numbers, then **Commit**. If a plan already exists, use **Redo plan** instead of building again.
 6. Open Tables — run **Reseat for short walks**, confirm the floor board, move one judge, and use Edit on Assignments to confirm the deep link.
 7. Check Workload — visits should sit inside the window.
 8. As the test judge, open a table, fill every rubric, submit. Confirm the sheets lock.

@@ -2,10 +2,26 @@
 
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { createClient } from '@/lib/supabase/client'
-import type { Track } from '@/types/judging'
-import { Banner, EmptyState, ExportButton, Panel, Pill, selectClass } from '@/components/judging/ui'
+import type { JudgeProfile, JudgingSettings, Project, Track } from '@/types/judging'
+import {
+  Banner,
+  EmptyState,
+  ExportButton,
+  Field,
+  HelpTip,
+  Panel,
+  Pill,
+  inputClass,
+  selectClass,
+} from '@/components/judging/ui'
 import { exportWorkbook } from '@/lib/judging/export'
-import { clusterAssignTables } from '@/lib/judging/tables'
+import { clusterAssignTables, nextTableNumber } from '@/lib/judging/tables'
+import {
+  FALLBACK_SETTINGS,
+  buildVisits,
+  formatDuration,
+  type AssignmentLite,
+} from '@/lib/judging/visits'
 
 const SYSTEM_FIELDS = [
   { key: 'title', label: 'Project title' },
@@ -110,21 +126,272 @@ export default function ImportAdminPage() {
   const [rows, setRows] = useState<string[][]>([])
   const [mapping, setMapping] = useState<Record<string, SystemKey>>({})
   const [tracks, setTracks] = useState<Track[]>([])
+  const [projects, setProjects] = useState<Project[]>([])
+  const [judges, setJudges] = useState<JudgeProfile[]>([])
+  const [assignments, setAssignments] = useState<AssignmentLite[]>([])
+  const [judgeTrackLinks, setJudgeTrackLinks] = useState<Record<string, string[]>>({})
+  const [settings, setSettings] = useState<JudgingSettings>(FALLBACK_SETTINGS)
   const [validation, setValidation] = useState<Validation | null>(null)
   const [checking, setChecking] = useState(false)
   const [importing, setImporting] = useState(false)
+  const [adding, setAdding] = useState(false)
+  const [addOpen, setAddOpen] = useState(false)
   const [progress, setProgress] = useState(0)
   const [message, setMessage] = useState('')
   const [error, setError] = useState('')
 
-  useEffect(() => {
-    async function loadTracks() {
-      const supabase = createClient()
-      const { data } = await supabase.from('tracks').select('*').order('name')
-      setTracks((data || []) as Track[])
+  const [manual, setManual] = useState({
+    title: '',
+    submission_url: '',
+    about: '',
+    video_url: '',
+    github_url: '',
+    main_track_id: '',
+    built_with: '',
+    member_first: '',
+    member_last: '',
+    member_email: '',
+  })
+  const [manualSponsors, setManualSponsors] = useState<string[]>([])
+  const [manualJudges, setManualJudges] = useState<string[]>([])
+
+  const loadContext = useCallback(async () => {
+    const supabase = createClient()
+    const [trackRes, projectRes, judgeRes, assignRes, settingsRes, jtRes] = await Promise.all([
+      supabase.from('tracks').select('*').order('sort_order').order('name'),
+      supabase.from('projects').select('*').order('table_number'),
+      supabase.from('judge_profiles').select('*').order('full_name'),
+      supabase.from('judge_assignments').select('id, judge_id, project_id, track_context_id, status'),
+      supabase.from('judging_settings').select('*').eq('id', true).maybeSingle(),
+      supabase.from('judge_tracks').select('judge_id, track_id'),
+    ])
+    setTracks((trackRes.data || []) as Track[])
+    setProjects((projectRes.data || []) as Project[])
+    setJudges((judgeRes.data || []) as JudgeProfile[])
+    setAssignments((assignRes.data || []) as AssignmentLite[])
+    if (settingsRes.data) setSettings(settingsRes.data as JudgingSettings)
+
+    const linkMap: Record<string, string[]> = {}
+    for (const row of (jtRes.data || []) as { judge_id: string; track_id: string }[]) {
+      linkMap[row.judge_id] = [...(linkMap[row.judge_id] || []), row.track_id]
     }
-    loadTracks()
+    setJudgeTrackLinks(linkMap)
   }, [])
+
+  useEffect(() => {
+    loadContext()
+  }, [loadContext])
+
+  const inHouseTracks = useMemo(() => tracks.filter((t) => t.type === 'in_house' && t.is_active), [tracks])
+  const sponsorTracks = useMemo(() => tracks.filter((t) => t.type === 'sponsor' && t.is_active), [tracks])
+
+  const trackById = useMemo(() => new Map(tracks.map((t) => [t.id, t])), [tracks])
+
+  const suggestedTable = useMemo(() => nextTableNumber(projects), [projects])
+
+  const trackIdsForManual = useMemo(() => {
+    const ids = [...manualSponsors]
+    if (manual.main_track_id) ids.unshift(manual.main_track_id)
+    return Array.from(new Set(ids))
+  }, [manual.main_track_id, manualSponsors])
+
+  const judgeWorkload = useMemo(() => {
+    const visits = buildVisits(assignments, trackById, settings)
+    const byJudge = new Map<string, { visits: number; seconds: number }>()
+    for (const v of visits) {
+      const entry = byJudge.get(v.judgeId) || { visits: 0, seconds: 0 }
+      entry.visits += 1
+      entry.seconds += v.seconds
+      byJudge.set(v.judgeId, entry)
+    }
+
+    const restrictedNeeded = trackIdsForManual.filter(
+      (id) => trackById.get(id)?.sponsor_judges_only
+    )
+
+    return judges
+      .map((j) => {
+        const load = byJudge.get(j.user_id) || { visits: 0, seconds: 0 }
+        const linked = judgeTrackLinks[j.user_id] || []
+        const blockedRestricted = restrictedNeeded.some((tid) => !linked.includes(tid))
+        return { judge: j, ...load, blockedRestricted }
+      })
+      .sort((a, b) => a.visits - b.visits || a.seconds - b.seconds || (a.judge.full_name || '').localeCompare(b.judge.full_name || ''))
+  }, [assignments, judges, judgeTrackLinks, settings, trackById, trackIdsForManual])
+
+  const toggleManualSponsor = (trackId: string) => {
+    setManualSponsors((prev) =>
+      prev.includes(trackId) ? prev.filter((id) => id !== trackId) : [...prev, trackId]
+    )
+  }
+
+  const toggleManualJudge = (judgeId: string) => {
+    setManualJudges((prev) =>
+      prev.includes(judgeId) ? prev.filter((id) => id !== judgeId) : [...prev, judgeId]
+    )
+  }
+
+  const pickLightestJudges = () => {
+    const eligible = judgeWorkload.filter((j) => !j.blockedRestricted).slice(0, 3)
+    setManualJudges(eligible.map((j) => j.judge.user_id))
+  }
+
+  const addManualProject = async (e: React.FormEvent) => {
+    e.preventDefault()
+    setError('')
+    setMessage('')
+
+    const title = manual.title.trim()
+    const url = manual.submission_url.trim()
+    if (!title || !url) {
+      setError('Title and submission URL are required.')
+      return
+    }
+    if (!manual.main_track_id && manualSponsors.length === 0) {
+      setError('Pick a main track and/or at least one sponsor track so judges have rubrics to fill.')
+      return
+    }
+
+    const blocked = manualJudges.filter((id) =>
+      judgeWorkload.find((j) => j.judge.user_id === id)?.blockedRestricted
+    )
+    if (blocked.length > 0) {
+      setError(
+        'One or more selected judges are not linked to a Linked-judges-only sponsor track on this project.'
+      )
+      return
+    }
+
+    setAdding(true)
+    const supabase = createClient()
+    const tableNumber = suggestedTable
+
+    const { data: project, error: pErr } = await supabase
+      .from('projects')
+      .insert({
+        title,
+        submission_url: url,
+        about: manual.about.trim() || null,
+        video_url: manual.video_url.trim() || null,
+        github_url: manual.github_url.trim() || null,
+        main_track_id: manual.main_track_id || null,
+        table_number: tableNumber,
+        status: 'submitted',
+        imported_at: new Date().toISOString(),
+      })
+      .select('id')
+      .single()
+
+    if (pErr || !project) {
+      setError(
+        pErr?.message?.includes('duplicate') || pErr?.code === '23505'
+          ? 'That submission URL already exists. Use CSV import to update it, or pick a unique URL.'
+          : pErr?.message || 'Could not create the project.'
+      )
+      setAdding(false)
+      return
+    }
+
+    if (manualSponsors.length > 0) {
+      const { error: sErr } = await supabase.from('project_sponsor_tracks').insert(
+        manualSponsors.map((track_id) => ({ project_id: project.id, track_id }))
+      )
+      if (sErr) {
+        setError(sErr.message)
+        setAdding(false)
+        return
+      }
+    }
+
+    if (manual.member_email.trim() || manual.member_first.trim() || manual.member_last.trim()) {
+      const { error: mErr } = await supabase.from('project_team_members').insert({
+        project_id: project.id,
+        first_name: manual.member_first.trim() || null,
+        last_name: manual.member_last.trim() || null,
+        email: manual.member_email.trim().toLowerCase() || null,
+        is_submitter: true,
+      })
+      if (mErr) {
+        setError(mErr.message)
+        setAdding(false)
+        return
+      }
+    }
+
+    const tagNames = [
+      ...splitList(manual.built_with),
+      ...(manual.main_track_id
+        ? [tracks.find((t) => t.id === manual.main_track_id)?.name].filter(Boolean)
+        : []),
+      ...manualSponsors.map((id) => tracks.find((t) => t.id === id)?.name).filter(Boolean),
+    ] as string[]
+
+    if (tagNames.length > 0) {
+      const unique = Array.from(new Set(tagNames.map((n) => n.trim()).filter(Boolean)))
+      const tagIds: string[] = []
+      for (const name of unique) {
+        const { data: tag, error: tErr } = await supabase
+          .from('tags')
+          .upsert({ name, category: 'expertise' }, { onConflict: 'name' })
+          .select('id')
+          .single()
+        if (tErr) {
+          setError(tErr.message)
+          setAdding(false)
+          return
+        }
+        if (tag) tagIds.push(tag.id)
+      }
+      if (tagIds.length > 0) {
+        await supabase.from('project_tags').upsert(
+          tagIds.map((tag_id) => ({ project_id: project.id, tag_id })),
+          { onConflict: 'project_id,tag_id' }
+        )
+      }
+    }
+
+    const sheets = trackIdsForManual.flatMap((track_context_id) =>
+      manualJudges.map((judge_id) => ({
+        judge_id,
+        project_id: project.id,
+        track_context_id,
+        status: 'assigned' as const,
+      }))
+    )
+
+    if (sheets.length > 0) {
+      const { error: aErr } = await supabase.from('judge_assignments').insert(sheets)
+      if (aErr) {
+        setError(aErr.message)
+        setAdding(false)
+        return
+      }
+    }
+
+    setMessage(
+      `Added “${title}” at ${tableNumber}` +
+        (manualJudges.length
+          ? ` with ${manualJudges.length} judge${manualJudges.length === 1 ? '' : 's'} (${sheets.length} sheet${sheets.length === 1 ? '' : 's'}).`
+          : '. No judges assigned yet — pick them here or on Assignments / Tables.') +
+        ' It appears last on Tables; run Reseat for short walks when you want the floor re-packed.'
+    )
+    setManual({
+      title: '',
+      submission_url: '',
+      about: '',
+      video_url: '',
+      github_url: '',
+      main_track_id: '',
+      built_with: '',
+      member_first: '',
+      member_last: '',
+      member_email: '',
+    })
+    setManualSponsors([])
+    setManualJudges([])
+    await loadContext()
+    setAdding(false)
+  }
 
   const colIndex = useCallback((header: string) => headers.indexOf(header), [headers])
 
@@ -535,14 +802,15 @@ export default function ImportAdminPage() {
       {message && <Banner tone="success">{message}</Banner>}
 
       <Banner tone="info">
-        Import the Devpost export. Projects are matched on submission URL, so you can safely re-import
-        after late submissions — existing projects update instead of duplicating.
+        Bulk-import a Devpost CSV above. Need an additional project? Open Add a project below the
+        CSV cards. Projects are matched on submission URL, so re-imports update instead of
+        duplicating.
       </Banner>
 
       <Panel
         title="1. Upload the export"
         tip="importIdempotent"
-        description="Devpost changes its column names between events, so nothing is hardcoded — you confirm the mapping in the next step."
+        description="Devpost CSV bulk import. Column names change between events, so you confirm the mapping in the next step."
         actions={<ExportButton onClick={exportProjects} label="Export projects" />}
       >
         <div className="p-5 space-y-3">
@@ -706,11 +974,264 @@ export default function ImportAdminPage() {
       {headers.length === 0 && (
         <Panel>
           <EmptyState
-            title="No file loaded"
-            description="Export submissions from Devpost as CSV and upload it above. You will map columns and review a summary before anything is written."
+            title="No CSV loaded"
+            description="Upload a Devpost CSV above, or open Add a project below for a single walk-up."
           />
         </Panel>
       )}
+
+      <section className="bg-white/5 backdrop-blur-lg rounded-2xl border border-white/10 overflow-hidden">
+        <button
+          type="button"
+          onClick={() => setAddOpen((o) => !o)}
+          aria-expanded={addOpen}
+          className="w-full flex items-center justify-between gap-3 px-5 py-4 text-left hover:bg-white/5 transition"
+        >
+          <div className="min-w-0 space-y-1">
+            <p className="text-lg font-bold text-white inline-flex items-center gap-2">
+              <span>Add a project</span>
+              <HelpTip tip="lateAddProject" label="About adding a project" />
+            </p>
+            <p className="text-sm text-gray-400 leading-relaxed">
+              Last-minute walk-up at {suggestedTable}. Optionally assign lightest-loaded judges.
+            </p>
+          </div>
+          <span
+            className={`shrink-0 text-gray-400 text-lg leading-none transition-transform ${
+              addOpen ? 'rotate-180' : ''
+            }`}
+            aria-hidden
+          >
+            ▾
+          </span>
+        </button>
+
+        {addOpen && (
+          <form
+            onSubmit={addManualProject}
+            className="px-5 pb-5 space-y-5 border-t border-white/10 pt-5"
+          >
+            <p className="text-xs text-gray-500 leading-relaxed">
+              Fills the next free table so it lands last on Tables. Reseat for short walks can
+              re-pack the floor afterward using the same visit graph.
+            </p>
+            <div className="grid md:grid-cols-2 gap-4">
+              <Field label="Project title" required hint="Shown on Tables and score sheets.">
+                <input
+                  required
+                  value={manual.title}
+                  onChange={(e) => setManual({ ...manual, title: e.target.value })}
+                  className={inputClass}
+                  placeholder="AstroCart"
+                />
+              </Field>
+              <Field
+                label="Submission URL"
+                required
+                hint="Unique key — use the Devpost URL, or a placeholder like manual://team-name if there is none."
+              >
+                <input
+                  required
+                  value={manual.submission_url}
+                  onChange={(e) => setManual({ ...manual, submission_url: e.target.value })}
+                  className={inputClass}
+                  placeholder="https://devpost.com/software/… or manual://team-name"
+                />
+              </Field>
+              <Field label="Main track" hint="In-house track this project primarily competes in.">
+                <select
+                  value={manual.main_track_id}
+                  onChange={(e) => setManual({ ...manual, main_track_id: e.target.value })}
+                  className={selectClass}
+                >
+                  <option value="">— none —</option>
+                  {inHouseTracks.map((t) => (
+                    <option key={t.id} value={t.id}>
+                      {t.name}
+                    </option>
+                  ))}
+                </select>
+              </Field>
+              <Field
+                label="Table number"
+                hint="Assigned automatically as the last table. Reseat can move it later."
+              >
+                <input value={suggestedTable} readOnly className={`${inputClass} opacity-80`} />
+              </Field>
+              <Field label="About / description" className="md:col-span-2">
+                <textarea
+                  value={manual.about}
+                  onChange={(e) => setManual({ ...manual, about: e.target.value })}
+                  className={`${inputClass} min-h-[80px]`}
+                  placeholder="Short pitch judges will see on the score sheet."
+                />
+              </Field>
+              <Field label="Demo video URL">
+                <input
+                  value={manual.video_url}
+                  onChange={(e) => setManual({ ...manual, video_url: e.target.value })}
+                  className={inputClass}
+                  placeholder="https://…"
+                />
+              </Field>
+              <Field label="Code repository URL">
+                <input
+                  value={manual.github_url}
+                  onChange={(e) => setManual({ ...manual, github_url: e.target.value })}
+                  className={inputClass}
+                  placeholder="https://github.com/…"
+                />
+              </Field>
+              <Field
+                label="Built with"
+                className="md:col-span-2"
+                hint="Comma-separated tech tags for affinity matching."
+              >
+                <input
+                  value={manual.built_with}
+                  onChange={(e) => setManual({ ...manual, built_with: e.target.value })}
+                  className={inputClass}
+                  placeholder="React, Python, OpenAI"
+                />
+              </Field>
+            </div>
+
+            {sponsorTracks.length > 0 && (
+              <div className="space-y-2">
+                <p className="text-sm font-medium text-gray-200">Sponsor / opt-in prizes</p>
+                <p className="text-xs text-gray-500">
+                  Creates score sheets for each selected prize on this table.
+                </p>
+                <div className="flex flex-wrap gap-2">
+                  {sponsorTracks.map((t) => {
+                    const on = manualSponsors.includes(t.id)
+                    return (
+                      <button
+                        key={t.id}
+                        type="button"
+                        onClick={() => toggleManualSponsor(t.id)}
+                        className={`px-3 py-1.5 rounded-lg text-xs font-semibold border transition ${
+                          on
+                            ? 'bg-orange-500/80 border-orange-400 text-white'
+                            : 'bg-white/5 border-white/10 text-gray-400 hover:bg-white/10'
+                        }`}
+                      >
+                        {t.name}
+                        {t.sponsor_judges_only ? ' *' : ''}
+                      </button>
+                    )
+                  })}
+                </div>
+              </div>
+            )}
+
+            <div className="grid md:grid-cols-3 gap-4">
+              <Field label="Submitter first name" hint="For COI checks when moving judges.">
+                <input
+                  value={manual.member_first}
+                  onChange={(e) => setManual({ ...manual, member_first: e.target.value })}
+                  className={inputClass}
+                />
+              </Field>
+              <Field label="Submitter last name">
+                <input
+                  value={manual.member_last}
+                  onChange={(e) => setManual({ ...manual, member_last: e.target.value })}
+                  className={inputClass}
+                />
+              </Field>
+              <Field label="Submitter email">
+                <input
+                  type="email"
+                  value={manual.member_email}
+                  onChange={(e) => setManual({ ...manual, member_email: e.target.value })}
+                  className={inputClass}
+                  placeholder="hacker@school.edu"
+                />
+              </Field>
+            </div>
+
+            <div className="space-y-3 border-t border-white/10 pt-5">
+              <div className="flex flex-wrap items-start justify-between gap-3">
+                <div>
+                  <p className="text-sm font-medium text-gray-200">Assign judges for this table</p>
+                  <p className="text-xs text-gray-500 mt-1 max-w-xl leading-relaxed">
+                    Sorted lightest workload first. A sheet is created for each selected judge × each
+                    track this project qualifies for (main + sponsors).
+                  </p>
+                </div>
+                <button
+                  type="button"
+                  onClick={pickLightestJudges}
+                  disabled={judgeWorkload.filter((j) => !j.blockedRestricted).length === 0}
+                  className="px-3 py-1.5 bg-white/10 hover:bg-white/20 disabled:opacity-40 text-white text-xs font-semibold rounded-lg transition"
+                >
+                  Pick 3 lightest
+                </button>
+              </div>
+
+              {judges.length === 0 ? (
+                <p className="text-xs text-gray-500">
+                  No judges activated yet. Invite them on the Judges tab.
+                </p>
+              ) : (
+                <ul className="max-h-56 overflow-y-auto custom-scrollbar divide-y divide-white/10 rounded-xl border border-white/10">
+                  {judgeWorkload.map(({ judge, visits, seconds, blockedRestricted }) => {
+                    const on = manualJudges.includes(judge.user_id)
+                    return (
+                      <li key={judge.user_id}>
+                        <button
+                          type="button"
+                          disabled={blockedRestricted}
+                          onClick={() => toggleManualJudge(judge.user_id)}
+                          title={
+                            blockedRestricted
+                              ? 'Not linked to a Linked-judges-only sponsor track on this project'
+                              : undefined
+                          }
+                          className={`w-full text-left px-4 py-3 flex flex-wrap items-center justify-between gap-2 transition ${
+                            blockedRestricted
+                              ? 'opacity-40 cursor-not-allowed'
+                              : on
+                                ? 'bg-blue-600/20'
+                                : 'hover:bg-white/5'
+                          }`}
+                        >
+                          <div className="min-w-0">
+                            <p className="text-sm text-white font-medium truncate">
+                              {judge.full_name || judge.email}
+                            </p>
+                            <p className="text-xs text-gray-500 truncate">
+                              {judge.company || judge.email}
+                            </p>
+                          </div>
+                          <div className="flex items-center gap-2 shrink-0">
+                            <span className="text-xs text-gray-400">{formatDuration(seconds)}</span>
+                            <Pill tone={visits === 0 ? 'yellow' : 'neutral'}>{visits} visits</Pill>
+                            {on && <Pill tone="blue">Selected</Pill>}
+                          </div>
+                        </button>
+                      </li>
+                    )
+                  })}
+                </ul>
+              )}
+            </div>
+
+            <button
+              type="submit"
+              disabled={adding}
+              className="px-6 py-3 bg-blue-600 hover:bg-blue-700 disabled:opacity-50 text-white font-semibold rounded-lg transition"
+            >
+              {adding
+                ? 'Adding…'
+                : `Add project at ${suggestedTable}${
+                    manualJudges.length ? ` · ${manualJudges.length} judges` : ''
+                  }`}
+            </button>
+          </form>
+        )}
+      </section>
 
       {tracks.length > 0 && headers.length === 0 && (
         <Panel

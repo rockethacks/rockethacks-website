@@ -19,7 +19,9 @@ export const JUDGING_TIPS = {
   trackNames:
     'Names must match the Devpost export exactly (main track and opt-in prizes). Unmatched values are reported and skipped, never guessed.',
   importIdempotent:
-    'Projects are keyed on submission URL. Re-importing updates existing rows instead of duplicating.',
+    'Projects are keyed on submission URL. Re-importing updates existing rows instead of duplicating. Need one more project after the CSV is in? Use Add a project below — do not redo the whole assignment plan.',
+  lateAddProject:
+    'Use this when you need an additional project after import (or instead of a CSV). It lands on the next free table and can assign lightest-loaded judges. Then reseat on Tables if you want short walks again.',
   tableAssign:
     'Import fills blank tables as T01… by main track. After you commit a plan, use Reseat for short walks to pack co-judged projects together.',
   reseat:
@@ -54,15 +56,15 @@ export const NAV_TIPS: Record<string, string> = {
   '/admin/judging/judges':
     'Invite judges (never added to applicants), copy sign-in links, set tags and track links, or remove a judge to revoke access. Track links are required for Linked judges only prizes.',
   '/admin/judging/import':
-    'Upload the Devpost export, map columns, review, then write. Blank tables auto-fill by main track. Re-import updates by submission URL.',
+    'Upload the Devpost CSV, then map and import. Need an additional project? Use Add a project on this page — assign lightest-loaded judges there; the new table lands last until you reseat.',
   '/admin/judging/assignments':
-    'Build a visit-based plan: one draw per table, preview against the window, then commit. Manual add / reassign / remove / reopen stay for fixes.',
+    'Build a visit-based plan once, then commit. If a plan already exists, use Redo plan to clear assignments and rebuild. Manual add / reassign / remove / reopen stay for fixes.',
   '/admin/judging/tables':
     'Floor board by table number. See who goes where, move judges, reseat for short walks, and export a seating sheet.',
   '/admin/judging/workload':
     'Visits per judge against the window, sheets as secondary, estimated minutes, and how many judges these settings need.',
   '/admin/judging/results':
-    'Per-track leaderboard from submitted sheet averages, near-ties, eligibility fails, plus overall top-3 tally.',
+    'Per-track leaderboard from submitted sheet averages, or Overall for the cross-track top-3 tally. Project names open that table on Tables.',
   '/admin/judging/scorecards':
     'Open a project for main + sponsor scores together. Check disagreement, reopen sheets, and verify close races.',
   '/admin/judging/audit':

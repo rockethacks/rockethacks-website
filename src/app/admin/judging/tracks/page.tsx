@@ -19,9 +19,7 @@ const emptyForm = {
   name: '',
   type: 'in_house' as TrackType,
   sponsor_name: '',
-  sort_order: 0,
   sponsor_judges_only: false,
-  judges_per_project: '',
 }
 
 export default function TracksAdminPage() {
@@ -79,10 +77,9 @@ export default function TracksAdminPage() {
       name: form.name.trim(),
       type: form.type,
       sponsor_name: form.type === 'sponsor' ? form.sponsor_name.trim() || form.name.trim() : null,
-      sort_order: form.sort_order,
+      sort_order: tracks.length,
       is_active: true,
       sponsor_judges_only: form.type === 'sponsor' ? form.sponsor_judges_only : false,
-      judges_per_project: form.judges_per_project ? Number(form.judges_per_project) : null,
     })
     if (iErr) setError(iErr.message)
     else {
@@ -183,31 +180,6 @@ export default function TracksAdminPage() {
             </Field>
           )}
 
-          <Field label="Sort order" hint="Lower numbers appear first in lists. Ties fall back to name.">
-            <input
-              type="number"
-              value={form.sort_order}
-              onChange={(e) => setForm({ ...form, sort_order: Number(e.target.value) })}
-              className={inputClass}
-            />
-          </Field>
-
-          <Field
-            label="Judges per project"
-            tip="judgesPerProject"
-            hint="Leave blank to follow the plan-wide target set on the Assignments tab."
-          >
-            <input
-              type="number"
-              min={1}
-              max={10}
-              value={form.judges_per_project}
-              onChange={(e) => setForm({ ...form, judges_per_project: e.target.value })}
-              className={inputClass}
-              placeholder="Inherit"
-            />
-          </Field>
-
           {form.type === 'sponsor' && (
             <Field
               label="Who fills this rubric"
@@ -256,7 +228,6 @@ export default function TracksAdminPage() {
                 <tr>
                   <th className="p-4 font-medium">Name</th>
                   <th className="p-4 font-medium">Type</th>
-                  <th className="p-4 font-medium">Judges</th>
                   <th className="p-4 font-medium">Fills it</th>
                   <th className="p-4 font-medium">Projects</th>
                   <th className="p-4 font-medium">Rubric</th>
@@ -285,22 +256,6 @@ export default function TracksAdminPage() {
                         <Pill tone={t.type === 'sponsor' ? 'orange' : 'neutral'}>
                           {t.type === 'sponsor' ? 'Sponsor' : 'In-house'}
                         </Pill>
-                      </td>
-                      <td className="p-4">
-                        <input
-                          type="number"
-                          min={1}
-                          max={10}
-                          defaultValue={t.judges_per_project ?? ''}
-                          placeholder="—"
-                          onBlur={(e) => {
-                            const raw = e.target.value.trim()
-                            const v = raw ? Number(raw) : null
-                            if (v !== (t.judges_per_project ?? null))
-                              patchTrack(t, { judges_per_project: v })
-                          }}
-                          className="w-16 bg-white/5 border border-white/10 rounded px-2 py-1 text-white"
-                        />
                       </td>
                       <td className="p-4">
                         {t.type === 'sponsor' ? (
