@@ -127,21 +127,6 @@ export default function AdminTeamPage() {
       is_leader: leaderTeamIds.includes(team_id),
     }))
 
-  const toggleTeam = (
-    list: string[],
-    id: string,
-    setList: (next: string[]) => void,
-    leaders: string[],
-    setLeaders: (next: string[]) => void
-  ) => {
-    if (list.includes(id)) {
-      setList(list.filter((x) => x !== id))
-      setLeaders(leaders.filter((x) => x !== id))
-    } else {
-      setList([...list, id])
-    }
-  }
-
   const createInvite = async (e: React.FormEvent) => {
     e.preventDefault()
     setBusy(true)
@@ -307,13 +292,11 @@ export default function AdminTeamPage() {
   const TeamPicker = ({
     teamIds,
     leaderIds,
-    onTeams,
-    onLeaders,
+    onChange,
   }: {
     teamIds: string[]
     leaderIds: string[]
-    onTeams: (ids: string[]) => void
-    onLeaders: (ids: string[]) => void
+    onChange: (next: { teamIds: string[]; leaderIds: string[] }) => void
   }) => (
     <div className="space-y-2">
       <p className="text-xs font-semibold text-gray-400 uppercase">Teams</p>
@@ -325,9 +308,19 @@ export default function AdminTeamPage() {
             <div key={team.id} className="flex items-center gap-1">
               <button
                 type="button"
-                onClick={() =>
-                  toggleTeam(teamIds, team.id, onTeams, leaderIds, onLeaders)
-                }
+                onClick={() => {
+                  if (on) {
+                    onChange({
+                      teamIds: teamIds.filter((x) => x !== team.id),
+                      leaderIds: leaderIds.filter((x) => x !== team.id),
+                    })
+                  } else {
+                    onChange({
+                      teamIds: [...teamIds, team.id],
+                      leaderIds,
+                    })
+                  }
+                }}
                 className={`px-3 py-1.5 rounded-lg text-xs font-semibold border transition ${
                   on
                     ? 'bg-blue-600/80 border-blue-500 text-white'
@@ -341,11 +334,12 @@ export default function AdminTeamPage() {
                   type="button"
                   title="Toggle team leader"
                   onClick={() =>
-                    onLeaders(
-                      leader
+                    onChange({
+                      teamIds,
+                      leaderIds: leader
                         ? leaderIds.filter((x) => x !== team.id)
-                        : [...leaderIds, team.id]
-                    )
+                        : [...leaderIds, team.id],
+                    })
                   }
                   className={`px-2 py-1.5 rounded-lg text-[10px] font-bold border uppercase ${
                     leader
@@ -420,8 +414,13 @@ export default function AdminTeamPage() {
           <TeamPicker
             teamIds={inviteForm.teamIds}
             leaderIds={inviteForm.leaderTeamIds}
-            onTeams={(teamIds) => setInviteForm({ ...inviteForm, teamIds })}
-            onLeaders={(leaderTeamIds) => setInviteForm({ ...inviteForm, leaderTeamIds })}
+            onChange={({ teamIds, leaderIds }) =>
+              setInviteForm((prev) => ({
+                ...prev,
+                teamIds,
+                leaderTeamIds: leaderIds,
+              }))
+            }
           />
           <button
             type="submit"
@@ -465,8 +464,13 @@ export default function AdminTeamPage() {
           <TeamPicker
             teamIds={addForm.teamIds}
             leaderIds={addForm.leaderTeamIds}
-            onTeams={(teamIds) => setAddForm({ ...addForm, teamIds })}
-            onLeaders={(leaderTeamIds) => setAddForm({ ...addForm, leaderTeamIds })}
+            onChange={({ teamIds, leaderIds }) =>
+              setAddForm((prev) => ({
+                ...prev,
+                teamIds,
+                leaderTeamIds: leaderIds,
+              }))
+            }
           />
           <button
             type="submit"
@@ -561,8 +565,10 @@ export default function AdminTeamPage() {
               <TeamPicker
                 teamIds={draftTeamIds}
                 leaderIds={draftLeaderIds}
-                onTeams={setDraftTeamIds}
-                onLeaders={setDraftLeaderIds}
+                onChange={({ teamIds, leaderIds }) => {
+                  setDraftTeamIds(teamIds)
+                  setDraftLeaderIds(leaderIds)
+                }}
               />
               <button
                 type="button"
