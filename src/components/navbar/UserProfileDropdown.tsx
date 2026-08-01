@@ -4,6 +4,7 @@ import Link from "next/link";
 import { FiUser, FiLogOut } from "react-icons/fi";
 import { MdDashboard } from "react-icons/md";
 import { createClient } from "@/lib/supabase/client";
+import { staffHome } from "@/lib/auth/routing";
 import { terminal } from "../../app/fonts/fonts";
 import type { User } from "@supabase/supabase-js";
 
@@ -12,35 +13,80 @@ interface UserProfileDropdownProps {
   onMenuClose?: () => void;
 }
 
+type AuthRoleInfo = {
+  isAdmin: boolean;
+  isOrganizer: boolean;
+  isJudge: boolean;
+  organizerRole: string | null;
+  displayName: string | null;
+};
+
+function homeForRole(info: AuthRoleInfo | null): string {
+  if (!info) return "/dashboard";
+  if (info.isOrganizer) return staffHome(info.organizerRole);
+  if (info.isJudge) return "/judge";
+  return "/dashboard";
+}
+
+function labelForRole(info: AuthRoleInfo | null): string {
+  if (!info) return "Dashboard";
+  if (info.isAdmin) return "Admin";
+  if (info.isOrganizer) return "Staff portal";
+  if (info.isJudge) return "Judge portal";
+  return "Dashboard";
+}
+
 export default function UserProfileDropdown({ isMobile = false, onMenuClose }: UserProfileDropdownProps) {
   const [user, setUser] = useState<User | null>(null);
   const [firstName, setFirstName] = useState<string>("");
+  const [roleInfo, setRoleInfo] = useState<AuthRoleInfo | null>(null);
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const [loading, setLoading] = useState(true);
   const dropdownRef = useRef<HTMLDivElement>(null);
   const supabase = createClient();
 
   useEffect(() => {
-    // Get initial user
-    const getUser = async () => {
+    const loadProfile = async () => {
       try {
-        const { data: { user } } = await supabase.auth.getUser();
-        setUser(user);
+        const {
+          data: { user: authUser },
+        } = await supabase.auth.getUser();
+        setUser(authUser);
 
-        if (user) {
-          // Fetch user's first name from applicants table
-          const { data: applicantData } = await supabase
+        if (!authUser) {
+          setRoleInfo(null);
+          setFirstName("");
+          return;
+        }
+
+        const [roleRes, applicantRes] = await Promise.all([
+          fetch("/api/auth/user").then((r) => r.json()),
+          supabase
             .from("applicants")
             .select("first_name")
-            .eq("user_id", user.id)
-            .single();
+            .eq("user_id", authUser.id)
+            .maybeSingle(),
+        ]);
 
-          if (applicantData?.first_name) {
-            setFirstName(applicantData.first_name);
-          } else {
-            // Fallback to email username if no first name
-            setFirstName(user.email?.split("@")[0] || "User");
-          }
+        const info: AuthRoleInfo = {
+          isAdmin: !!roleRes.isAdmin,
+          isOrganizer: !!roleRes.isOrganizer,
+          isJudge: !!roleRes.isJudge && !roleRes.isOrganizer,
+          organizerRole: roleRes.organizerRole ?? null,
+          displayName: roleRes.user?.full_name ?? null,
+        };
+        // Admins/organizers who are also judges still go to staff home
+        if (roleRes.isOrganizer) {
+          info.isJudge = false;
+        }
+        setRoleInfo(info);
+
+        if (applicantRes.data?.first_name) {
+          setFirstName(applicantRes.data.first_name);
+        } else if (info.displayName) {
+          setFirstName(String(info.displayName).split(/\s+/)[0]);
+        } else {
+          setFirstName(authUser.email?.split("@")[0] || "User");
         }
       } catch (error) {
         console.error("Error fetching user:", error);
@@ -49,20 +95,24 @@ export default function UserProfileDropdown({ isMobile = false, onMenuClose }: U
       }
     };
 
-    getUser();
+    loadProfile();
 
-    // Listen for auth changes
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
+    const {
+      data: { subscription },
+    } = supabase.auth.onAuthStateChange((_event, session) => {
       setUser(session?.user ?? null);
       if (!session?.user) {
         setFirstName("");
+        setRoleInfo(null);
+      } else {
+        // Refresh role home after login / invite redeem
+        loadProfile();
       }
     });
 
     return () => subscription.unsubscribe();
   }, [supabase]);
 
-  // Close dropdown when clicking outside
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
       if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
@@ -89,11 +139,13 @@ export default function UserProfileDropdown({ isMobile = false, onMenuClose }: U
     }
   };
 
+  const homeHref = homeForRole(roleInfo);
+  const homeLabel = labelForRole(roleInfo);
+
   if (loading) {
     return null;
   }
 
-  // If no user, show login button
   if (!user) {
     return (
       <Link
@@ -106,7 +158,6 @@ export default function UserProfileDropdown({ isMobile = false, onMenuClose }: U
     );
   }
 
-  // Mobile version - integrated into hamburger menu
   if (isMobile) {
     return (
       <div className="flex flex-col space-y-1 border-t border-white/10 pt-4 mt-4">
@@ -114,7 +165,7 @@ export default function UserProfileDropdown({ isMobile = false, onMenuClose }: U
           Hello, {firstName}!
         </div>
         <Link
-          href="/dashboard"
+          href={homeHref}
           onClick={onMenuClose}
           className={`
             ${terminal.className}
@@ -129,7 +180,7 @@ export default function UserProfileDropdown({ isMobile = false, onMenuClose }: U
           `}
         >
           <MdDashboard size={20} />
-          DASHBOARD
+          {homeLabel.toUpperCase()}
         </Link>
         <button
           onClick={() => {
@@ -155,7 +206,6 @@ export default function UserProfileDropdown({ isMobile = false, onMenuClose }: U
     );
   }
 
-  // Desktop version - dropdown menu
   return (
     <div className="relative" ref={dropdownRef}>
       <button
@@ -169,17 +219,15 @@ export default function UserProfileDropdown({ isMobile = false, onMenuClose }: U
 
       {dropdownOpen && (
         <div className="absolute right-0 mt-2 w-56 bg-rh-navy/95 backdrop-blur-md border border-rh-yellow/20 rounded-lg shadow-xl overflow-hidden animate-fade-in z-50">
-          {/* Greeting */}
           <div className={`${terminal.className} px-4 py-3 border-b border-white/10 bg-gradient-to-r from-rh-yellow/10 to-rh-orange/10`}>
             <p className="text-rh-yellow text-sm tracking-wider">
               Hello, {firstName}!
             </p>
           </div>
 
-          {/* Menu Items */}
           <div className="py-2">
             <Link
-              href="/dashboard"
+              href={homeHref}
               onClick={() => setDropdownOpen(false)}
               className={`
                 ${terminal.className}
@@ -191,7 +239,7 @@ export default function UserProfileDropdown({ isMobile = false, onMenuClose }: U
               `}
             >
               <MdDashboard size={18} />
-              Dashboard
+              {homeLabel}
             </Link>
 
             <button
