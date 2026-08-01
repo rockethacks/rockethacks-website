@@ -99,7 +99,8 @@ Two things to fix on the mapping screen — auto-detection gets them wrong:
 1. `"Try it out" Links` and `Github Repo Link (Must Be Public*)` both auto-map to
    **GitHub URL**, and the first one wins. Set `"Try it out" Links` to **Skip**.
 2. There is no table number column in a Devpost export. Leave it unmapped;
-   block A of `003` fills table numbers afterwards.
+   import auto-assigns `T01…` clustered by main track for blank tables.
+   Block A of `003` is only a fallback if you imported before that existed.
 
 Expected on the review screen:
 
@@ -110,13 +111,16 @@ Expected on the review screen:
   track name drifted from the CSV.
 - **51 new projects, 0 updated.**
 
-Run the import, then run **block A** of `003` to fill table numbers, then
-**block E**'s first query. Expect exactly:
+Run the import. The success banner should mention table numbers assigned by
+main track. Then run **block E**'s first query. Expect exactly:
 
 - 51 projects, 48 with a main track (3 submitted rows never picked one)
 - 76 sponsor opt-ins, 201 tech tags, 51 with a table number
 - 38 team member rows — one per project that filled in "Team Member 1". The
   submitter columns are not imported at all (see gap 6)
+
+On **Tables**, tiles for the same main track should sit in contiguous blocks
+(e.g. Healthcare together) rather than pure title order.
 
 Re-run the same import to test idempotency: it should report **0 new, 51
 updated**, and project count stays at 51 (`submission_url` is unique).
@@ -178,10 +182,17 @@ per-track assignments from earlier testing, click **Clear all and replan**.
    - judge loads are within one visit of each other,
    - **Marcus Hall never appears on the conflicted project** from block B,
    - affinity > 0 when industry, company, track links or tags match.
-6. Commit, then open **Workload**. Headline numbers are visits and minutes
-   against the window — not sheets against an arbitrary target.
-7. Manually add one sheet on a track, reassign it, then remove it. Export both
-   Assignments and Workload to Excel and open the files.
+6. Commit, then open **Tables**. Click **Reseat for short walks**, read the
+   walk-cost preview, confirm, and check that co-judged projects moved closer
+   together on the board. Open a tile, confirm its judges and track chips match
+   the plan, then **Move** one judge to another table and accept the
+   transfer/drop summary. Use **Edit on Assignments** and confirm the URL lands
+   with `?project=` / `?track=` and the manual panel is prefilled and
+   highlighted for that project.
+7. Open **Workload**. Headline numbers are visits and minutes against the
+   window — not sheets against an arbitrary target.
+8. Manually add one sheet on a track, reassign it, then remove it. Export
+   Assignments, Tables, and Workload to Excel and open the files.
 
 Give your real activated judge a few table visits manually (or leave them in
 the committed plan); those are the ones you will score by hand next.
@@ -259,8 +270,8 @@ SQL editor — expected, and a useful way to tell real activity from simulated.
 percentage should match `submitted / total assignments` from block E.
 
 Click **Export to Excel** on Tracks, Criteria, Judges, Import, Assignments,
-Workload, Results, Scorecards and Audit. Each file should open with the fields
-that match that tab.
+Tables, Workload, Results, Scorecards and Audit. Each file should open with the
+fields that match that tab.
 
 ---
 

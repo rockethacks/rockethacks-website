@@ -5,6 +5,7 @@ import { createClient } from '@/lib/supabase/client'
 import type { Track } from '@/types/judging'
 import { Banner, EmptyState, ExportButton, Panel, Pill, selectClass } from '@/components/judging/ui'
 import { exportWorkbook } from '@/lib/judging/export'
+import { clusterAssignTables } from '@/lib/judging/tables'
 
 const SYSTEM_FIELDS = [
   { key: 'title', label: 'Project title' },
@@ -398,9 +399,38 @@ export default function ImportAdminPage() {
         }
       }
 
+      // Fill blank table numbers by main-track clusters (never overwrite CSV/manual values).
+      let tablesAssigned = 0
+      const { data: seatedRows, error: seatedErr } = await supabase
+        .from('projects')
+        .select('id, title, table_number, main_track_id')
+        .eq('status', 'submitted')
+      if (seatedErr) throw seatedErr
+
+      const tableMap = clusterAssignTables(
+        (seatedRows || []) as {
+          id: string
+          title: string
+          table_number: string | null
+          main_track_id: string | null
+        }[],
+        tracks.map((t) => ({ id: t.id, name: t.name, sort_order: t.sort_order }))
+      )
+
+      if (tableMap.size) {
+        for (const [id, table_number] of tableMap) {
+          const { error: tErr } = await supabase.from('projects').update({ table_number }).eq('id', id)
+          if (tErr) throw tErr
+          tablesAssigned++
+        }
+      }
+
       setProgress(100)
       setMessage(
-        `Imported ${idByUrl.size} projects, ${memberRows.length} team members, ${sponsorRows.length} sponsor opt-ins, ${techList.length} tech tags and ${domainList.length} track tags.`
+        `Imported ${idByUrl.size} projects, ${memberRows.length} team members, ${sponsorRows.length} sponsor opt-ins, ${techList.length} tech tags and ${domainList.length} track tags.` +
+          (tablesAssigned
+            ? ` Assigned ${tablesAssigned} table number${tablesAssigned === 1 ? '' : 's'} by main track.`
+            : '')
       )
     } catch (e) {
       setError(e instanceof Error ? e.message : 'Import failed')

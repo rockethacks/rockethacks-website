@@ -3,7 +3,7 @@
 -- Run the blocks in this file INDIVIDUALLY (highlight, then Run), in the order
 -- the test plan calls for them. Each block is independent.
 --
---   A. Table numbers      — right after the CSV import
+--   A. Table numbers      — fallback only (import auto-assigns blanks)
 --   B. Conflict of interest — before testing auto-suggest
 --   C. Simulated scoring   — after you have created assignments
 --   D. Simulated top 3     — after block C
@@ -14,9 +14,11 @@
 -- them by hand. Applicant data is never read or written.
 
 -- ============================================================
--- A. TABLE NUMBERS
--- Devpost does not export a table number and there is no admin UI field for it,
--- so judges would see "Table —". This fills T01, T02, … in title order.
+-- A. TABLE NUMBERS (fallback)
+-- CSV Import now auto-assigns blank tables clustered by main track.
+-- Keep this block for databases imported before that change, or if you
+-- need to backfill nulls outside the UI. It only fills nulls (T01…).
+-- Prefer Tables → "Reseat for short walks" after committing a plan.
 -- ============================================================
 
 with numbered as (

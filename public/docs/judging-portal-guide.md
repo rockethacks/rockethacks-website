@@ -64,23 +64,26 @@ Judges are guests. They are never added to `applicants`. You create an invite, t
 | **Tracks** | Create in-house and sponsor tracks, set the per-visit timer, optional judges-per-project override, and the **Linked judges only** switch for sponsor tracks. |
 | **Criteria** | Build rubrics: one shared in-house set plus one per sponsor track. Eligibility (yes/no) items and scored items with point bands, with a preview of max score. |
 | **Judges** | Invites with copyable sign-in links, judge profiles, expertise tags, track links, and each judge's assignments. |
-| **CSV Import** | Upload the Devpost export, map columns, then review a summary before anything is written. Also writes main-track and sponsor names as project tags so affinity has a floor when Built With is empty. |
-| **Assignments** | Build a visit-based judging plan: judges per project, window minutes, walk time. Preview visits against the window, see shortfalls, then commit. Per-track manual add / reassign / remove / reopen stay. |
+| **CSV Import** | Upload the Devpost export, map columns, then review a summary before anything is written. Also writes main-track and sponsor names as project tags so affinity has a floor when Built With is empty. Blank table numbers are auto-filled as `T01…` clustered by main track (mapped CSV table values are never overwritten). |
+| **Assignments** | Build a visit-based judging plan: judges per project, window minutes, walk time. Preview visits against the window, see shortfalls, then commit. Per-track manual add / reassign / remove / reopen stay. Accepts `?project=&track=` deep links from Tables. |
+| **Tables** | Floor board of every submitted project by table number. Each tile shows judges and track coverage. Open a tile to move a judge to another table (sheets transfer only when the destination still qualifies for that track) or jump into Assignments for a full edit. After a plan is committed, **Reseat for short walks** rewrites tables from the visit graph so co-judged projects sit near each other. |
 | **Workload** | Visits per judge against the window, sheets as a secondary count, estimated minutes, which tables each judge holds, and how many judges you would need at these settings. |
 | **Results** | Per-track leaderboard using the average of submitted sheets, near-tie flags, eligibility fail and dispute flags, plus the overall top-3 tally. |
-| **Scorecards** | Every judge's answer for every criterion on a project. Flags where judges split, shows notes, and can reopen a sheet for review. |
+| **Scorecards** | Browse by track, then open a project for main + sponsor scores together. Shows Devpost / GitHub / video links, team members, and collapsible per-track judge grids. Flags splits and can reopen sheets. |
 | **Audit** | Plain-language log of every score and assignment change, with raw payloads. |
 
 Every tab has **Export to Excel** with the fields that matter for that view.
 
-**Day-of order:** Tracks → Criteria → Judges → CSV Import → Assignments (build + commit plan) → Workload check → (judges score) → Results / Scorecards.
+**Day-of order:** Tracks → Criteria → Judges → CSV Import → Assignments (build + commit plan) → Tables (Reseat for short walks, spot empty / thin tables, move judges) → Workload check → (judges score) → Results / Scorecards.
 
 ### Things worth knowing
 
 - **Track names must match Devpost exactly.** Opt-in prize values are matched case-insensitively against sponsor track names. Anything unmatched is reported before import and then skipped, never guessed.
 - **Import is idempotent.** Projects are keyed on submission URL, so re-importing after late submissions updates instead of duplicating.
+- **Tables are assigned in two stages.** Import fills blanks by main-track clusters so same-track projects sit together before anyone is assigned. After you commit the visit plan, Tables → **Reseat for short walks** rewrites every table number from the real co-visit graph (judges assumed to walk low→high). Export first if you need the old map.
 - **Plan against the window, not against sheets.** Three judges per project looks fine on every track individually, but the same people absorb every track. The planner measures in table visits and refuses to overfill a judge's hour.
 - **A sheet is not a demo.** A project entered in two tracks produces two sheets for the same judge — one visit, two rubrics. Workload counts visits as the headline and sheets as secondary.
+- **Moving a judge on Tables** rewrites that judge's assignment rows from table A onto table B for every track B still qualifies for (main or sponsor opt-in). Sheets for tracks B does not have are dropped after a confirm summary. COI still blocks a move onto a team that lists the judge's email.
 - **Linked judges only** is the per-track switch for sponsor prizes that must be scored by that sponsor's people. Everyone else can fill sponsor rubrics as part of their visit.
 - **Reopening a sheet** sets it back to in progress so the judge can edit and resubmit. Every reopen is recorded in Audit. You can do it from Assignments or from Scorecards.
 - **Results tells you the ranking, Scorecards tells you whether to trust it.** When two projects are within the near-tie margin, open both on Scorecards sorted by disagreement and look at which criterion the judges split on.
@@ -139,7 +142,8 @@ Forgot password, password reset, and changing your password all work through the
 3. Invite yourself at a second email address, activate it, then sign out and sign back in at `/login` to confirm you land on `/judge`.
 4. Import a small CSV, or add one project, and confirm the counts on Overview.
 5. On Assignments: set judges per project and the window, **Build plan**, read the feasibility numbers, then **Commit**.
-6. Check Workload — visits should sit inside the window.
-7. As the test judge, open a table, fill every rubric, submit. Confirm the sheets lock.
-8. Check Results for the score, Scorecards for the grid, Audit for the write, then reopen a sheet and confirm the judge can edit again.
-9. Export any tab you care about and open the file offline.
+6. Open Tables — run **Reseat for short walks**, confirm the floor board, move one judge, and use Edit on Assignments to confirm the deep link.
+7. Check Workload — visits should sit inside the window.
+8. As the test judge, open a table, fill every rubric, submit. Confirm the sheets lock.
+9. Check Results for the score, Scorecards for the grid, Audit for the write, then reopen a sheet and confirm the judge can edit again.
+10. Export any tab you care about and open the file offline.

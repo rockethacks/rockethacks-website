@@ -1,6 +1,7 @@
 'use client'
 
-import { useCallback, useEffect, useMemo, useState } from 'react'
+import { Suspense, useCallback, useEffect, useMemo, useRef, useState } from 'react'
+import { useSearchParams } from 'next/navigation'
 import { createClient } from '@/lib/supabase/client'
 import type { JudgeProfile, JudgingSettings, PlannedVisit, Project, Track } from '@/types/judging'
 import {
@@ -8,6 +9,7 @@ import {
   EmptyState,
   ExportButton,
   Field,
+  LoadingScreen,
   Panel,
   Pill,
   inputClass,
@@ -38,6 +40,18 @@ function chunk<T>(arr: T[], size: number): T[][] {
 }
 
 export default function AssignmentsAdminPage() {
+  return (
+    <Suspense fallback={<LoadingScreen message="Loading assignments…" />}>
+      <AssignmentsAdminInner />
+    </Suspense>
+  )
+}
+
+function AssignmentsAdminInner() {
+  const searchParams = useSearchParams()
+  const manualPanelRef = useRef<HTMLDivElement | null>(null)
+  const deepLinkApplied = useRef(false)
+
   const [settings, setSettings] = useState<JudgingSettings>(FALLBACK_SETTINGS)
   const [tracks, setTracks] = useState<Track[]>([])
   const [judges, setJudges] = useState<JudgeProfile[]>([])
@@ -55,6 +69,7 @@ export default function AssignmentsAdminPage() {
   const [trackId, setTrackId] = useState('')
   const [manualJudge, setManualJudge] = useState('')
   const [manualProject, setManualProject] = useState('')
+  const [highlightProjectId, setHighlightProjectId] = useState('')
 
   const [busy, setBusy] = useState(false)
   const [error, setError] = useState('')
@@ -119,6 +134,24 @@ export default function AssignmentsAdminPage() {
   useEffect(() => {
     load()
   }, [load])
+
+  // Deep link from Tables: /admin/judging/assignments?project=&track=
+  useEffect(() => {
+    if (deepLinkApplied.current || tracks.length === 0 || projects.length === 0) return
+    const trackParam = searchParams.get('track')
+    const projectParam = searchParams.get('project')
+    if (!trackParam && !projectParam) return
+
+    deepLinkApplied.current = true
+    if (trackParam && tracks.some((t) => t.id === trackParam)) setTrackId(trackParam)
+    if (projectParam && projects.some((p) => p.id === projectParam)) {
+      setManualProject(projectParam)
+      setHighlightProjectId(projectParam)
+    }
+    requestAnimationFrame(() => {
+      manualPanelRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' })
+    })
+  }, [searchParams, tracks, projects])
 
   const trackById = useMemo(() => new Map(tracks.map((t) => [t.id, t])), [tracks])
   const activeSettings = useMemo(
@@ -288,7 +321,9 @@ export default function AssignmentsAdminPage() {
         return
       }
     }
-    setMessage(`Committed ${rows.length} score sheets across ${planSummary.visits.length} visits.`)
+    setMessage(
+      `Committed ${rows.length} score sheets across ${planSummary.visits.length} visits. Open Tables → Reseat for short walks to pack co-judged projects together.`
+    )
     setPlan([])
     await load()
     setBusy(false)
@@ -679,10 +714,22 @@ export default function AssignmentsAdminPage() {
         )}
       </Panel>
 
+      <div ref={manualPanelRef}>
       <Panel
         title="Fix one track by hand"
-        description="The planner covers everything at once. Use this when you need to top up a single track or hand a project to a specific judge."
+        description="The planner covers everything at once. Use this when you need to top up a single track or hand a project to a specific judge. Links from the Tables tab land here with the project selected."
       >
+        {highlightProjectId && (
+          <div className="px-5 pt-5">
+            <Banner tone="info">
+              Opened from Tables for{' '}
+              <span className="font-semibold text-white">
+                {projects.find((p) => p.id === highlightProjectId)?.title || 'this project'}
+              </span>
+              . Track and project are prefilled below.
+            </Banner>
+          </div>
+        )}
         <div className="p-5 grid md:grid-cols-3 gap-4">
           <Field label="Track">
             <select value={trackId} onChange={(e) => setTrackId(e.target.value)} className={selectClass}>
@@ -713,7 +760,10 @@ export default function AssignmentsAdminPage() {
             <div className="flex gap-2">
               <select
                 value={manualProject}
-                onChange={(e) => setManualProject(e.target.value)}
+                onChange={(e) => {
+                  setManualProject(e.target.value)
+                  setHighlightProjectId(e.target.value)
+                }}
                 className={selectClass}
               >
                 <option value="">Select project</option>
@@ -744,7 +794,14 @@ export default function AssignmentsAdminPage() {
             ) : (
               <ul className="divide-y divide-white/5 max-h-80 overflow-y-auto custom-scrollbar">
                 {coverage.map((c) => (
-                  <li key={c.project.id} className="py-2 flex justify-between items-center gap-3">
+                  <li
+                    key={c.project.id}
+                    className={`py-2 flex justify-between items-center gap-3 rounded-lg px-2 -mx-2 ${
+                      highlightProjectId === c.project.id
+                        ? 'bg-yellow-500/10 ring-1 ring-yellow-400/40'
+                        : ''
+                    }`}
+                  >
                     <div className="min-w-0">
                       <p className="text-white text-sm truncate">{c.project.title}</p>
                       <p className="text-xs text-gray-500">Table {c.project.table_number || 'TBD'}</p>
@@ -819,6 +876,7 @@ export default function AssignmentsAdminPage() {
           </div>
         </div>
       </Panel>
+      </div>
     </div>
   )
 }

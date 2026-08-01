@@ -13,6 +13,7 @@ const NAV = [
   { href: '/admin/judging/judges', label: 'Judges' },
   { href: '/admin/judging/import', label: 'CSV Import' },
   { href: '/admin/judging/assignments', label: 'Assignments' },
+  { href: '/admin/judging/tables', label: 'Tables' },
   { href: '/admin/judging/workload', label: 'Workload' },
   { href: '/admin/judging/results', label: 'Results' },
   { href: '/admin/judging/scorecards', label: 'Scorecards' },
