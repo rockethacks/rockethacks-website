@@ -51,6 +51,8 @@ export interface JudgingSettings {
   window_minutes: number;
   window_max_minutes: number;
   default_visit_seconds: number;
+  /** Plan-wide target: how many judges should visit each table. */
+  judges_per_project: number;
   updated_at: string;
 }
 

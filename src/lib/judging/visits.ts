@@ -11,6 +11,7 @@ export const FALLBACK_SETTINGS: JudgingSettings = {
   window_minutes: 60,
   window_max_minutes: 90,
   default_visit_seconds: 360,
+  judges_per_project: 3,
   updated_at: '',
 }
 
