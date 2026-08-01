@@ -9,6 +9,7 @@ import {
   EmptyState,
   ExportButton,
   Field,
+  HelpTip,
   Panel,
   Pill,
   inputClass,
@@ -40,6 +41,8 @@ type AssignmentRow = {
 
 type MemberRow = {
   project_id: string
+  first_name: string | null
+  last_name: string | null
   email: string | null
 }
 
@@ -136,7 +139,7 @@ export default function TablesAdminPage() {
         .eq('status', 'submitted')
         .order('title'),
       supabase.from('project_sponsor_tracks').select('project_id, track_id'),
-      supabase.from('project_team_members').select('project_id, email'),
+      supabase.from('project_team_members').select('project_id, first_name, last_name, email'),
     ])
 
     if (trackRes.error || projectRes.error) {
@@ -496,32 +499,65 @@ export default function TablesAdminPage() {
     setBusy(false)
   }
 
+  const membersByProject = useMemo(() => {
+    const map = new Map<string, MemberRow[]>()
+    for (const m of members) {
+      const list = map.get(m.project_id) || []
+      list.push(m)
+      map.set(m.project_id, list)
+    }
+    return map
+  }, [members])
+
+  const teamLabel = (projectId: string) => {
+    const list = membersByProject.get(projectId) || []
+    return list
+      .map((m) => [m.first_name, m.last_name].filter(Boolean).join(' ').trim() || m.email || '')
+      .filter(Boolean)
+      .join('; ')
+  }
+
+  const seatingRows = useMemo(() => {
+    return [...cards].sort(
+      (a, b) =>
+        tableSortKey(a.project.table_number).localeCompare(tableSortKey(b.project.table_number)) ||
+        a.project.title.localeCompare(b.project.title)
+    )
+  }, [cards])
+
   const exportTables = () => {
     const ok = exportWorkbook('Tables', [
       {
-        name: 'Floor board',
-        rows: visible.map((c) => ({
-          Table: c.project.table_number || '',
-          Project: c.project.title,
-          Judges: c.judges.length,
-          'Judge names': c.judges.map((j) => j.name).join(', '),
-          Tracks: c.trackIds.map((id) => trackById.get(id)?.name || '').filter(Boolean).join(', '),
-          Sheets: c.sheetsTotal,
-          Submitted: c.sheetsSubmitted,
-          Progress:
-            c.sheetsTotal > 0
-              ? `${Math.round((c.sheetsSubmitted / c.sheetsTotal) * 100)}%`
-              : '',
-          'Visit minutes': Math.round(c.seconds / 60),
-          Staffing: c.staffing,
-        })),
+        name: 'Seating',
+        rows: seatingRows.map((c) => {
+          const main = c.project.main_track_id
+            ? trackById.get(c.project.main_track_id)?.name || ''
+            : ''
+          const sponsors = c.trackIds
+            .filter((id) => id !== c.project.main_track_id)
+            .map((id) => trackById.get(id)?.sponsor_name || trackById.get(id)?.name || '')
+            .filter(Boolean)
+            .join(', ')
+          return {
+            Table: c.project.table_number || '',
+            'Team name': c.project.title,
+            'Main track': main,
+            'Sponsor tracks': sponsors,
+            'Team members': teamLabel(c.project.id),
+            Judges: c.judges.length,
+            'Judge names': c.judges.map((j) => j.name).join(', '),
+            'Sheets submitted':
+              c.sheetsTotal > 0 ? `${c.sheetsSubmitted}/${c.sheetsTotal}` : '0/0',
+            Staffing: c.staffing,
+          }
+        }),
       },
       {
         name: 'Judge visits',
-        rows: visible.flatMap((c) =>
+        rows: seatingRows.flatMap((c) =>
           c.judges.map((j) => ({
             Table: c.project.table_number || '',
-            Project: c.project.title,
+            'Team name': c.project.title,
             Judge: j.name,
             Email: j.email,
             Rubrics: j.trackIds.map((id) => trackById.get(id)?.name || '').join(', '),
@@ -577,17 +613,21 @@ export default function TablesAdminPage() {
 
       <Panel
         title="Tables"
+        tip="tableAssign"
         description="One tile per project, ordered like a floor board. Open a tile to see who walks there and which rubrics that stop covers."
         actions={
-          <div className="flex flex-wrap gap-2">
-            <button
-              type="button"
-              onClick={beginReseat}
-              disabled={busy || loading || assignments.length === 0}
-              className="px-3 py-1.5 bg-yellow-500/20 hover:bg-yellow-500/30 disabled:opacity-40 border border-yellow-500/40 text-yellow-100 text-xs font-semibold rounded-lg transition"
-            >
-              Reseat for short walks
-            </button>
+          <div className="flex flex-wrap items-center gap-2">
+            <span className="inline-flex items-center gap-1.5">
+              <button
+                type="button"
+                onClick={beginReseat}
+                disabled={busy || loading || assignments.length === 0}
+                className="px-3 py-1.5 bg-yellow-500/20 hover:bg-yellow-500/30 disabled:opacity-40 border border-yellow-500/40 text-yellow-100 text-xs font-semibold rounded-lg transition"
+              >
+                Reseat for short walks
+              </button>
+              <HelpTip tip="reseat" label="About reseat" />
+            </span>
             <ExportButton onClick={exportTables} disabled={cards.length === 0} />
           </div>
         }
@@ -984,6 +1024,7 @@ export default function TablesAdminPage() {
                   </p>
                   <Field
                     label="Destination table"
+                    tip="moveJudge"
                     hint="Sheets transfer only for tracks the destination also qualifies for."
                   >
                     <select

@@ -368,12 +368,14 @@ export default function WorkloadAdminPage() {
     <div className="space-y-6">
       <Panel
         title="Judge workload"
+        tip="workloadVisits"
         description="Measured in table visits. One visit is one judge at one table, and it costs the same whether they fill one rubric there or five."
         actions={<ExportButton onClick={exportWorkload} />}
       >
         <div className="p-5 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
           <Field
             label="Judging window (minutes)"
+            tip="window"
             hint={`Everything is coloured against this. Your hard stop is ${settings.window_max_minutes} min.`}
           >
             <input

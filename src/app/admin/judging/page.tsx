@@ -161,7 +161,11 @@ export default function JudgingOverviewPage() {
       </div>
 
       {stats.assignments > 0 && (
-        <Panel title="Judging progress" description="Share of assigned score sheets that judges have submitted.">
+        <Panel
+          title="Judging progress"
+          tip="sheet"
+          description="Share of assigned score sheets that judges have submitted."
+        >
           <div className="p-5 space-y-3">
             <div className="flex justify-between text-sm">
               <span className="text-gray-300">

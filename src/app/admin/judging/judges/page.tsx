@@ -8,6 +8,7 @@ import {
   EmptyState,
   ExportButton,
   Field,
+  HelpTip,
   Panel,
   Pill,
   inputClass,
@@ -284,7 +285,8 @@ export default function JudgesAdminPage() {
 
       <Panel
         title="Invite a judge"
-        description="Create an invite and send them the link. They set their own password with it, then sign in from the normal login page like everyone else."
+        tip="headJudge"
+        description="Create an invite and send them the link. They set their own password with it, then sign in from the normal login page like everyone else. Judges are never added to applicants."
       >
         <form onSubmit={createInvite} className="p-5 grid md:grid-cols-3 gap-4">
           <Field
@@ -542,7 +544,10 @@ export default function JudgesAdminPage() {
               </div>
 
               <div className="space-y-2">
-                <p className="text-sm font-medium text-gray-200">Expertise tags</p>
+                <p className="text-sm font-medium text-gray-200 inline-flex items-center gap-1.5">
+                  Expertise tags
+                  <HelpTip tip="tags" />
+                </p>
                 <p className="text-xs text-gray-500 leading-relaxed">
                   Tags drive the auto-suggest matching: judges are preferred for projects sharing
                   their tags, but tags never leave a project short of judges.

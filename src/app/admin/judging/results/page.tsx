@@ -241,7 +241,11 @@ export default function ResultsAdminPage() {
         sheets count.
       </Banner>
 
-      <Panel title="View" description="Pick a track, then set how close two scores must be to count as a tie worth reviewing.">
+      <Panel
+        title="View"
+        tip="resultsVsScorecards"
+        description="Pick a track, then set how close two scores must be to count as a tie worth reviewing."
+      >
         <div className="p-5 grid md:grid-cols-3 gap-4">
           <Field label="Track">
             <select value={trackId} onChange={(e) => setTrackId(e.target.value)} className={selectClass}>

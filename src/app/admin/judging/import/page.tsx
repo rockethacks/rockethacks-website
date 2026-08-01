@@ -541,6 +541,7 @@ export default function ImportAdminPage() {
 
       <Panel
         title="1. Upload the export"
+        tip="importIdempotent"
         description="Devpost changes its column names between events, so nothing is hardcoded — you confirm the mapping in the next step."
         actions={<ExportButton onClick={exportProjects} label="Export projects" />}
       >
@@ -712,7 +713,11 @@ export default function ImportAdminPage() {
       )}
 
       {tracks.length > 0 && headers.length === 0 && (
-        <Panel title="Sponsor track names to match" description="Opt-in prize values must match these exactly (case-insensitive).">
+        <Panel
+          title="Sponsor track names to match"
+          tip="trackNames"
+          description="Opt-in prize values must match these exactly (case-insensitive)."
+        >
           <div className="p-5 flex flex-wrap gap-2">
             {tracks
               .filter((t) => t.type === 'sponsor')

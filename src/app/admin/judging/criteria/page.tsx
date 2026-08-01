@@ -415,18 +415,21 @@ export default function CriteriaAdminPage() {
             <>
               <Panel
                 title={selectedSet.name}
+                tip="eligibility"
                 description="Eligibility items are yes/no gates that do not add points. Scored items give judges one row of tappable bands."
                 actions={
                   <div className="flex flex-wrap gap-2 items-center">
                     <ExportButton onClick={exportCriteria} label="Export all rubrics" />
                     <button
                       onClick={() => addItem('eligibility')}
+                      title="Yes/no gates. If any fail, the sheet cannot win."
                       className="px-4 py-2 bg-white/10 hover:bg-white/20 text-white rounded-lg text-sm font-semibold transition"
                     >
                       + Eligibility check
                     </button>
                     <button
                       onClick={() => addItem('scored')}
+                      title="Point bands for a criterion. Judges pick a band; points feed the sheet total."
                       className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg text-sm font-semibold transition"
                     >
                       + Scored criterion

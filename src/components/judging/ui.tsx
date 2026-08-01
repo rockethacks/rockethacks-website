@@ -1,27 +1,90 @@
 'use client'
 
 import type { ReactNode } from 'react'
+import { JUDGING_TIPS, type JudgingTipKey } from '@/lib/judging/tips'
+
+/** Hover/focus tip for first-run concepts. Prefer this over native title alone. */
+export function HelpTip({
+  text,
+  tip,
+  label = 'More about this',
+  className = '',
+}: {
+  text?: string
+  tip?: JudgingTipKey
+  label?: string
+  className?: string
+}) {
+  const body = text || (tip ? JUDGING_TIPS[tip] : '')
+  if (!body) return null
+  return (
+    <span className={`relative inline-flex items-center group/tip ${className}`}>
+      <button
+        type="button"
+        aria-label={label}
+        className="inline-flex h-4 w-4 items-center justify-center rounded-full border border-white/25 bg-white/5 text-[10px] font-bold leading-none text-gray-300 hover:border-blue-400/50 hover:text-blue-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500"
+      >
+        ?
+      </button>
+      <span
+        role="tooltip"
+        className="pointer-events-none absolute left-1/2 bottom-full z-50 mb-1.5 w-64 -translate-x-1/2 rounded-lg border border-white/15 bg-[#0a1628] px-3 py-2 text-left text-xs font-normal leading-relaxed text-gray-200 opacity-0 shadow-lg transition-opacity duration-150 group-hover/tip:opacity-100 group-focus-within/tip:opacity-100 motion-reduce:transition-none"
+      >
+        {body}
+      </span>
+    </span>
+  )
+}
+
+/** Label text with an optional attached help tip. */
+export function TipLabel({
+  children,
+  text,
+  tip,
+}: {
+  children: ReactNode
+  text?: string
+  tip?: JudgingTipKey
+}) {
+  return (
+    <span className="inline-flex items-center gap-1.5">
+      <span>{children}</span>
+      <HelpTip text={text} tip={tip} />
+    </span>
+  )
+}
 
 export function Panel({
   title,
   description,
+  tip,
+  tipText,
   children,
   actions,
 }: {
   title?: string
   description?: string
+  tip?: JudgingTipKey
+  tipText?: string
   children: ReactNode
   actions?: ReactNode
 }) {
   return (
-    <section className="bg-white/5 backdrop-blur-lg rounded-2xl border border-white/10 overflow-hidden">
+    <section className="bg-white/5 backdrop-blur-lg rounded-2xl border border-white/10 overflow-visible">
       {(title || actions) && (
-        <header className="flex flex-wrap items-start justify-between gap-3 p-5 border-b border-white/10">
-          <div>
-            {title && <h2 className="text-lg font-bold text-white">{title}</h2>}
-            {description && <p className="text-sm text-gray-400 mt-1 max-w-2xl">{description}</p>}
+        <header className="flex flex-wrap items-start justify-between gap-3 px-5 py-4 sm:p-5 border-b border-white/10">
+          <div className="min-w-0 space-y-1.5">
+            {title && (
+              <h2 className="text-lg font-bold text-white flex flex-wrap items-center gap-2">
+                <span>{title}</span>
+                {(tip || tipText) && <HelpTip tip={tip} text={tipText} label={`About ${title}`} />}
+              </h2>
+            )}
+            {description && (
+              <p className="text-sm text-gray-400 max-w-2xl leading-relaxed">{description}</p>
+            )}
           </div>
-          {actions}
+          {actions && <div className="flex flex-wrap items-center gap-2 shrink-0">{actions}</div>}
         </header>
       )}
       {children}
@@ -32,21 +95,26 @@ export function Panel({
 export function Field({
   label,
   hint,
+  tip,
+  tipText,
   required,
   children,
   className = '',
 }: {
   label: string
   hint?: string
+  tip?: JudgingTipKey
+  tipText?: string
   required?: boolean
   children: ReactNode
   className?: string
 }) {
   return (
     <label className={`block space-y-1.5 ${className}`}>
-      <span className="block text-sm font-medium text-gray-200">
+      <span className="flex items-center gap-1.5 text-sm font-medium text-gray-200">
         {label}
-        {required && <span className="text-yellow-400 ml-1">*</span>}
+        {required && <span className="text-yellow-400">*</span>}
+        {(tip || tipText) && <HelpTip tip={tip} text={tipText} label={`About ${label}`} />}
       </span>
       {children}
       {hint && <span className="block text-xs text-gray-500 leading-relaxed">{hint}</span>}

@@ -45,7 +45,13 @@ where name in (
   'Main Track Rubric',
   'AWS Track Rubric',
   'Base44 Track Rubric',
-  'Featherless.AI Track Rubric (PLACEHOLDER)'
+  'Featherless.AI Track Rubric (PLACEHOLDER)',
+  'ElevenLabs Track Rubric (PLACEHOLDER)',
+  'Jaseci Labs Track Rubric (PLACEHOLDER)',
+  'MLH Gemini Track Rubric (PLACEHOLDER)',
+  'MLH MongoDB Track Rubric (PLACEHOLDER)',
+  'MLH Vultr Track Rubric (PLACEHOLDER)',
+  'MLH Solana Track Rubric (PLACEHOLDER)'
 );
 
 -- ------------------------------------------------------------
@@ -282,9 +288,184 @@ from i, (values
   ('Exceptional',    20, 'Inference is central, well tuned and clearly explained.', 4)
 ) as b(label, points, description, sort_order);
 
+-- ------------------------------------------------------------
+-- Remaining sponsor tracks — PLACEHOLDER rubrics
+-- The workbook has no tabs for these. Same shape as Featherless:
+-- 1 eligibility gate + one 20-point scored item. Replace before event.
+-- ------------------------------------------------------------
+
+-- ElevenLabs
+insert into criteria_sets (name, applies_to, track_id)
+select 'ElevenLabs Track Rubric (PLACEHOLDER)', 'sponsor', id
+from tracks
+where name = 'ElevenLabs- Best project built with ElevenLabs + MLH - Best Use of ElevenLabs';
+
+insert into criteria_items (criteria_set_id, type, title, description, max_points, sort_order)
+select id, 'eligibility'::criteria_type, 'E1 — Uses ElevenLabs',
+       'The project uses ElevenLabs (voice/audio) and the judge saw it working.',
+       null::int, 1
+from criteria_sets where name = 'ElevenLabs Track Rubric (PLACEHOLDER)';
+
+with i as (
+  insert into criteria_items (criteria_set_id, type, title, description, max_points, sort_order)
+  select id, 'scored'::criteria_type, 'Quality of Use',
+         'PLACEHOLDER — how central and how well applied is ElevenLabs in the project?',
+         20, 2
+  from criteria_sets where name = 'ElevenLabs Track Rubric (PLACEHOLDER)'
+  returning id
+)
+insert into criteria_bands (criteria_item_id, label, points, description, sort_order)
+select i.id, b.label, b.points, b.description, b.sort_order
+from i, (values
+  ('Underachieving',  5, 'ElevenLabs is barely used.',                              1),
+  ('Average',        10, 'ElevenLabs is used but is not important to the product.',  2),
+  ('Proficient',     15, 'ElevenLabs is central and used well.',                     3),
+  ('Exceptional',    20, 'ElevenLabs is central, well tuned and clearly explained.', 4)
+) as b(label, points, description, sort_order);
+
+-- Jaseci Labs
+insert into criteria_sets (name, applies_to, track_id)
+select 'Jaseci Labs Track Rubric (PLACEHOLDER)', 'sponsor', id
+from tracks where name = 'Jaseci Labs- Best Use of Agentic AI';
+
+insert into criteria_items (criteria_set_id, type, title, description, max_points, sort_order)
+select id, 'eligibility'::criteria_type, 'E1 — Uses Agentic AI (Jaseci)',
+       'The project uses Jaseci / agentic AI and the judge saw it working.',
+       null::int, 1
+from criteria_sets where name = 'Jaseci Labs Track Rubric (PLACEHOLDER)';
+
+with i as (
+  insert into criteria_items (criteria_set_id, type, title, description, max_points, sort_order)
+  select id, 'scored'::criteria_type, 'Quality of Use',
+         'PLACEHOLDER — how central and how well applied is agentic AI (Jaseci) in the project?',
+         20, 2
+  from criteria_sets where name = 'Jaseci Labs Track Rubric (PLACEHOLDER)'
+  returning id
+)
+insert into criteria_bands (criteria_item_id, label, points, description, sort_order)
+select i.id, b.label, b.points, b.description, b.sort_order
+from i, (values
+  ('Underachieving',  5, 'Agentic AI is barely used.',                              1),
+  ('Average',        10, 'Agentic AI is used but is not important to the product.',  2),
+  ('Proficient',     15, 'Agentic AI is central and used well.',                     3),
+  ('Exceptional',    20, 'Agentic AI is central, well tuned and clearly explained.', 4)
+) as b(label, points, description, sort_order);
+
+-- MLH Gemini
+insert into criteria_sets (name, applies_to, track_id)
+select 'MLH Gemini Track Rubric (PLACEHOLDER)', 'sponsor', id
+from tracks where name = 'MLH - Best Use of Google Gemini API';
+
+insert into criteria_items (criteria_set_id, type, title, description, max_points, sort_order)
+select id, 'eligibility'::criteria_type, 'E1 — Uses Google Gemini API',
+       'The project calls the Google Gemini API and the judge saw it working.',
+       null::int, 1
+from criteria_sets where name = 'MLH Gemini Track Rubric (PLACEHOLDER)';
+
+with i as (
+  insert into criteria_items (criteria_set_id, type, title, description, max_points, sort_order)
+  select id, 'scored'::criteria_type, 'Quality of Use',
+         'PLACEHOLDER — how central and how well applied is the Gemini API in the project?',
+         20, 2
+  from criteria_sets where name = 'MLH Gemini Track Rubric (PLACEHOLDER)'
+  returning id
+)
+insert into criteria_bands (criteria_item_id, label, points, description, sort_order)
+select i.id, b.label, b.points, b.description, b.sort_order
+from i, (values
+  ('Underachieving',  5, 'Gemini is barely used.',                              1),
+  ('Average',        10, 'Gemini is used but is not important to the product.',  2),
+  ('Proficient',     15, 'Gemini is central and used well.',                     3),
+  ('Exceptional',    20, 'Gemini is central, well tuned and clearly explained.', 4)
+) as b(label, points, description, sort_order);
+
+-- MLH MongoDB Atlas
+insert into criteria_sets (name, applies_to, track_id)
+select 'MLH MongoDB Track Rubric (PLACEHOLDER)', 'sponsor', id
+from tracks where name = 'MLH - Best Use of MongoDB Atlas';
+
+insert into criteria_items (criteria_set_id, type, title, description, max_points, sort_order)
+select id, 'eligibility'::criteria_type, 'E1 — Uses MongoDB Atlas',
+       'The project uses MongoDB Atlas and the judge saw it working.',
+       null::int, 1
+from criteria_sets where name = 'MLH MongoDB Track Rubric (PLACEHOLDER)';
+
+with i as (
+  insert into criteria_items (criteria_set_id, type, title, description, max_points, sort_order)
+  select id, 'scored'::criteria_type, 'Quality of Use',
+         'PLACEHOLDER — how central and how well applied is MongoDB Atlas in the project?',
+         20, 2
+  from criteria_sets where name = 'MLH MongoDB Track Rubric (PLACEHOLDER)'
+  returning id
+)
+insert into criteria_bands (criteria_item_id, label, points, description, sort_order)
+select i.id, b.label, b.points, b.description, b.sort_order
+from i, (values
+  ('Underachieving',  5, 'MongoDB Atlas is barely used.',                              1),
+  ('Average',        10, 'MongoDB Atlas is used but is not important to the product.',  2),
+  ('Proficient',     15, 'MongoDB Atlas is central and used well.',                     3),
+  ('Exceptional',    20, 'MongoDB Atlas is central, well designed and clearly explained.', 4)
+) as b(label, points, description, sort_order);
+
+-- MLH Vultr
+insert into criteria_sets (name, applies_to, track_id)
+select 'MLH Vultr Track Rubric (PLACEHOLDER)', 'sponsor', id
+from tracks where name = 'MLH - Best Use of Vultr';
+
+insert into criteria_items (criteria_set_id, type, title, description, max_points, sort_order)
+select id, 'eligibility'::criteria_type, 'E1 — Uses Vultr',
+       'The project is deployed on or uses Vultr and the judge saw it working.',
+       null::int, 1
+from criteria_sets where name = 'MLH Vultr Track Rubric (PLACEHOLDER)';
+
+with i as (
+  insert into criteria_items (criteria_set_id, type, title, description, max_points, sort_order)
+  select id, 'scored'::criteria_type, 'Quality of Use',
+         'PLACEHOLDER — how central and how well applied is Vultr in the project?',
+         20, 2
+  from criteria_sets where name = 'MLH Vultr Track Rubric (PLACEHOLDER)'
+  returning id
+)
+insert into criteria_bands (criteria_item_id, label, points, description, sort_order)
+select i.id, b.label, b.points, b.description, b.sort_order
+from i, (values
+  ('Underachieving',  5, 'Vultr is barely used.',                              1),
+  ('Average',        10, 'Vultr is used but is not important to the product.',  2),
+  ('Proficient',     15, 'Vultr is central and used well.',                     3),
+  ('Exceptional',    20, 'Vultr is central, well configured and clearly explained.', 4)
+) as b(label, points, description, sort_order);
+
+-- MLH Solana
+insert into criteria_sets (name, applies_to, track_id)
+select 'MLH Solana Track Rubric (PLACEHOLDER)', 'sponsor', id
+from tracks where name = 'MLH - Best Use of Solana';
+
+insert into criteria_items (criteria_set_id, type, title, description, max_points, sort_order)
+select id, 'eligibility'::criteria_type, 'E1 — Uses Solana',
+       'The project uses Solana and the judge saw it working.',
+       null::int, 1
+from criteria_sets where name = 'MLH Solana Track Rubric (PLACEHOLDER)';
+
+with i as (
+  insert into criteria_items (criteria_set_id, type, title, description, max_points, sort_order)
+  select id, 'scored'::criteria_type, 'Quality of Use',
+         'PLACEHOLDER — how central and how well applied is Solana in the project?',
+         20, 2
+  from criteria_sets where name = 'MLH Solana Track Rubric (PLACEHOLDER)'
+  returning id
+)
+insert into criteria_bands (criteria_item_id, label, points, description, sort_order)
+select i.id, b.label, b.points, b.description, b.sort_order
+from i, (values
+  ('Underachieving',  5, 'Solana is barely used.',                              1),
+  ('Average',        10, 'Solana is used but is not important to the product.',  2),
+  ('Proficient',     15, 'Solana is central and used well.',                     3),
+  ('Exceptional',    20, 'Solana is central, well designed and clearly explained.', 4)
+) as b(label, points, description, sort_order);
+
 commit;
 
--- Verification: 13 tracks, 4 rubrics, and the point totals per rubric.
+-- Verification: 13 tracks, 10 rubrics (1 shared + 9 sponsor), point totals.
 select cs.name as rubric,
        count(*) filter (where ci.type = 'eligibility') as eligibility_gates,
        count(*) filter (where ci.type = 'scored')      as scored_items,
@@ -293,3 +474,14 @@ from criteria_sets cs
 join criteria_items ci on ci.criteria_set_id = cs.id
 group by cs.name
 order by cs.name;
+
+-- Tracks still missing a rubric (should be empty after this seed)
+select t.name
+from tracks t
+where t.type = 'sponsor'
+  and t.is_active
+  and not exists (
+    select 1 from criteria_sets cs
+    where cs.applies_to = 'sponsor' and cs.track_id = t.id
+  )
+order by t.name;

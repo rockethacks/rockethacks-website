@@ -597,6 +597,7 @@ function ScorecardsAdminInner() {
 
       <Panel
         title="Scorecards"
+        tip="resultsVsScorecards"
         description="Pick a track to browse its projects. Open any project to see main-track and sponsor scores together, plus the Devpost links and team."
         actions={<ExportButton onClick={exportScorecards} disabled={cards.length === 0} />}
       >

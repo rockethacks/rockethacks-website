@@ -51,15 +51,13 @@ Open **Admin → Judging → Tracks**.
 - 13 tracks: 4 in-house (Finance, Healthcare, Sustainability, Hardware) and 9
   sponsor tracks named exactly as the Devpost opt-in prizes.
 - Project counts are 0 for all of them.
-- Rubric status shows **Ready** for AWS, Base44 and Featherless.AI, **Missing**
-  for the other 6 sponsor tracks. That is intentional — it is the warning you
-  want to see before an event.
+- Rubric status shows **Ready** for all sponsor tracks. Six of them
+  (ElevenLabs, Jaseci, Gemini, MongoDB, Vultr, Solana) plus Featherless are
+  marked PLACEHOLDER in the seed — replace the wording before the real event.
 
 Then test the UI itself, since seeds bypass it:
 
 - Rename a track inline, save, refresh — the new name persists.
-- Change a timer to 180 — that becomes the visit length when this track is the
-  longest rubric at a table (plus walk time from Assignments settings).
 - On a sponsor track, toggle **Linked judges only** and set a judges-per-project
   override of 1 or 2. Confirm both persist.
 - Create a throwaway track, deactivate it, confirm it disappears from planning,

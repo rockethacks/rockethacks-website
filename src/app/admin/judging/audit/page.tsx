@@ -119,6 +119,7 @@ export default function AuditAdminPage() {
 
       <Panel
         title={`Recent activity (${filtered.length})`}
+        tipText="Plain-language log of every score and assignment change. Reopens, moves, and score edits show up here."
         description="Newest first, capped at the last 200 changes."
         actions={<ExportButton onClick={exportAudit} disabled={filtered.length === 0} />}
       >

@@ -490,11 +490,13 @@ function AssignmentsAdminInner() {
 
       <Panel
         title="Build the judging plan"
+        tip="visit"
         description="One draw per table, not one per track. A judge who stops at a table scores every rubric that table qualifies for, so the stop costs the same whether it carries one rubric or five."
       >
         <div className="p-5 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
           <Field
             label="Judges per project"
+            tip="judgesPerProject"
             hint="How many judges should see each table. A track can override this on the Tracks tab."
           >
             <input
@@ -508,6 +510,7 @@ function AssignmentsAdminInner() {
           </Field>
           <Field
             label="Judging window (minutes)"
+            tip="window"
             hint={`How long judging runs on the floor. Hard stop at ${settings.window_max_minutes} min.`}
           >
             <input
@@ -521,6 +524,7 @@ function AssignmentsAdminInner() {
           </Field>
           <Field
             label="Walk between tables (minutes)"
+            tip="walkTime"
             hint="Added to every visit. Visit length itself comes from the track timers."
           >
             <input
@@ -717,6 +721,7 @@ function AssignmentsAdminInner() {
       <div ref={manualPanelRef}>
       <Panel
         title="Fix one track by hand"
+        tip="sheet"
         description="The planner covers everything at once. Use this when you need to top up a single track or hand a project to a specific judge. Links from the Tables tab land here with the project selected."
       >
         {highlightProjectId && (
@@ -857,6 +862,7 @@ function AssignmentsAdminInner() {
                       {a.status === 'submitted' && (
                         <button
                           onClick={() => reopen(a.id)}
+                          title="Sets the sheet back to in progress so the judge can edit and resubmit. Logged in Audit."
                           className="px-2 py-1 bg-white/10 hover:bg-white/20 text-white text-xs font-semibold rounded transition"
                         >
                           Reopen

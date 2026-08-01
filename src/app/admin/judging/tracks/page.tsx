@@ -13,13 +13,12 @@ import {
   inputClass,
   selectClass,
 } from '@/components/judging/ui'
-import { exportWorkbook, minutes as toMinutes, yesNo } from '@/lib/judging/export'
+import { exportWorkbook, yesNo } from '@/lib/judging/export'
 
 const emptyForm = {
   name: '',
   type: 'in_house' as TrackType,
   sponsor_name: '',
-  timer_seconds: 300,
   sort_order: 0,
   sponsor_judges_only: false,
   judges_per_project: '',
@@ -80,7 +79,6 @@ export default function TracksAdminPage() {
       name: form.name.trim(),
       type: form.type,
       sponsor_name: form.type === 'sponsor' ? form.sponsor_name.trim() || form.name.trim() : null,
-      timer_seconds: form.timer_seconds,
       sort_order: form.sort_order,
       is_active: true,
       sponsor_judges_only: form.type === 'sponsor' ? form.sponsor_judges_only : false,
@@ -114,8 +112,6 @@ export default function TracksAdminPage() {
     setConfirmDelete(null)
   }
 
-  const minutes = (s: number) => `${Math.floor(s / 60)}m ${s % 60}s`
-
   const exportTracks = () => {
     exportWorkbook('Tracks', [
       {
@@ -124,7 +120,6 @@ export default function TracksAdminPage() {
           Track: t.name,
           Type: t.type === 'sponsor' ? 'Sponsor' : 'In-house',
           Sponsor: t.sponsor_name || '',
-          'Table time (min)': toMinutes(t.timer_seconds),
           'Judges per project': t.judges_per_project ?? 'Plan default',
           'Linked judges only': yesNo(t.sponsor_judges_only),
           Projects: counts[t.id] || 0,
@@ -153,6 +148,7 @@ export default function TracksAdminPage() {
         <form onSubmit={createTrack} className="p-5 grid md:grid-cols-2 gap-4">
           <Field
             label="Track name"
+            tip="trackNames"
             required
             hint="Use the exact name that appears in the Devpost Opt-In Prizes column, or imports will not match automatically."
           >
@@ -187,20 +183,6 @@ export default function TracksAdminPage() {
             </Field>
           )}
 
-          <Field
-            label="Table time (seconds)"
-            hint={`How long a visit takes when this is the longest rubric at the table. Currently ${minutes(form.timer_seconds)}. A judge scoring three rubrics at one table still spends this once.`}
-          >
-            <input
-              type="number"
-              min={30}
-              step={30}
-              value={form.timer_seconds}
-              onChange={(e) => setForm({ ...form, timer_seconds: Number(e.target.value) })}
-              className={inputClass}
-            />
-          </Field>
-
           <Field label="Sort order" hint="Lower numbers appear first in lists. Ties fall back to name.">
             <input
               type="number"
@@ -212,6 +194,7 @@ export default function TracksAdminPage() {
 
           <Field
             label="Judges per project"
+            tip="judgesPerProject"
             hint="Leave blank to follow the plan-wide target set on the Assignments tab."
           >
             <input
@@ -228,6 +211,7 @@ export default function TracksAdminPage() {
           {form.type === 'sponsor' && (
             <Field
               label="Who fills this rubric"
+              tip="linkedJudgesOnly"
               hint="Linked judges only means it cannot ride along on another judge's visit, so it costs extra stops. Set the links on the Judges tab."
             >
               <select
@@ -257,7 +241,7 @@ export default function TracksAdminPage() {
 
       <Panel
         title={`Tracks (${tracks.length})`}
-        description="Edit any field in place. Table time is per visit, not per rubric: when a table carries several rubrics the longest one sets the clock. Deactivate a track to hide it from planning without losing its data."
+        description="Edit any field in place. Deactivate a track to hide it from planning without losing its data."
         actions={<ExportButton onClick={exportTracks} disabled={tracks.length === 0} />}
       >
         {tracks.length === 0 ? (
@@ -272,7 +256,6 @@ export default function TracksAdminPage() {
                 <tr>
                   <th className="p-4 font-medium">Name</th>
                   <th className="p-4 font-medium">Type</th>
-                  <th className="p-4 font-medium">Table time</th>
                   <th className="p-4 font-medium">Judges</th>
                   <th className="p-4 font-medium">Fills it</th>
                   <th className="p-4 font-medium">Projects</th>
@@ -302,20 +285,6 @@ export default function TracksAdminPage() {
                         <Pill tone={t.type === 'sponsor' ? 'orange' : 'neutral'}>
                           {t.type === 'sponsor' ? 'Sponsor' : 'In-house'}
                         </Pill>
-                      </td>
-                      <td className="p-4">
-                        <input
-                          type="number"
-                          min={30}
-                          step={30}
-                          defaultValue={t.timer_seconds}
-                          onBlur={(e) => {
-                            const v = Number(e.target.value)
-                            if (v && v !== t.timer_seconds) patchTrack(t, { timer_seconds: v })
-                          }}
-                          className="w-20 bg-white/5 border border-white/10 rounded px-2 py-1 text-white"
-                        />
-                        <span className="text-xs text-gray-500 ml-2">{minutes(t.timer_seconds)}</span>
                       </td>
                       <td className="p-4">
                         <input
