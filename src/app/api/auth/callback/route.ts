@@ -20,8 +20,11 @@ export async function GET(request: NextRequest) {
       let finalRedirectPath = redirect
 
       // If this is a password recovery, always go to reset-password
-      if (type === 'recovery') {
+      if (type === 'recovery' || redirect === '/reset-password') {
         finalRedirectPath = '/reset-password'
+      } else if (redirect.startsWith('/judge')) {
+        // Judges are guests without an application; never divert them to /apply
+        finalRedirectPath = redirect
       } else {
         // Get user data to check if they have an application
         const { data: { user } } = await supabase.auth.getUser()
@@ -38,9 +41,19 @@ export async function GET(request: NextRequest) {
             console.error('Error checking for application:', appError)
           }
 
-          // If no application exists and not going to apply page, redirect to apply
-          if (!application && redirect !== '/apply') {
-            finalRedirectPath = '/apply'
+          if (!application) {
+            // Judges have no application; send them to their own portal
+            const { data: judgeProfile } = await supabase
+              .from('judge_profiles')
+              .select('user_id')
+              .eq('user_id', user.id)
+              .maybeSingle()
+
+            if (judgeProfile) {
+              finalRedirectPath = '/judge'
+            } else if (redirect !== '/apply') {
+              finalRedirectPath = '/apply'
+            }
           }
         }
       }

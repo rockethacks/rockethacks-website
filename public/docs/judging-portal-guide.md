@@ -1,0 +1,116 @@
+# RocketHacks Judging Portal — Operator Guide
+
+How the judging system works for organizers and judges. Everything here is additive: `applicants` data, roles, and policies were never modified. Judges live in `judge_profiles`, separate from hackers.
+
+## What exists
+
+**Database** — new judging tables, RLS, and RPCs. Run order is in `supabase/migrations/judging_portal_7-31/JUDGING_RUNBOOK.md` (files `010` → `013`).
+
+**App**
+- Organizer UI under `/admin/judging/*`
+- Judge portal under `/judge/*`
+- Middleware gates `/judge` and gives head judges access to `/admin/judging`
+- Link from the main Admin page → **Judging Portal**
+
+---
+
+## Provisioning judges
+
+Judges are guests. They are never added to `applicants`. You create an invite, they use it once to set their own password, and from then on they sign in from the normal login page — the backend recognises the judge account and sends them to the judge portal.
+
+### What you need
+1. The judge's **email** — the invite only works for this exact address
+2. Optional context: name, industry, job title, company (used for tag matching and conflict spotting)
+3. Role: `judge` or `head_judge`
+
+### Steps
+1. Sign in as an admin and go to `/admin/judging/judges`.
+2. Fill in **Invite a judge** and create the invite.
+3. Click **Copy sign-in link** on the new invite and send it to them.
+4. They open the link and set a password. The invite code is checked before any account is created, so only invited people can register as judges.
+5. They appear under **Judges** as soon as they activate. If your Supabase project has email confirmation on, they confirm once first and activation completes automatically.
+
+**Head judge:** same flow with role `head_judge`. They get `/admin/judging/*` but not applicant management.
+
+**Revoke:** unused invites can be revoked on the Judges tab. Codes also expire on their own.
+
+**Tags:** open a judge from the list to set expertise tags. Tags bias auto-suggest toward relevant projects but never leave a project short of judges.
+
+---
+
+## Organizer tabs (`/admin/judging`)
+
+| Tab | What it does |
+|-----|--------------|
+| **Overview** | Setup checklist, live submission progress, and a per-track breakdown of projects, assignments, and rubric readiness. |
+| **Tracks** | Create in-house and sponsor tracks, set the per-table timer, see project counts and which tracks are missing a rubric. |
+| **Criteria** | Build rubrics: one shared in-house set plus one per sponsor track. Eligibility (yes/no) items and scored items with point bands, reorderable, with a preview table showing max possible score. |
+| **Judges** | Invites with copyable sign-in links, judge profiles, expertise tags, and each judge's assignments. |
+| **CSV Import** | Upload the Devpost export, map columns, then review a summary — new vs updated projects, unmatched sponsor prizes, unmatched tracks, duplicate URLs — before anything is written. |
+| **Assignments** | Per track: auto-suggest with preview, coverage per project, load per judge, manual add, reassign, remove, and reopen a submitted sheet. |
+| **Results** | Per-track leaderboard using the average of submitted sheets, near-tie flags, eligibility fail and dispute flags, plus the overall top-3 tally. |
+| **Audit** | Plain-language log of every score and assignment change, with raw payloads. |
+
+**Day-of order:** Tracks → Criteria → Judges → CSV Import → Assignments → (judges score) → Results.
+
+### Things worth knowing
+
+- **Track names must match Devpost exactly.** Opt-in prize values are matched case-insensitively against sponsor track names. Anything unmatched is reported before import and then skipped, never guessed.
+- **Import is idempotent.** Projects are keyed on submission URL, so re-importing after late submissions updates instead of duplicating.
+- **Coverage is the thing to watch.** The Assignments tab highlights any project below your judges-per-project target and any judge carrying an unusual load.
+- **Reopening a sheet** sets it back to in progress so the judge can edit and resubmit. Every reopen is recorded in Audit.
+
+---
+
+## For judges
+
+### Signing in
+1. **First time:** open the link the organizers sent (or go to `/judge/login`), enter the invite email, invite code, and a password of your choosing.
+2. **Every time after:** sign in at `/login` with that email and password. You land on the judge portal automatically.
+
+Forgot password, password reset, and changing your password all work through the standard pages — a judge account is a normal account with judging access attached.
+
+### What a judge can do
+
+| Capability | Behavior |
+|------------|----------|
+| See assignments | Only their own, grouped by track, with a submitted-count progress bar. |
+| Score | Project context (about, Devpost, video, code, tags), a countdown timer they can pause or reset, eligibility toggles, tappable score bands, and a running total. |
+| Save | Every tap saves immediately. Notes autosave. |
+| Submit | Requires every criterion answered, asks for confirmation, then locks the sheet. Only an organizer can reopen it. |
+| Top 3 | Unlocked once all sheets are submitted — auto-ranked by their own scores, reorderable, and it feeds the overall main-track winner. |
+| Cannot | See other judges' scores or assignments, change their own role, or reach applicant admin. |
+
+### URLs
+
+| URL | Purpose |
+|-----|---------|
+| `/login` | Normal sign-in once activated; judges are routed to `/judge` |
+| `/judge/login` | One-time activation with the invite code |
+| `/judge` | Assignment list and progress |
+| `/judge/score/[assignmentId]` | Mobile-first score sheet |
+| `/judge/top3` | Confirm top 3 after everything is submitted |
+
+---
+
+## Security behavior
+
+- UI hiding is not the boundary; **RLS** is.
+- `is_judging_admin()` covers `applicants.role = 'admin'` and head judges.
+- Judges read and write only their own assignments and scores, and only until they submit.
+- `request_judge_access(email, code)` verifies an invite before any account is created; it requires both values and reveals nothing on its own.
+- Signing up through the normal `/signup` page grants no judging access — only a redeemed invite creates a judge profile.
+- `redeem_judge_invite(code)` is the only path that creates a judge profile, and it never touches `applicants`.
+- A database trigger blocks judges from repointing an assignment or reopening their own submitted sheet.
+- No service-role key is used anywhere in the browser.
+
+---
+
+## Dry run before the event
+
+1. Create a track, then a shared in-house rubric with at least two scored criteria.
+2. Invite yourself at a second email address, activate it, then sign out and sign back in at `/login` to confirm you land on `/judge`.
+3. Import a small CSV, or add one project, and confirm the counts on Overview.
+4. Assign that project to the test judge and check the coverage panel.
+5. Score and submit on a phone. Confirm the sheet locks.
+6. Check Results for the score and Audit for the write, then reopen the sheet and confirm the judge can edit again.

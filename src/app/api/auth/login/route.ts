@@ -59,6 +59,26 @@ export async function POST(request: Request) {
       })
     }
 
+    // Judges are guests with no application, so the hacker dashboard is not
+    // their home. Send them to the judge portal unless they asked for somewhere
+    // specific.
+    if (!applicant) {
+      const { data: judgeProfile } = await supabase
+        .from('judge_profiles')
+        .select('user_id')
+        .eq('user_id', data.user.id)
+        .maybeSingle()
+
+      if (judgeProfile) {
+        const wantsDefault = !redirect || redirect === '/dashboard'
+        return NextResponse.json({
+          message: 'Login successful',
+          user: data.user,
+          redirect: wantsDefault ? '/judge' : redirect,
+        })
+      }
+    }
+
     return NextResponse.json({
       message: 'Login successful',
       user: data.user,

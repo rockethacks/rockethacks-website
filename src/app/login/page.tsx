@@ -45,8 +45,9 @@ function LoginForm() {
       const data = await response.json()
 
       if (response.ok) {
-        // Successful login - redirect to dashboard
-        router.push(redirectPath)
+        // The server decides where this account belongs (judge portal, password
+        // setup, or the requested page)
+        router.push(data.redirect || redirectPath)
       } else {
         setError(data.error || 'Invalid email or password')
       }
