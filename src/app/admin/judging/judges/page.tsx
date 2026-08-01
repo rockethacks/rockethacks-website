@@ -134,7 +134,7 @@ export default function JudgesAdminPage() {
     if (iErr) {
       setError(iErr.message)
     } else {
-      setMessage(`Invite ${code} created for ${form.email}. Copy the link below and send it to them.`)
+      setMessage(`Invite ${code} created for ${form.email}.`)
       setForm({ ...form, email: '', full_name: '', industry: '', job_title: '', company: '' })
       await load()
     }

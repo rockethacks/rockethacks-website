@@ -153,7 +153,7 @@ export default function AdminTeamPage() {
     if (iErr) {
       setError(iErr.message)
     } else {
-      setMessage(`Invite ${code} created for ${inviteForm.email}. Copy the link and send it.`)
+      setMessage(`Invite ${code} created for ${inviteForm.email}.`)
       setInviteForm({
         email: '',
         full_name: '',
