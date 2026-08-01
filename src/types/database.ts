@@ -6,6 +6,9 @@
 
 export type UserRole = 'participant' | 'organizer' | 'admin';
 
+// Judging portal types (additive; does not change applicants roles)
+export * from './judging';
+
 export type ApplicationStatus = 'pending' | 'accepted' | 'rejected' | 'waitlisted';
 
 export type LevelOfStudy =

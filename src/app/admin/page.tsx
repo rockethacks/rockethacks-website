@@ -250,6 +250,12 @@ export default function AdminPage() {
           </div>
           <div className="flex gap-4">
             <Link
+              href="/admin/judging"
+              className="px-6 py-3 bg-yellow-500/20 hover:bg-yellow-500/30 border border-yellow-500/40 text-yellow-300 font-semibold rounded-lg transition-all duration-200"
+            >
+              Judging Portal
+            </Link>
+            <Link
               href="/organizer"
               className="px-6 py-3 bg-white/5 hover:bg-white/10 border border-white/10 text-white font-semibold rounded-lg transition-all duration-200"
             >

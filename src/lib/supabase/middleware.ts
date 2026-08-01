@@ -60,11 +60,23 @@ export async function updateSession(request: NextRequest) {
       .from('applicants')
       .select('role')
       .eq('user_id', user.id)
-      .single()
+      .maybeSingle()
 
     const isAdmin = userData?.role === 'admin'
 
-    if (!isAdmin) {
+    // Head judges may access /admin/judging/* only
+    const isJudgingPath = request.nextUrl.pathname.startsWith('/admin/judging')
+    let isHeadJudge = false
+    if (!isAdmin && isJudgingPath) {
+      const { data: jp } = await supabase
+        .from('judge_profiles')
+        .select('role')
+        .eq('user_id', user.id)
+        .maybeSingle()
+      isHeadJudge = jp?.role === 'head_judge'
+    }
+
+    if (!isAdmin && !isHeadJudge) {
       return NextResponse.redirect(new URL('/dashboard', request.url))
     }
   }
@@ -99,6 +111,36 @@ export async function updateSession(request: NextRequest) {
       redirectUrl.pathname = '/login'
       redirectUrl.searchParams.set('redirect', request.nextUrl.pathname)
       return NextResponse.redirect(redirectUrl)
+    }
+  }
+
+  // Protect judge portal (login page is public)
+  if (
+    request.nextUrl.pathname.startsWith('/judge') &&
+    !request.nextUrl.pathname.startsWith('/judge/login')
+  ) {
+    if (!user) {
+      const redirectUrl = request.nextUrl.clone()
+      redirectUrl.pathname = '/judge/login'
+      redirectUrl.searchParams.set('redirect', request.nextUrl.pathname)
+      return NextResponse.redirect(redirectUrl)
+    }
+
+    const { data: judgeProfile } = await supabase
+      .from('judge_profiles')
+      .select('user_id')
+      .eq('user_id', user.id)
+      .maybeSingle()
+
+    const { data: applicantData } = await supabase
+      .from('applicants')
+      .select('role')
+      .eq('user_id', user.id)
+      .maybeSingle()
+
+    const isAdmin = applicantData?.role === 'admin'
+    if (!judgeProfile && !isAdmin) {
+      return NextResponse.redirect(new URL('/judge/login?need_invite=1', request.url))
     }
   }
 

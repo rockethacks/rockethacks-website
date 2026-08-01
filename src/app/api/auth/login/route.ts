@@ -45,18 +45,41 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: error.message }, { status: 400 })
     }
 
-    // Check if user needs to set up password (existing Magic Link users)
+    // Password login already succeeded, so they have a working password.
+    // Heal any stale applicants.password_setup_completed = false (common for
+    // early Magic Link accounts that later set a password outside /setup-password).
+    // Never force /setup-password after a successful password sign-in.
     const { data: applicant } = await supabase
       .from('applicants')
       .select('password_setup_completed')
       .eq('user_id', data.user.id)
       .maybeSingle()
 
-    // If user has never set up a password, redirect to setup page
     if (applicant && applicant.password_setup_completed === false) {
-      return NextResponse.json({
-        redirect: `/setup-password?redirect=${encodeURIComponent(redirect || '/dashboard')}`,
-      })
+      await supabase
+        .from('applicants')
+        .update({ password_setup_completed: true })
+        .eq('user_id', data.user.id)
+    }
+
+    // Judges are guests with no application, so the hacker dashboard is not
+    // their home. Send them to the judge portal unless they asked for somewhere
+    // specific.
+    if (!applicant) {
+      const { data: judgeProfile } = await supabase
+        .from('judge_profiles')
+        .select('user_id')
+        .eq('user_id', data.user.id)
+        .maybeSingle()
+
+      if (judgeProfile) {
+        const wantsDefault = !redirect || redirect === '/dashboard'
+        return NextResponse.json({
+          message: 'Login successful',
+          user: data.user,
+          redirect: wantsDefault ? '/judge' : redirect,
+        })
+      }
     }
 
     return NextResponse.json({
