@@ -163,13 +163,25 @@ export default function AdminTeamPage() {
       Name: m.full_name || '',
       Email: m.email,
       'Phone Number': m.phone || '',
+      Role: ORGANIZER_ROLE_LABELS[m.role] || m.role,
+      Teams: m.teams.map((t) => t.name).join(', ') || '',
+      'Team Leads': m.teams.filter((t) => t.is_leader).map((t) => t.name).join(', ') || '',
+      'Is Team Lead': m.teams.some((t) => t.is_leader) ? 'Yes' : 'No',
     }))
     if (rows.length === 0) {
       setError('No staff members to export.')
       return
     }
     const worksheet = XLSX.utils.json_to_sheet(rows)
-    worksheet['!cols'] = [{ wch: 28 }, { wch: 36 }, { wch: 18 }]
+    worksheet['!cols'] = [
+      { wch: 28 },
+      { wch: 36 },
+      { wch: 18 },
+      { wch: 14 },
+      { wch: 40 },
+      { wch: 28 },
+      { wch: 12 },
+    ]
     const workbook = XLSX.utils.book_new()
     XLSX.utils.book_append_sheet(workbook, worksheet, 'Staff Roster')
     const date = new Date().toISOString().split('T')[0]
