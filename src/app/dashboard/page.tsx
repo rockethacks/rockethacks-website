@@ -19,8 +19,6 @@ export default function DashboardPage() {
   const [loading, setLoading] = useState(true);
   const [user, setUser] = useState<any>(null);
   const [application, setApplication] = useState<any>(null);
-  const [isAdmin, setIsAdmin] = useState(false);
-  const [isOrganizer, setIsOrganizer] = useState(false);
   const [rsvpUpdating, setRsvpUpdating] = useState<null | boolean>(null);
   const [rsvpError, setRsvpError] = useState<string | null>(null);
   const [completeness, setCompleteness] = useState<CompletenessResult | null>(
@@ -41,13 +39,7 @@ export default function DashboardPage() {
       }
       setUser(user);
 
-      // Check if user is admin or organizer
-      const authResponse = await fetch("/api/auth/user");
-      const authData = await authResponse.json();
-      setIsAdmin(authData.isAdmin);
-      setIsOrganizer(authData.isOrganizer);
-
-      // Get application
+      // Staff are redirected by middleware; participants load their application
       const { data: app, error } = await supabase
         .from("applicants")
         .select("*")
@@ -58,7 +50,6 @@ export default function DashboardPage() {
         console.error("Error loading application:", error);
       } else {
         setApplication(app);
-        // Check completeness if application exists
         if (app) {
           const completenessResult = checkApplicationCompleteness(app);
           setCompleteness(completenessResult);
@@ -184,22 +175,6 @@ export default function DashboardPage() {
               <p className="text-rh-white/70">Welcome back, {user?.email}</p>
             </div>
             <div className="flex flex-wrap gap-3">
-              {isAdmin && (
-                <Link
-                  href="/admin"
-                  className="btn-primary px-6 py-2 text-sm font-semibold"
-                >
-                  Admin Portal
-                </Link>
-              )}
-              {(isOrganizer || isAdmin) && (
-                <Link
-                  href="/organizer"
-                  className="btn-primary px-6 py-2 text-sm font-semibold"
-                >
-                  Check-In Portal
-                </Link>
-              )}
               <button
                 onClick={handleLogout}
                 className="btn-secondary px-6 py-2 text-sm font-semibold"

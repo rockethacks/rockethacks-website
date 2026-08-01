@@ -46,8 +46,21 @@ export async function updateSession(request: NextRequest) {
   // Refreshing the auth token
   const { data: { user } } = await supabase.auth.getUser()
 
+  const path = request.nextUrl.pathname
+
+  // Load staff profile once when needed
+  async function getOrganizerProfile() {
+    if (!user) return null
+    const { data } = await supabase
+      .from('organizer_profiles')
+      .select('role')
+      .eq('user_id', user.id)
+      .maybeSingle()
+    return data
+  }
+
   // Protect admin routes
-  if (request.nextUrl.pathname.startsWith('/admin')) {
+  if (path.startsWith('/admin')) {
     if (!user) {
       const redirectUrl = request.nextUrl.clone()
       redirectUrl.pathname = '/login'
@@ -55,17 +68,11 @@ export async function updateSession(request: NextRequest) {
       return NextResponse.redirect(redirectUrl)
     }
 
-    // Check if user is admin (database role only)
-    const { data: userData } = await supabase
-      .from('applicants')
-      .select('role')
-      .eq('user_id', user.id)
-      .maybeSingle()
-
-    const isAdmin = userData?.role === 'admin'
+    const organizer = await getOrganizerProfile()
+    const isAdmin = organizer?.role === 'admin'
 
     // Head judges may access /admin/judging/* only
-    const isJudgingPath = request.nextUrl.pathname.startsWith('/admin/judging')
+    const isJudgingPath = path.startsWith('/admin/judging')
     let isHeadJudge = false
     if (!isAdmin && isJudgingPath) {
       const { data: jp } = await supabase
@@ -77,12 +84,15 @@ export async function updateSession(request: NextRequest) {
     }
 
     if (!isAdmin && !isHeadJudge) {
-      return NextResponse.redirect(new URL('/dashboard', request.url))
+      if (organizer) {
+        return NextResponse.redirect(new URL('/organizer', request.url))
+      }
+      return NextResponse.redirect(new URL('/login', request.url))
     }
   }
 
   // Protect organizer routes
-  if (request.nextUrl.pathname.startsWith('/organizer')) {
+  if (path.startsWith('/organizer')) {
     if (!user) {
       const redirectUrl = request.nextUrl.clone()
       redirectUrl.pathname = '/login'
@@ -90,39 +100,34 @@ export async function updateSession(request: NextRequest) {
       return NextResponse.redirect(redirectUrl)
     }
 
-    // Check if user is organizer or admin (database role only)
-    const { data: userData } = await supabase
-      .from('applicants')
-      .select('role')
-      .eq('user_id', user.id)
-      .single()
-
-    const isAuthorized = userData?.role === 'admin' || userData?.role === 'organizer'
-
-    if (!isAuthorized) {
-      return NextResponse.redirect(new URL('/dashboard', request.url))
+    const organizer = await getOrganizerProfile()
+    if (!organizer) {
+      return NextResponse.redirect(new URL('/login', request.url))
     }
   }
 
-  // Protect dashboard and apply routes
-  if (request.nextUrl.pathname.startsWith('/dashboard') || request.nextUrl.pathname.startsWith('/apply')) {
+  // Staff are exclusive from hacker flows
+  if (path.startsWith('/dashboard') || path.startsWith('/apply')) {
     if (!user) {
       const redirectUrl = request.nextUrl.clone()
       redirectUrl.pathname = '/login'
-      redirectUrl.searchParams.set('redirect', request.nextUrl.pathname)
+      redirectUrl.searchParams.set('redirect', path)
       return NextResponse.redirect(redirectUrl)
+    }
+
+    const organizer = await getOrganizerProfile()
+    if (organizer) {
+      const home = organizer.role === 'admin' ? '/admin' : '/organizer'
+      return NextResponse.redirect(new URL(home, request.url))
     }
   }
 
   // Protect judge portal (login page is public)
-  if (
-    request.nextUrl.pathname.startsWith('/judge') &&
-    !request.nextUrl.pathname.startsWith('/judge/login')
-  ) {
+  if (path.startsWith('/judge') && !path.startsWith('/judge/login')) {
     if (!user) {
       const redirectUrl = request.nextUrl.clone()
       redirectUrl.pathname = '/judge/login'
-      redirectUrl.searchParams.set('redirect', request.nextUrl.pathname)
+      redirectUrl.searchParams.set('redirect', path)
       return NextResponse.redirect(redirectUrl)
     }
 
@@ -132,13 +137,8 @@ export async function updateSession(request: NextRequest) {
       .eq('user_id', user.id)
       .maybeSingle()
 
-    const { data: applicantData } = await supabase
-      .from('applicants')
-      .select('role')
-      .eq('user_id', user.id)
-      .maybeSingle()
-
-    const isAdmin = applicantData?.role === 'admin'
+    const organizer = await getOrganizerProfile()
+    const isAdmin = organizer?.role === 'admin'
     if (!judgeProfile && !isAdmin) {
       return NextResponse.redirect(new URL('/judge/login?need_invite=1', request.url))
     }

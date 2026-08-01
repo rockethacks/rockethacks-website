@@ -1,13 +1,10 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
-import Link from "next/link";
 import * as XLSX from "xlsx";
 
 export default function AdminPage() {
-  const router = useRouter();
   const supabase = createClient();
   const [loading, setLoading] = useState(true);
   const [applications, setApplications] = useState<any[]>([]);
@@ -15,24 +12,14 @@ export default function AdminPage() {
   const [filter, setFilter] = useState("all");
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedApp, setSelectedApp] = useState<any>(null);
-  const [updatingRole, setUpdatingRole] = useState<string | null>(null);
 
   useEffect(() => {
-    async function checkAdminAndLoadData() {
-      // Check if user is admin
-      const adminResponse = await fetch("/api/auth/user");
-      const adminData = await adminResponse.json();
-
-      if (!adminData.isAdmin) {
-        router.push("/dashboard");
-        return;
-      }
-
+    async function loadData() {
       await loadApplications();
       await loadStats();
       setLoading(false);
     }
-    checkAdminAndLoadData();
+    loadData();
   }, []);
 
   const calculateRsvpStats = () => {
@@ -89,38 +76,6 @@ export default function AdminPage() {
     }
   };
 
-  const updateRole = async (applicantId: string, newRole: string) => {
-    setUpdatingRole(applicantId);
-
-    const response = await fetch("/api/admin/roles", {
-      method: "PUT",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        applicant_id: applicantId,
-        new_role: newRole,
-      }),
-    });
-
-    if (response.ok) {
-      await loadApplications();
-      // Update selected app if it's the one being modified
-      if (selectedApp && selectedApp.id === applicantId) {
-        const updated = applications.find((app) => app.id === applicantId);
-        if (updated) setSelectedApp(updated);
-      }
-    } else {
-      const error = await response.json();
-      alert(`Error: ${error.error}`);
-    }
-
-    setUpdatingRole(null);
-  };
-
-  const handleLogout = async () => {
-    await supabase.auth.signOut();
-    router.push("/");
-  };
-
   const filteredApplications = applications.filter((app) => {
     const matchesFilter = filter === "all" || app.status === filter;
     const fullName = `${app.first_name} ${app.last_name}`.toLowerCase();
@@ -171,7 +126,6 @@ export default function AdminPage() {
       Pronouns: app.pronouns || "",
       Status: app.status,
       RSVP: app.rsvp_attending ? "Yes" : "No",
-      Role: app.role || "participant",
       "First Hackathon": app.first_hackathon ? "Yes" : "No",
       "T-Shirt Size": app.tshirt_size || "",
       "Dietary Restrictions": Array.isArray(app.dietary_restrictions)
@@ -206,7 +160,6 @@ export default function AdminPage() {
       { wch: 12 }, // Pronouns
       { wch: 12 }, // Status
       { wch: 10 }, // RSVP
-      { wch: 12 }, // Role
       { wch: 15 }, // First Hackathon
       { wch: 12 }, // T-Shirt Size
       { wch: 25 }, // Dietary Restrictions
@@ -231,50 +184,18 @@ export default function AdminPage() {
 
   if (loading) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-[#030c1b] via-[#0a1628] to-[#030c1b]">
-        <div className="text-white text-xl">Loading...</div>
-      </div>
+      <div className="py-12 text-center text-white text-xl">Loading applications...</div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-[#030c1b] via-[#0a1628] to-[#030c1b] py-12 px-4">
-      <div className="max-w-7xl mx-auto">
-        {/* Header */}
-        <div className="flex justify-between items-center mb-8">
-          <div>
-            <h1 className="text-4xl font-bold text-white mb-2">Admin Portal</h1>
-            <p className="text-gray-400">
-              Manage RocketHacks 2026 applications
-            </p>
-          </div>
-          <div className="flex gap-4">
-            <Link
-              href="/admin/judging"
-              className="px-6 py-3 bg-yellow-500/20 hover:bg-yellow-500/30 border border-yellow-500/40 text-yellow-300 font-semibold rounded-lg transition-all duration-200"
-            >
-              Judging Portal
-            </Link>
-            <Link
-              href="/organizer"
-              className="px-6 py-3 bg-white/5 hover:bg-white/10 border border-white/10 text-white font-semibold rounded-lg transition-all duration-200"
-            >
-              Check-In Portal
-            </Link>
-            <Link
-              href="/dashboard"
-              className="px-6 py-3 bg-white/5 hover:bg-white/10 border border-white/10 text-white font-semibold rounded-lg transition-all duration-200"
-            >
-              My Dashboard
-            </Link>
-            <button
-              onClick={handleLogout}
-              className="px-6 py-3 bg-white/5 hover:bg-white/10 border border-white/10 text-white font-semibold rounded-lg transition-all duration-200"
-            >
-              Logout
-            </button>
-          </div>
-        </div>
+    <div className="space-y-6">
+      <div>
+        <h2 className="text-xl font-bold text-white">Applicants</h2>
+        <p className="text-sm text-gray-400 mt-1">
+          Manage RocketHacks 2026 applications
+        </p>
+      </div>
 
         {/* Stats */}
         {stats && stats.length > 0 && (
@@ -416,7 +337,6 @@ export default function AdminPage() {
             )}
           </div>
         </div>
-      </div>
 
       {/* Application Detail Modal */}
       {selectedApp && (
@@ -435,30 +355,6 @@ export default function AdminPage() {
                     {selectedApp.first_name} {selectedApp.last_name}
                   </h2>
                   <p className="text-gray-400">{selectedApp.email}</p>
-
-                  {/* Role Management */}
-                  <div className="mt-4 flex items-center gap-3">
-                    <label className="text-sm font-semibold text-gray-400 uppercase">
-                      User Role:
-                    </label>
-                    <select
-                      value={selectedApp.role || "participant"}
-                      onChange={(e) =>
-                        updateRole(selectedApp.id, e.target.value)
-                      }
-                      disabled={updatingRole === selectedApp.id}
-                      className="px-3 py-1 bg-white/5 border border-white/10 rounded-lg text-white text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 [&>option]:bg-[#0a1628]"
-                    >
-                      <option value="participant">Participant</option>
-                      <option value="organizer">Organizer</option>
-                      <option value="admin">Admin</option>
-                    </select>
-                    {updatingRole === selectedApp.id && (
-                      <span className="text-xs text-yellow-400">
-                        Updating...
-                      </span>
-                    )}
-                  </div>
                 </div>
                 <button
                   onClick={() => setSelectedApp(null)}

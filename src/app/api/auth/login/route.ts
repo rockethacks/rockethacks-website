@@ -1,6 +1,10 @@
 import { createClient } from '@/lib/supabase/server'
 import { NextResponse } from 'next/server'
 
+function staffHome(role: 'admin' | 'organizer') {
+  return role === 'admin' ? '/admin' : '/organizer'
+}
+
 export async function POST(request: Request) {
   const { email, password, authMode, provider, redirect } = await request.json()
   const supabase = await createClient()
@@ -62,6 +66,25 @@ export async function POST(request: Request) {
         .eq('user_id', data.user.id)
     }
 
+    const wantsDefault = !redirect || redirect === '/dashboard'
+
+    // Staff profiles take priority over hacker/judge homes
+    const { data: organizerProfile } = await supabase
+      .from('organizer_profiles')
+      .select('role')
+      .eq('user_id', data.user.id)
+      .maybeSingle()
+
+    if (organizerProfile) {
+      return NextResponse.json({
+        message: 'Login successful',
+        user: data.user,
+        redirect: wantsDefault || redirect === '/apply'
+          ? staffHome(organizerProfile.role)
+          : redirect,
+      })
+    }
+
     // Judges are guests with no application, so the hacker dashboard is not
     // their home. Send them to the judge portal unless they asked for somewhere
     // specific.
@@ -73,7 +96,6 @@ export async function POST(request: Request) {
         .maybeSingle()
 
       if (judgeProfile) {
-        const wantsDefault = !redirect || redirect === '/dashboard'
         return NextResponse.json({
           message: 'Login successful',
           user: data.user,

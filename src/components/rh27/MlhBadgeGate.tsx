@@ -2,11 +2,12 @@
 
 import { usePathname } from "next/navigation";
 
+/** MLH trust badge — landing page only. */
 export default function MlhBadgeGate() {
   const pathname = usePathname();
-  const isRh27Home = pathname === "/" || pathname === "";
+  const isLanding = pathname === "/" || pathname === "";
 
-  if (isRh27Home) return null;
+  if (!isLanding) return null;
 
   return (
     <a

@@ -26,33 +26,51 @@ export async function GET(request: NextRequest) {
         // Judges are guests without an application; never divert them to /apply
         finalRedirectPath = redirect
       } else {
-        // Get user data to check if they have an application
         const { data: { user } } = await supabase.auth.getUser()
         
         if (user) {
-          // Check if user has an application - use maybeSingle() to avoid errors
-          const { data: application, error: appError } = await supabase
-            .from('applicants')
-            .select('id')
+          // Staff first
+          const { data: organizerProfile } = await supabase
+            .from('organizer_profiles')
+            .select('role')
             .eq('user_id', user.id)
             .maybeSingle()
 
-          if (appError) {
-            console.error('Error checking for application:', appError)
-          }
-
-          if (!application) {
-            // Judges have no application; send them to their own portal
-            const { data: judgeProfile } = await supabase
-              .from('judge_profiles')
-              .select('user_id')
+          if (organizerProfile) {
+            const staffHome = organizerProfile.role === 'admin' ? '/admin' : '/organizer'
+            if (
+              !redirect ||
+              redirect === '/dashboard' ||
+              redirect === '/apply' ||
+              (organizerProfile.role !== 'admin' && redirect.startsWith('/admin') && !redirect.startsWith('/admin/judging'))
+            ) {
+              finalRedirectPath = staffHome
+            } else {
+              finalRedirectPath = redirect
+            }
+          } else {
+            const { data: application, error: appError } = await supabase
+              .from('applicants')
+              .select('id')
               .eq('user_id', user.id)
               .maybeSingle()
 
-            if (judgeProfile) {
-              finalRedirectPath = '/judge'
-            } else if (redirect !== '/apply') {
-              finalRedirectPath = '/apply'
+            if (appError) {
+              console.error('Error checking for application:', appError)
+            }
+
+            if (!application) {
+              const { data: judgeProfile } = await supabase
+                .from('judge_profiles')
+                .select('user_id')
+                .eq('user_id', user.id)
+                .maybeSingle()
+
+              if (judgeProfile) {
+                finalRedirectPath = '/judge'
+              } else if (redirect !== '/apply') {
+                finalRedirectPath = '/apply'
+              }
             }
           }
         }
