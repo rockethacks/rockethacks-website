@@ -114,7 +114,7 @@ export async function DELETE(request: Request) {
     return NextResponse.json({ error: 'user_id required' }, { status: 400 })
   }
 
-  const { error } = await supabase.from('organizer_profiles').delete().eq('user_id', user_id)
+  const { error } = await supabase.rpc('admin_purge_user', { p_user_id: user_id })
   if (error) {
     return NextResponse.json({ error: error.message }, { status: 400 })
   }

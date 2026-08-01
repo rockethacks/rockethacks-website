@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { createClient } from "@/lib/supabase/client";
+import { ConfirmRemoveDialog } from "@/components/staff/ConfirmRemoveDialog";
 import * as XLSX from "xlsx";
 
 export default function AdminPage() {
@@ -12,6 +13,9 @@ export default function AdminPage() {
   const [filter, setFilter] = useState("all");
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedApp, setSelectedApp] = useState<any>(null);
+  const [confirmRemove, setConfirmRemove] = useState(false);
+  const [removing, setRemoving] = useState(false);
+  const [removeError, setRemoveError] = useState("");
 
   useEffect(() => {
     async function loadData() {
@@ -74,6 +78,28 @@ export default function AdminPage() {
       await loadStats();
       setSelectedApp(null);
     }
+  };
+
+  const removeApplicant = async () => {
+    if (!selectedApp?.user_id) {
+      setRemoveError("This applicant has no linked login account.");
+      return;
+    }
+    setRemoving(true);
+    setRemoveError("");
+    const { error } = await supabase.rpc("admin_purge_user", {
+      p_user_id: selectedApp.user_id,
+    });
+    if (error) {
+      setRemoveError(error.message);
+      setRemoving(false);
+      return;
+    }
+    setConfirmRemove(false);
+    setSelectedApp(null);
+    await loadApplications();
+    await loadStats();
+    setRemoving(false);
   };
 
   const filteredApplications = applications.filter((app) => {
@@ -529,10 +555,43 @@ export default function AdminPage() {
                   Pending
                 </button>
               </div>
+
+              <div className="mt-6 pt-6 border-t border-white/10 space-y-3">
+                {removeError && (
+                  <p className="text-sm text-red-400">{removeError}</p>
+                )}
+                <button
+                  type="button"
+                  onClick={() => {
+                    setRemoveError("");
+                    setConfirmRemove(true);
+                  }}
+                  className="w-full px-6 py-3 bg-red-900/60 hover:bg-red-700 text-white font-semibold rounded-lg transition-all duration-200"
+                >
+                  Remove applicant & login
+                </button>
+              </div>
             </div>
           </div>
         </div>
       )}
+
+      <ConfirmRemoveDialog
+        open={confirmRemove && !!selectedApp}
+        title={`Remove ${
+          [selectedApp?.first_name, selectedApp?.last_name].filter(Boolean).join(" ") ||
+          selectedApp?.email ||
+          "this applicant"
+        }?`}
+        description={
+          "Are you sure you want to remove this person?\n\n" +
+          "This permanently deletes their application and their login account in Authentication. They will need to sign up again to reapply."
+        }
+        confirmLabel="Remove permanently"
+        busy={removing}
+        onCancel={() => setConfirmRemove(false)}
+        onConfirm={removeApplicant}
+      />
     </div>
   );
 }

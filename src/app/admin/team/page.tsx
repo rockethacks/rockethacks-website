@@ -11,6 +11,7 @@ import type {
 } from '@/types/organizer'
 import { ORGANIZER_ROLE_LABELS } from '@/types/organizer'
 import { CopyLinkButton } from '@/components/staff/CopyLinkButton'
+import { ConfirmRemoveDialog } from '@/components/staff/ConfirmRemoveDialog'
 
 function randomCode() {
   const alphabet = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789'
@@ -36,6 +37,7 @@ export default function AdminTeamPage() {
   const [error, setError] = useState('')
   const [message, setMessage] = useState('')
   const [busy, setBusy] = useState(false)
+  const [confirmRemove, setConfirmRemove] = useState(false)
   const [origin, setOrigin] = useState('')
   const [search, setSearch] = useState('')
 
@@ -216,7 +218,7 @@ export default function AdminTeamPage() {
     setDraftLeaderIds(selected.teams.filter((t) => t.is_leader).map((t) => t.team_id))
   }, [selected])
 
-  const removeMember = async () => {
+  const requestRemoveMember = () => {
     if (!selected) return
     if (selected.role === 'admin') {
       const admins = members.filter((m) => m.role === 'admin')
@@ -225,21 +227,23 @@ export default function AdminTeamPage() {
         return
       }
     }
-    const ok = confirm(
-      `Remove ${selected.full_name || selected.email} from staff?\n\nTheir login account stays; they lose organizer/admin access.`
-    )
-    if (!ok) return
+    setError('')
+    setConfirmRemove(true)
+  }
 
+  const removeMember = async () => {
+    if (!selected) return
     setBusy(true)
+    setError('')
     const supabase = createClient()
-    const { error: delErr } = await supabase
-      .from('organizer_profiles')
-      .delete()
-      .eq('user_id', selected.user_id)
+    const { error: delErr } = await supabase.rpc('admin_purge_user', {
+      p_user_id: selected.user_id,
+    })
     if (delErr) setError(delErr.message)
     else {
+      setConfirmRemove(false)
       setSelected(null)
-      setMessage('Staff member removed.')
+      setMessage('Staff member and login account removed.')
       await load()
     }
     setBusy(false)
@@ -582,7 +586,7 @@ export default function AdminTeamPage() {
               <button
                 type="button"
                 disabled={busy}
-                onClick={removeMember}
+                onClick={requestRemoveMember}
                 className="w-full px-4 py-2.5 bg-red-600/80 hover:bg-red-600 disabled:opacity-50 text-white text-sm font-semibold rounded-lg transition"
               >
                 Remove from staff
@@ -591,6 +595,19 @@ export default function AdminTeamPage() {
           )}
         </div>
       </div>
+
+      <ConfirmRemoveDialog
+        open={confirmRemove && !!selected}
+        title={`Remove ${selected?.full_name || selected?.email || 'this person'}?`}
+        description={
+          'Are you sure you want to remove this person?\n\n' +
+          'This permanently deletes their staff profile, invites for their email, and their login account in Authentication. They will need a new invite to return.'
+        }
+        confirmLabel="Remove permanently"
+        busy={busy}
+        onCancel={() => setConfirmRemove(false)}
+        onConfirm={removeMember}
+      />
 
       <div className="bg-white/5 border border-white/10 rounded-2xl overflow-hidden">
         <div className="p-4 border-b border-white/10">

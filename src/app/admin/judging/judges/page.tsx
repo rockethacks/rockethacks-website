@@ -15,6 +15,7 @@ import {
   selectClass,
 } from '@/components/judging/ui'
 import { CopyLinkButton } from '@/components/staff/CopyLinkButton'
+import { ConfirmRemoveDialog } from '@/components/staff/ConfirmRemoveDialog'
 import { exportWorkbook, yesNo } from '@/lib/judging/export'
 
 function randomCode() {
@@ -45,6 +46,7 @@ export default function JudgesAdminPage() {
   const [message, setMessage] = useState('')
   const [creating, setCreating] = useState(false)
   const [removing, setRemoving] = useState(false)
+  const [confirmRemove, setConfirmRemove] = useState(false)
   const [newTag, setNewTag] = useState('')
   const [origin, setOrigin] = useState('')
 
@@ -151,41 +153,24 @@ export default function JudgesAdminPage() {
   const removeJudge = async () => {
     if (!selected) return
     const label = selected.full_name || selected.email
-    const sheets = assignments.length
-    const ok = confirm(
-      `Remove ${label} and revoke their judging access?\n\n` +
-        `This deletes their judge profile, tags, track links, top-3 picks, and ${sheets} assignment` +
-        `${sheets === 1 ? '' : 's'} (including any scores). Invites for ${selected.email} are revoked too.\n\n` +
-        `Their login account is left in place so it is not deleted if they also use it elsewhere.`
-    )
-    if (!ok) return
 
     setError('')
     setMessage('')
     setRemoving(true)
     const supabase = createClient()
-    const email = selected.email.trim().toLowerCase()
-
-    const { error: invErr } = await supabase.from('judge_invites').delete().eq('email', email)
-    if (invErr) {
-      setError(invErr.message)
-      setRemoving(false)
-      return
-    }
-
-    const { error: delErr } = await supabase
-      .from('judge_profiles')
-      .delete()
-      .eq('user_id', selected.user_id)
+    const { error: delErr } = await supabase.rpc('admin_purge_user', {
+      p_user_id: selected.user_id,
+    })
     if (delErr) {
       setError(delErr.message)
       setRemoving(false)
       return
     }
 
+    setConfirmRemove(false)
     setSelected(null)
     setAssignments([])
-    setMessage(`Removed ${label}. Judging access is revoked.`)
+    setMessage(`Removed ${label}. Profile, invites, and login account deleted.`)
     await load()
     setRemoving(false)
   }
@@ -682,22 +667,36 @@ export default function JudgesAdminPage() {
 
               <div className="pt-4 border-t border-white/10 space-y-2">
                 <p className="text-xs text-gray-500 leading-relaxed">
-                  Removing a judge revokes portal access and deletes their assignments and scores.
-                  Create a new invite later if you want them back.
+                  Removing a judge deletes their profile, assignments, scores, invites, and login
+                  account. Create a new invite later if you want them back.
                 </p>
                 <button
                   type="button"
-                  onClick={removeJudge}
+                  onClick={() => setConfirmRemove(true)}
                   disabled={removing}
                   className="px-4 py-2 bg-red-600/80 hover:bg-red-600 disabled:opacity-50 text-white text-sm font-semibold rounded-lg transition"
                 >
-                  {removing ? 'Removing…' : 'Remove judge & access'}
+                  Remove judge & access
                 </button>
               </div>
             </div>
           </div>
         </div>
       )}
+
+      <ConfirmRemoveDialog
+        open={confirmRemove && !!selected}
+        title={`Remove ${selected?.full_name || selected?.email || 'this judge'}?`}
+        description={
+          'Are you sure you want to remove this person?\n\n' +
+          `This permanently deletes their judge profile, tags, track links, top-3 picks, and ${assignments.length} assignment` +
+          `${assignments.length === 1 ? '' : 's'} (including any scores). Invites for their email and their login account are deleted too.`
+        }
+        confirmLabel="Remove permanently"
+        busy={removing}
+        onCancel={() => setConfirmRemove(false)}
+        onConfirm={removeJudge}
+      />
     </div>
   )
 }
