@@ -1,3 +1,4 @@
+import { withEmailDeliveryHint } from '@/lib/emailDeliveryHint'
 import { createClient } from '@/lib/supabase/server'
 import { validatePassword } from '@/lib/utils/passwordValidation'
 import { NextResponse, type NextRequest } from 'next/server'
@@ -90,6 +91,8 @@ export async function POST(request: NextRequest) {
 
   return NextResponse.json({
     requiresConfirmation: true,
-    message: `Account created. Confirm it from the email we sent to ${cleanEmail} and your judge access activates automatically.`,
+    message: withEmailDeliveryHint(
+      `Account created. Confirm it from the email we sent to ${cleanEmail} and your judge access activates automatically.`
+    ),
   })
 }

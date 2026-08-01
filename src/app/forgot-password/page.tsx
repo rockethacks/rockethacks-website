@@ -83,7 +83,12 @@ export default function ForgotPasswordPage() {
             <div className="bg-green-500/10 border border-green-500/50 text-green-400 px-4 py-3 rounded-lg text-sm backdrop-blur-sm">
               <p className="font-semibold mb-1">✓ Email Sent!</p>
               <p>{message}</p>
-              <p className="mt-2 text-xs">Check your spam folder if you don't see it within a few minutes.</p>
+              {!message.includes('Junk') && (
+                <p className="mt-2 text-xs text-green-300/90">
+                  If you do not see it within a few minutes, check Junk, Spam, Updates, Promotions,
+                  and Quarantine — school inboxes often filter these.
+                </p>
+              )}
             </div>
           )}
 

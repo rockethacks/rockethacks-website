@@ -1,3 +1,4 @@
+import { withEmailDeliveryHint } from '@/lib/emailDeliveryHint'
 import { createClient } from '@/lib/supabase/server'
 import { NextResponse } from 'next/server'
 
@@ -21,6 +22,8 @@ export async function POST(request: Request) {
 
   // Always return success to prevent email enumeration attacks
   return NextResponse.json({
-    message: 'If an account with that email exists, we sent a password reset link.',
+    message: withEmailDeliveryHint(
+      'If an account with that email exists, we sent a password reset link.'
+    ),
   })
 }
