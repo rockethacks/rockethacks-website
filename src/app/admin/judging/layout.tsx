@@ -2,8 +2,9 @@
 
 import Link from 'next/link'
 import { usePathname, useRouter } from 'next/navigation'
-import { useEffect, useState } from 'react'
+import { useCallback, useEffect, useState } from 'react'
 import { LoadingScreen } from '@/components/judging/ui'
+import { loadSession } from '@/lib/judging/session'
 
 const NAV = [
   { href: '/admin/judging', label: 'Overview', exact: true },
@@ -12,7 +13,9 @@ const NAV = [
   { href: '/admin/judging/judges', label: 'Judges' },
   { href: '/admin/judging/import', label: 'CSV Import' },
   { href: '/admin/judging/assignments', label: 'Assignments' },
+  { href: '/admin/judging/workload', label: 'Workload' },
   { href: '/admin/judging/results', label: 'Results' },
+  { href: '/admin/judging/scorecards', label: 'Scorecards' },
   { href: '/admin/judging/audit', label: 'Audit' },
 ]
 
@@ -20,19 +23,45 @@ export default function JudgingAdminLayout({ children }: { children: React.React
   const pathname = usePathname()
   const router = useRouter()
   const [ready, setReady] = useState(false)
+  const [error, setError] = useState('')
 
-  useEffect(() => {
-    async function gate() {
-      const res = await fetch('/api/auth/user')
-      const data = await res.json()
+  const gate = useCallback(async () => {
+    setError('')
+    try {
+      const data = await loadSession()
       if (!data.isAdmin && !data.isHeadJudge) {
         router.push('/dashboard')
         return
       }
       setReady(true)
+    } catch (e) {
+      setError(e instanceof Error ? e.message : 'Could not verify your session.')
     }
-    gate()
   }, [router])
+
+  useEffect(() => {
+    gate()
+  }, [gate])
+
+  if (error) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-[#030c1b] via-[#0a1628] to-[#030c1b] px-4">
+        <div className="max-w-sm w-full bg-white/5 border border-white/10 rounded-2xl p-6 text-center space-y-4">
+          <p className="text-white font-semibold">Cannot open the judging portal</p>
+          <p className="text-sm text-gray-400 leading-relaxed">{error}</p>
+          <button
+            onClick={gate}
+            className="w-full px-6 py-3 bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded-lg transition"
+          >
+            Try again
+          </button>
+          <Link href="/admin" className="block text-sm text-blue-400 hover:underline">
+            Back to Admin
+          </Link>
+        </div>
+      </div>
+    )
+  }
 
   if (!ready) {
     return <LoadingScreen message="Checking your organizer access…" />

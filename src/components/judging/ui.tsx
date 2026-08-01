@@ -115,6 +115,26 @@ export function Pill({
   )
 }
 
+export function ExportButton({
+  onClick,
+  label = 'Export to Excel',
+  disabled,
+}: {
+  onClick: () => void
+  label?: string
+  disabled?: boolean
+}) {
+  return (
+    <button
+      onClick={onClick}
+      disabled={disabled}
+      className="px-3 py-1.5 bg-white/5 hover:bg-white/10 disabled:opacity-40 border border-white/10 text-white text-xs font-semibold rounded-lg transition shrink-0"
+    >
+      {label}
+    </button>
+  )
+}
+
 export function LoadingScreen({ message = 'Loading…' }: { message?: string }) {
   return (
     <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-[#030c1b] via-[#0a1628] to-[#030c1b]">

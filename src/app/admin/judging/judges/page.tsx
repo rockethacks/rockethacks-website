@@ -2,16 +2,18 @@
 
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { createClient } from '@/lib/supabase/client'
-import type { JudgeInvite, JudgeProfile, JudgeRole, Tag } from '@/types/judging'
+import type { JudgeInvite, JudgeProfile, JudgeRole, Tag, Track } from '@/types/judging'
 import {
   Banner,
   EmptyState,
+  ExportButton,
   Field,
   Panel,
   Pill,
   inputClass,
   selectClass,
 } from '@/components/judging/ui'
+import { exportWorkbook, yesNo } from '@/lib/judging/export'
 
 function randomCode() {
   const alphabet = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789'
@@ -32,6 +34,8 @@ export default function JudgesAdminPage() {
   const [invites, setInvites] = useState<JudgeInvite[]>([])
   const [tags, setTags] = useState<Tag[]>([])
   const [judgeTags, setJudgeTags] = useState<Record<string, string[]>>({})
+  const [tracks, setTracks] = useState<Track[]>([])
+  const [judgeTrackLinks, setJudgeTrackLinks] = useState<Record<string, string[]>>({})
   const [selected, setSelected] = useState<JudgeProfile | null>(null)
   const [assignments, setAssignments] = useState<AssignmentRow[]>([])
   const [search, setSearch] = useState('')
@@ -57,22 +61,31 @@ export default function JudgesAdminPage() {
 
   const load = useCallback(async () => {
     const supabase = createClient()
-    const [j, i, t, jt] = await Promise.all([
+    const [j, i, t, jt, tr, jtr] = await Promise.all([
       supabase.from('judge_profiles').select('*').order('full_name'),
       supabase.from('judge_invites').select('*').order('created_at', { ascending: false }),
       supabase.from('tags').select('*').order('name'),
       supabase.from('judge_tags').select('judge_id, tag_id'),
+      supabase.from('tracks').select('*').order('sort_order').order('name'),
+      supabase.from('judge_tracks').select('judge_id, track_id'),
     ])
     if (j.error || i.error) setError(j.error?.message || i.error?.message || 'Failed to load')
     setJudges((j.data || []) as JudgeProfile[])
     setInvites((i.data || []) as JudgeInvite[])
     setTags((t.data || []) as Tag[])
+    setTracks((tr.data || []) as Track[])
 
     const map: Record<string, string[]> = {}
     for (const row of (jt.data || []) as { judge_id: string; tag_id: string }[]) {
       map[row.judge_id] = [...(map[row.judge_id] || []), row.tag_id]
     }
     setJudgeTags(map)
+
+    const trackMap: Record<string, string[]> = {}
+    for (const row of (jtr.data || []) as { judge_id: string; track_id: string }[]) {
+      trackMap[row.judge_id] = [...(trackMap[row.judge_id] || []), row.track_id]
+    }
+    setJudgeTrackLinks(trackMap)
   }, [])
 
   useEffect(() => {
@@ -168,6 +181,22 @@ export default function JudgesAdminPage() {
     await load()
   }
 
+  const toggleTrackLink = async (trackId: string) => {
+    if (!selected) return
+    const supabase = createClient()
+    const current = judgeTrackLinks[selected.user_id] || []
+    if (current.includes(trackId)) {
+      await supabase
+        .from('judge_tracks')
+        .delete()
+        .eq('judge_id', selected.user_id)
+        .eq('track_id', trackId)
+    } else {
+      await supabase.from('judge_tracks').insert({ judge_id: selected.user_id, track_id: trackId })
+    }
+    await load()
+  }
+
   const addNewTag = async () => {
     const name = newTag.trim()
     if (!name || !selected) return
@@ -201,6 +230,52 @@ export default function JudgesAdminPage() {
   }, [judges, search])
 
   const openInvites = invites.filter((i) => !i.used && new Date(i.expires_at) > new Date())
+
+  const exportJudges = async () => {
+    const supabase = createClient()
+    const { data } = await supabase
+      .from('judge_assignments')
+      .select('judge_id, project_id, status')
+    const rows = (data || []) as { judge_id: string; project_id: string; status: string }[]
+
+    const tagName = (id: string) => tags.find((t) => t.id === id)?.name || ''
+    const trackName = (id: string) => tracks.find((t) => t.id === id)?.name || ''
+
+    exportWorkbook('Judges', [
+      {
+        name: 'Judges',
+        rows: judges.map((j) => {
+          const own = rows.filter((r) => r.judge_id === j.user_id)
+          return {
+            Name: j.full_name || '',
+            Email: j.email,
+            Role: j.role === 'head_judge' ? 'Head judge' : 'Judge',
+            Industry: j.industry || '',
+            'Job title': j.job_title || '',
+            Company: j.company || '',
+            'Expertise tags': (judgeTags[j.user_id] || []).map(tagName).filter(Boolean).join(', '),
+            'Track links': (judgeTrackLinks[j.user_id] || []).map(trackName).filter(Boolean).join(', '),
+            Visits: new Set(own.map((r) => r.project_id)).size,
+            Sheets: own.length,
+            Submitted: own.filter((r) => r.status === 'submitted').length,
+          }
+        }),
+      },
+      {
+        name: 'Invites',
+        rows: invites.map((i) => ({
+          Email: i.email,
+          Name: i.full_name || '',
+          Code: i.invite_code,
+          Role: i.role === 'head_judge' ? 'Head judge' : 'Judge',
+          Company: i.company || '',
+          Used: yesNo(i.used),
+          Expires: new Date(i.expires_at).toLocaleString(),
+          Created: new Date(i.created_at).toLocaleString(),
+        })),
+      },
+    ])
+  }
 
   return (
     <div className="space-y-6">
@@ -313,6 +388,7 @@ export default function JudgesAdminPage() {
         <Panel
           title={`Judges (${judges.length})`}
           description="Judges appear here after they open their invite link. Click one to edit their profile, tags, and assignments."
+          actions={<ExportButton onClick={exportJudges} disabled={judges.length === 0} />}
         >
           <div className="p-4 border-b border-white/10">
             <input
@@ -507,6 +583,38 @@ export default function JudgesAdminPage() {
                   >
                     Add
                   </button>
+                </div>
+              </div>
+
+              <div className="space-y-2">
+                <p className="text-sm font-medium text-gray-200">Tracks this judge represents</p>
+                <p className="text-xs text-gray-500 leading-relaxed">
+                  A link is required to fill a track marked “linked judges only” on the Tracks tab,
+                  and it pulls this judge towards that track&apos;s projects everywhere else.
+                </p>
+                <div className="flex flex-wrap gap-2">
+                  {tracks
+                    .filter((t) => t.is_active)
+                    .map((track) => {
+                      const on = (judgeTrackLinks[selected.user_id] || []).includes(track.id)
+                      return (
+                        <button
+                          key={track.id}
+                          onClick={() => toggleTrackLink(track.id)}
+                          className={`px-3 py-1.5 rounded-lg text-xs font-semibold border transition text-left ${
+                            on
+                              ? 'bg-orange-500/80 border-orange-400 text-white'
+                              : 'bg-white/5 border-white/10 text-gray-400 hover:bg-white/10'
+                          }`}
+                        >
+                          {track.name}
+                          {track.sponsor_judges_only && ' *'}
+                        </button>
+                      )
+                    })}
+                  {tracks.length === 0 && (
+                    <p className="text-xs text-gray-500">No tracks exist yet.</p>
+                  )}
                 </div>
               </div>
 

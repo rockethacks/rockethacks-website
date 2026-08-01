@@ -6,6 +6,7 @@ import Link from 'next/link'
 import { createClient } from '@/lib/supabase/client'
 import type { AssignmentStatus } from '@/types/judging'
 import { Banner, EmptyState, LoadingScreen, Pill } from '@/components/judging/ui'
+import { loadSession } from '@/lib/judging/session'
 
 type AssignmentRow = {
   id: string
@@ -15,10 +16,12 @@ type AssignmentRow = {
   track: { id: string; name: string; type: string } | null
 }
 
-const STATUS_META: Record<AssignmentStatus, { label: string; tone: 'yellow' | 'blue' | 'green' }> = {
-  assigned: { label: 'Not started', tone: 'yellow' },
-  in_progress: { label: 'In progress', tone: 'blue' },
-  submitted: { label: 'Submitted', tone: 'green' },
+type TableCard = {
+  projectId: string
+  title: string
+  tableNumber: string | null
+  rubrics: AssignmentRow[]
+  done: number
 }
 
 export default function JudgeHomePage() {
@@ -31,7 +34,15 @@ export default function JudgeHomePage() {
 
   useEffect(() => {
     async function load() {
-      const auth = await fetch('/api/auth/user').then((r) => r.json())
+      let auth
+      try {
+        auth = await loadSession()
+      } catch (e) {
+        setError(e instanceof Error ? e.message : 'Could not verify your session.')
+        setLoading(false)
+        return
+      }
+
       if (!auth.user || !auth.isJudge) {
         router.replace('/judge/login')
         return
@@ -63,24 +74,31 @@ export default function JudgeHomePage() {
     load()
   }, [router])
 
-  const submittedCount = assignments.filter((a) => a.status === 'submitted').length
-  const allSubmitted = assignments.length > 0 && submittedCount === assignments.length
-  const progress = assignments.length ? Math.round((submittedCount / assignments.length) * 100) : 0
-
-  const grouped = useMemo(() => {
-    const map = new Map<string, { trackName: string; trackType: string; rows: AssignmentRow[] }>()
-    for (const a of assignments) {
-      const key = a.track_context_id
-      const entry = map.get(key) || {
-        trackName: a.track?.name || 'Track',
-        trackType: a.track?.type || 'in_house',
-        rows: [],
+  const tables = useMemo<TableCard[]>(() => {
+    const byProject = new Map<string, TableCard>()
+    for (const row of assignments) {
+      const projectId = row.project?.id
+      if (!projectId) continue
+      const card = byProject.get(projectId) || {
+        projectId,
+        title: row.project?.title || 'Project',
+        tableNumber: row.project?.table_number || null,
+        rubrics: [],
+        done: 0,
       }
-      entry.rows.push(a)
-      map.set(key, entry)
+      card.rubrics.push(row)
+      if (row.status === 'submitted') card.done++
+      byProject.set(projectId, card)
     }
-    return Array.from(map.values())
+    return Array.from(byProject.values()).sort((a, b) =>
+      (a.tableNumber || 'zz').localeCompare(b.tableNumber || 'zz')
+    )
   }, [assignments])
+
+  const tablesDone = tables.filter((t) => t.done === t.rubrics.length).length
+  const allSubmitted = assignments.length > 0 && tablesDone === tables.length
+  const progress = tables.length ? Math.round((tablesDone / tables.length) * 100) : 0
+  const bundled = assignments.length - tables.length
 
   const signOut = async () => {
     const supabase = createClient()
@@ -88,15 +106,17 @@ export default function JudgeHomePage() {
     router.replace('/judge/login')
   }
 
-  if (loading) return <LoadingScreen message="Loading your assignments…" />
+  if (loading) return <LoadingScreen message="Loading your tables…" />
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-[#030c1b] via-[#0a1628] to-[#030c1b] py-8 px-4">
       <div className="max-w-3xl mx-auto space-y-6">
         <header className="flex justify-between items-start gap-4">
           <div>
-            <p className="text-yellow-400 text-xs font-semibold uppercase tracking-[0.2em]">Judge Portal</p>
-            <h1 className="text-3xl font-bold text-white mt-1">Your projects</h1>
+            <p className="text-yellow-400 text-xs font-semibold uppercase tracking-[0.2em]">
+              Judge Portal
+            </p>
+            <h1 className="text-3xl font-bold text-white mt-1">Your tables</h1>
             {name && <p className="text-sm text-gray-400 mt-1">Signed in as {name}</p>}
           </div>
           <button
@@ -109,11 +129,11 @@ export default function JudgeHomePage() {
 
         {error && <Banner tone="error">{error}</Banner>}
 
-        {assignments.length > 0 && (
+        {tables.length > 0 && (
           <div className="bg-white/5 backdrop-blur-lg rounded-2xl border border-white/10 p-5 space-y-3">
             <div className="flex justify-between text-sm">
               <span className="text-gray-300 font-medium">
-                {submittedCount} of {assignments.length} submitted
+                {tablesDone} of {tables.length} tables done
               </span>
               <span className="text-yellow-400 font-bold">{progress}%</span>
             </div>
@@ -124,8 +144,10 @@ export default function JudgeHomePage() {
               />
             </div>
             <p className="text-xs text-gray-500 leading-relaxed">
-              Score every project on your list. Once all are submitted you will be asked to confirm
-              your top 3 overall.
+              You visit each table once and score every rubric it qualifies for while you are there.
+              {bundled > 0 &&
+                ` ${bundled} of your ${assignments.length} score sheets are extra prizes on tables you were already visiting.`}{' '}
+              When every table is done you will confirm your top 3 overall.
             </p>
           </div>
         )}
@@ -139,46 +161,59 @@ export default function JudgeHomePage() {
           </Link>
         )}
 
-        {grouped.length === 0 ? (
+        {tables.length === 0 ? (
           <div className="bg-white/5 backdrop-blur-lg rounded-2xl border border-white/10">
             <EmptyState
-              title="No projects assigned yet"
-              description="Organizers assign projects shortly before judging starts. Keep this page open and refresh — your list will appear here with table numbers."
+              title="No tables assigned yet"
+              description="Organizers assign tables shortly before judging starts. Keep this page open and refresh — your list will appear here with table numbers."
             />
           </div>
         ) : (
-          grouped.map((group) => (
-            <section key={group.trackName} className="space-y-3">
-              <div className="flex items-center gap-2">
-                <h2 className="text-lg font-semibold text-white">{group.trackName}</h2>
-                <Pill tone={group.trackType === 'sponsor' ? 'orange' : 'neutral'}>
-                  {group.trackType === 'sponsor' ? 'Sponsor track' : 'Main track'}
-                </Pill>
-              </div>
-              <div className="bg-white/5 backdrop-blur-lg rounded-2xl border border-white/10 overflow-hidden">
-                <ul className="divide-y divide-white/10">
-                  {group.rows.map((a) => (
-                    <li key={a.id}>
-                      <Link
-                        href={`/judge/score/${a.id}`}
-                        className="flex items-center justify-between gap-4 p-4 hover:bg-white/5 transition"
-                      >
+          <div className="bg-white/5 backdrop-blur-lg rounded-2xl border border-white/10 overflow-hidden">
+            <ul className="divide-y divide-white/10">
+              {tables.map((table) => {
+                const complete = table.done === table.rubrics.length
+                return (
+                  <li key={table.projectId}>
+                    <Link
+                      href={`/judge/table/${table.projectId}`}
+                      className="block p-4 hover:bg-white/5 transition space-y-2"
+                    >
+                      <div className="flex items-start justify-between gap-4">
                         <div className="min-w-0">
-                          <p className="text-white font-semibold truncate">
-                            {a.project?.title || 'Project'}
+                          <p className="text-xs text-gray-500 uppercase tracking-wide">
+                            Table {table.tableNumber || 'TBD'}
                           </p>
-                          <p className="text-sm text-gray-400">
-                            Table {a.project?.table_number || 'TBD'}
-                          </p>
+                          <p className="text-white font-semibold truncate mt-0.5">{table.title}</p>
                         </div>
-                        <Pill tone={STATUS_META[a.status].tone}>{STATUS_META[a.status].label}</Pill>
-                      </Link>
-                    </li>
-                  ))}
-                </ul>
-              </div>
-            </section>
-          ))
+                        <Pill tone={complete ? 'green' : table.done > 0 ? 'blue' : 'yellow'}>
+                          {complete
+                            ? 'Done'
+                            : `${table.done} of ${table.rubrics.length} rubrics`}
+                        </Pill>
+                      </div>
+                      <div className="flex flex-wrap gap-1.5">
+                        {table.rubrics.map((rubric) => (
+                          <span
+                            key={rubric.id}
+                            className={`px-2 py-1 text-xs rounded-lg border ${
+                              rubric.status === 'submitted'
+                                ? 'bg-green-500/10 border-green-500/30 text-green-300'
+                                : rubric.track?.type === 'sponsor'
+                                  ? 'bg-orange-500/10 border-orange-500/30 text-orange-200'
+                                  : 'bg-white/5 border-white/10 text-gray-300'
+                            }`}
+                          >
+                            {rubric.track?.name || 'Rubric'}
+                          </span>
+                        ))}
+                      </div>
+                    </Link>
+                  </li>
+                )
+              })}
+            </ul>
+          </div>
         )}
       </div>
     </div>

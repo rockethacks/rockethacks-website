@@ -3,7 +3,8 @@
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { createClient } from '@/lib/supabase/client'
 import type { Track } from '@/types/judging'
-import { Banner, EmptyState, Panel, Pill, selectClass } from '@/components/judging/ui'
+import { Banner, EmptyState, ExportButton, Panel, Pill, selectClass } from '@/components/judging/ui'
+import { exportWorkbook } from '@/lib/judging/export'
 
 const SYSTEM_FIELDS = [
   { key: 'title', label: 'Project title' },
@@ -242,7 +243,13 @@ export default function ImportAdminPage() {
     const payloads: Record<string, unknown>[] = []
     const byUrl = new Map<
       string,
-      { prizes: string[]; tech: string[]; members: { first: string; last: string; email: string }[] }
+      {
+        prizes: string[]
+        tech: string[]
+        /** Track names stored as tags so affinity has something to match when Built With is empty. */
+        domains: string[]
+        members: { first: string; last: string; email: string }[]
+      }
     >()
 
     for (const row of rows) {
@@ -275,6 +282,7 @@ export default function ImportAdminPage() {
       byUrl.set(submission_url, {
         prizes: splitList(cellOf(row, 'opt_in_prizes')),
         tech: splitList(cellOf(row, 'built_with')),
+        domains: mainTrack ? [mainTrack.name] : [],
         members,
       })
     }
@@ -304,6 +312,7 @@ export default function ImportAdminPage() {
       const memberRows: Record<string, unknown>[] = []
       const sponsorRows: { project_id: string; track_id: string }[] = []
       const techNames = new Set<string>()
+      const domainNames = new Set<string>()
 
       for (const [url, extra] of byUrl) {
         const pid = idByUrl.get(url)
@@ -319,9 +328,13 @@ export default function ImportAdminPage() {
         )
         for (const prize of extra.prizes) {
           const track = sponsorTracks.find((t) => t.name.toLowerCase() === prize.toLowerCase())
-          if (track) sponsorRows.push({ project_id: pid, track_id: track.id })
+          if (track) {
+            sponsorRows.push({ project_id: pid, track_id: track.id })
+            extra.domains.push(track.sponsor_name || track.name)
+          }
         }
         extra.tech.forEach((t) => techNames.add(t))
+        extra.domains.forEach((d) => domainNames.add(d))
       }
 
       for (const part of chunk(projectIds, 100)) {
@@ -347,19 +360,23 @@ export default function ImportAdminPage() {
       setProgress(85)
 
       const techList = Array.from(techNames)
-      if (techList.length) {
-        for (const part of chunk(techList, 200)) {
+      const domainList = Array.from(domainNames).filter((n) => !techNames.has(n))
+      const allTagNames = [...techList, ...domainList]
+
+      if (allTagNames.length) {
+        const categoryOf = (name: string) => (techNames.has(name) ? 'tech' : 'domain')
+        for (const part of chunk(allTagNames, 200)) {
           const { error: tErr } = await supabase
             .from('tags')
             .upsert(
-              part.map((name) => ({ name, category: 'tech' })),
+              part.map((name) => ({ name, category: categoryOf(name) })),
               { onConflict: 'name', ignoreDuplicates: true }
             )
           if (tErr) throw tErr
         }
 
         const tagIdByName = new Map<string, string>()
-        for (const part of chunk(techList, 200)) {
+        for (const part of chunk(allTagNames, 200)) {
           const { data } = await supabase.from('tags').select('id, name').in('name', part)
           for (const t of (data || []) as { id: string; name: string }[]) tagIdByName.set(t.name, t.id)
         }
@@ -368,8 +385,8 @@ export default function ImportAdminPage() {
         for (const [url, extra] of byUrl) {
           const pid = idByUrl.get(url)
           if (!pid) continue
-          for (const tech of extra.tech) {
-            const tagId = tagIdByName.get(tech)
+          for (const name of new Set([...extra.tech, ...extra.domains])) {
+            const tagId = tagIdByName.get(name)
             if (tagId) tagRows.push({ project_id: pid, tag_id: tagId })
           }
         }
@@ -383,7 +400,7 @@ export default function ImportAdminPage() {
 
       setProgress(100)
       setMessage(
-        `Imported ${idByUrl.size} projects, ${memberRows.length} team members, ${sponsorRows.length} sponsor opt-ins, and ${techList.length} tech tags.`
+        `Imported ${idByUrl.size} projects, ${memberRows.length} team members, ${sponsorRows.length} sponsor opt-ins, ${techList.length} tech tags and ${domainList.length} track tags.`
       )
     } catch (e) {
       setError(e instanceof Error ? e.message : 'Import failed')
@@ -393,6 +410,94 @@ export default function ImportAdminPage() {
   }
 
   const previewRows = rows.slice(0, 3)
+
+  const exportProjects = async () => {
+    const supabase = createClient()
+    const [projectRes, sponsorRes, memberRes, tagRes] = await Promise.all([
+      supabase
+        .from('projects')
+        .select(
+          'id, title, table_number, about, submission_url, video_url, github_url, status, main_track_id'
+        )
+        .order('table_number'),
+      supabase.from('project_sponsor_tracks').select('project_id, track_id'),
+      supabase
+        .from('project_team_members')
+        .select('project_id, first_name, last_name, email, is_submitter'),
+      supabase.from('project_tags').select('project_id, tag:tags(name)'),
+    ])
+
+    const projects = (projectRes.data || []) as {
+      id: string
+      title: string
+      table_number: string | null
+      about: string | null
+      submission_url: string | null
+      video_url: string | null
+      github_url: string | null
+      status: string
+      main_track_id: string | null
+    }[]
+
+    if (projects.length === 0) {
+      setError('No projects to export yet — run an import first.')
+      return
+    }
+
+    const sponsors = (sponsorRes.data || []) as { project_id: string; track_id: string }[]
+    const members = (memberRes.data || []) as {
+      project_id: string
+      first_name: string | null
+      last_name: string | null
+      email: string | null
+      is_submitter: boolean
+    }[]
+    const projectTags = (tagRes.data || []) as unknown as {
+      project_id: string
+      tag: { name: string } | null
+    }[]
+    const trackName = (id: string | null) => (id ? tracks.find((t) => t.id === id)?.name || '' : '')
+
+    exportWorkbook('Projects', [
+      {
+        name: 'Projects',
+        rows: projects.map((p) => ({
+          Table: p.table_number || '',
+          Project: p.title,
+          'Main track': trackName(p.main_track_id),
+          'Sponsor tracks': sponsors
+            .filter((s) => s.project_id === p.id)
+            .map((s) => trackName(s.track_id))
+            .filter(Boolean)
+            .join(', '),
+          Tags: projectTags
+            .filter((t) => t.project_id === p.id)
+            .map((t) => t.tag?.name)
+            .filter(Boolean)
+            .join(', '),
+          Team: members
+            .filter((m) => m.project_id === p.id)
+            .map((m) => [m.first_name, m.last_name].filter(Boolean).join(' ') || m.email || '')
+            .filter(Boolean)
+            .join(', '),
+          Devpost: p.submission_url || '',
+          Video: p.video_url || '',
+          Code: p.github_url || '',
+          Status: p.status,
+          About: p.about ? p.about.replace(/\s+/g, ' ').slice(0, 500) : '',
+        })),
+      },
+      {
+        name: 'Team members',
+        rows: members.map((m) => ({
+          Project: projects.find((p) => p.id === m.project_id)?.title || '',
+          Name: [m.first_name, m.last_name].filter(Boolean).join(' '),
+          Email: m.email || '',
+          Submitter: m.is_submitter ? 'Yes' : 'No',
+        })),
+      },
+    ])
+  }
 
   return (
     <div className="space-y-6">
@@ -407,6 +512,7 @@ export default function ImportAdminPage() {
       <Panel
         title="1. Upload the export"
         description="Devpost changes its column names between events, so nothing is hardcoded — you confirm the mapping in the next step."
+        actions={<ExportButton onClick={exportProjects} label="Export projects" />}
       >
         <div className="p-5 space-y-3">
           <input

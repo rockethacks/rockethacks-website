@@ -10,6 +10,7 @@ Run these **manually** in the Supabase SQL Editor. Do **not** use MCP `apply_mig
 | 2 | [`011_judging_rls.sql`](./011_judging_rls.sql) | Helpers + RLS on new tables |
 | 3 | [`012_judging_functions.sql`](./012_judging_functions.sql) | Invite redeem, score sync, audit, assignment suggest |
 | 4 | [`013_judging_fixes.sql`](./013_judging_fixes.sql) | Invite pre-check RPC, assignment immutability + submit lock |
+| 5 | [`014_judging_visits.sql`](./014_judging_visits.sql) | Visit-based time model, judge↔track links, plan builder RPC |
 
 ## Safety guarantees
 
@@ -72,6 +73,28 @@ where tgrelid = 'public.judge_assignments'::regclass
   and not tgisinternal;
 -- Expect trg_assignment_judge_limits and trg_assignments_audit
 ```
+
+## Verification after 014
+
+```sql
+select proname from pg_proc
+where pronamespace = 'public'::regnamespace
+  and proname in ('project_visit_seconds', 'judge_project_affinity', 'suggest_judging_plan');
+
+select transition_seconds, window_minutes, window_max_minutes from judging_settings;
+
+select name, timer_seconds, sponsor_judges_only, judges_per_project
+from tracks order by sort_order, name;
+```
+
+```sql
+-- Dry run of the planner. Returns visit rows; a null judge_id row is a shortfall.
+select * from public.suggest_judging_plan(3, 3600);
+```
+
+The app reads the new columns as soon as it loads, so run 014 before opening
+`/admin/judging` again. Assignments built by the old per-track engine are still
+valid rows, but rebuild the plan from the Assignments tab to get the bundling.
 
 ## Smoke test (after app wiring)
 

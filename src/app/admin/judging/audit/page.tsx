@@ -3,7 +3,8 @@
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { createClient } from '@/lib/supabase/client'
 import type { AuditLogEntry } from '@/types/judging'
-import { Banner, EmptyState, Panel, Pill, inputClass } from '@/components/judging/ui'
+import { Banner, EmptyState, ExportButton, Panel, Pill, inputClass } from '@/components/judging/ui'
+import { exportWorkbook } from '@/lib/judging/export'
 
 const ACTION_TONE: Record<string, 'green' | 'blue' | 'red'> = {
   INSERT: 'green',
@@ -72,6 +73,24 @@ export default function AuditAdminPage() {
     return `${subject} ${ACTION_WORD[e.action] || e.action.toLowerCase()} by ${who}`
   }
 
+  const exportAudit = () => {
+    exportWorkbook('Audit', [
+      {
+        name: 'Audit log',
+        rows: filtered.map((e) => ({
+          When: new Date(e.created_at).toLocaleString(),
+          Action: e.action,
+          Table: e.table_name,
+          Summary: describe(e),
+          'Changed by': e.changed_by ? judgeNames[e.changed_by] || e.changed_by : 'System',
+          Record: e.record_id,
+          Before: e.old_data ? JSON.stringify(e.old_data) : '',
+          After: e.new_data ? JSON.stringify(e.new_data) : '',
+        })),
+      },
+    ])
+  }
+
   return (
     <div className="space-y-6">
       {error && <Banner tone="error">{error}</Banner>}
@@ -101,6 +120,7 @@ export default function AuditAdminPage() {
       <Panel
         title={`Recent activity (${filtered.length})`}
         description="Newest first, capped at the last 200 changes."
+        actions={<ExportButton onClick={exportAudit} disabled={filtered.length === 0} />}
       >
         {filtered.length === 0 ? (
           <EmptyState

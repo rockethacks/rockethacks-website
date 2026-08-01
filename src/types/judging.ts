@@ -34,10 +34,39 @@ export interface Track {
   name: string;
   type: TrackType;
   sponsor_name: string | null;
+  /** How long a table visit takes when this track is the longest rubric there. */
   timer_seconds: number;
   is_active: boolean;
   sort_order: number;
   created_at: string;
+  /** Rubric may only be filled by judges linked to this track. */
+  sponsor_judges_only: boolean;
+  /** Overrides the plan-wide judges-per-project target for this track. */
+  judges_per_project: number | null;
+}
+
+export interface JudgingSettings {
+  id: boolean;
+  transition_seconds: number;
+  window_minutes: number;
+  window_max_minutes: number;
+  default_visit_seconds: number;
+  updated_at: string;
+}
+
+export interface JudgeTrackLink {
+  judge_id: string;
+  track_id: string;
+}
+
+/** One row of suggest_judging_plan. judge_id is null on a shortfall row. */
+export interface PlannedVisit {
+  judge_id: string | null;
+  project_id: string;
+  track_ids: string[] | null;
+  visit_seconds: number;
+  affinity_score: number;
+  shortfall_reason: string | null;
 }
 
 export interface CriteriaSet {

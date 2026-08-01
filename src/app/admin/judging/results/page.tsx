@@ -3,7 +3,17 @@
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { createClient } from '@/lib/supabase/client'
 import type { Track } from '@/types/judging'
-import { Banner, EmptyState, Field, Panel, Pill, inputClass, selectClass } from '@/components/judging/ui'
+import {
+  Banner,
+  EmptyState,
+  ExportButton,
+  Field,
+  Panel,
+  Pill,
+  inputClass,
+  selectClass,
+} from '@/components/judging/ui'
+import { exportWorkbook } from '@/lib/judging/export'
 
 type LeaderRow = {
   project_id: string
@@ -191,6 +201,36 @@ export default function ResultsAdminPage() {
 
   const selectedTrack = tracks.find((t) => t.id === trackId)
 
+  const exportResults = () => {
+    const trackName = selectedTrack?.name || 'Track'
+    const ok = exportWorkbook(`Results_${trackName.slice(0, 20)}`, [
+      {
+        name: 'Leaderboard',
+        rows: rows.map((r, i) => ({
+          Rank: i + 1,
+          Project: r.title,
+          Table: r.table_number || '',
+          Track: trackName,
+          'Average points': r.avgPoints,
+          'Judges scored': r.judgeCount,
+          'Near tie': flagged.has(r.project_id) ? 'Yes' : 'No',
+          'Eligibility not met': r.eligibilityFailed ? 'Yes' : 'No',
+          'Judges disagree': r.eligibilityDisputed ? 'Yes' : 'No',
+        })),
+      },
+      {
+        name: 'Top 3 tally',
+        rows: top3.map((t, i) => ({
+          Rank: i + 1,
+          Project: t.title,
+          'Top-3 mentions': t.mentions,
+          'First-place votes': t.firsts,
+        })),
+      },
+    ])
+    if (!ok) setError('Nothing to export yet — no submitted scores for this track.')
+  }
+
   return (
     <div className="space-y-6">
       {error && <Banner tone="error">{error}</Banner>}
@@ -250,6 +290,7 @@ export default function ResultsAdminPage() {
       <Panel
         title={`${selectedTrack?.name || 'Track'} leaderboard`}
         description="Projects that failed an eligibility check are pushed below eligible ones rather than hidden, so you can still see how they scored."
+        actions={<ExportButton onClick={exportResults} disabled={rows.length === 0} />}
       >
         {rows.length === 0 ? (
           <EmptyState

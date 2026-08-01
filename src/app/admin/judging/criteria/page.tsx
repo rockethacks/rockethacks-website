@@ -6,12 +6,14 @@ import type { CriteriaBand, CriteriaItem, CriteriaSet, Track } from '@/types/jud
 import {
   Banner,
   EmptyState,
+  ExportButton,
   Field,
   Panel,
   Pill,
   inputClass,
   selectClass,
 } from '@/components/judging/ui'
+import { exportWorkbook } from '@/lib/judging/export'
 
 const DEFAULT_BANDS = [
   { label: 'Underachieving', points: 1, description: 'Barely addresses this criterion.' },
@@ -95,6 +97,61 @@ export default function CriteriaAdminPage() {
   const sponsorTracksWithoutSet = tracks.filter(
     (t) => t.type === 'sponsor' && !sets.some((s) => s.track_id === t.id)
   )
+
+  const exportCriteria = async () => {
+    const supabase = createClient()
+    const { data: itemRows } = await supabase
+      .from('criteria_items')
+      .select('*')
+      .order('sort_order')
+    const allItems = (itemRows || []) as CriteriaItem[]
+    const { data: bandRows } = await supabase
+      .from('criteria_bands')
+      .select('*')
+      .order('sort_order')
+    const allBands = (bandRows || []) as CriteriaBand[]
+
+    const sheets = sets.map((set) => {
+      const rows: Record<string, string | number | null>[] = []
+      for (const item of allItems.filter((i) => i.criteria_set_id === set.id)) {
+        if (item.type === 'eligibility') {
+          rows.push({
+            Criterion: item.title,
+            Type: 'Eligibility',
+            'Max points': '',
+            Band: 'Yes / No gate',
+            Points: '',
+            Description: item.description || '',
+          })
+          continue
+        }
+        const bands = allBands.filter((b) => b.criteria_item_id === item.id)
+        if (bands.length === 0) {
+          rows.push({
+            Criterion: item.title,
+            Type: 'Scored',
+            'Max points': item.max_points ?? '',
+            Band: 'No bands configured',
+            Points: '',
+            Description: item.description || '',
+          })
+        }
+        for (const band of bands) {
+          rows.push({
+            Criterion: item.title,
+            Type: 'Scored',
+            'Max points': item.max_points ?? '',
+            Band: band.label,
+            Points: band.points,
+            Description: band.description || item.description || '',
+          })
+        }
+      }
+      return { name: set.name, rows }
+    })
+
+    if (!exportWorkbook('Rubrics', sheets)) setError('Nothing to export yet.')
+  }
 
   const createSet = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -360,7 +417,8 @@ export default function CriteriaAdminPage() {
                 title={selectedSet.name}
                 description="Eligibility items are yes/no gates that do not add points. Scored items give judges one row of tappable bands."
                 actions={
-                  <div className="flex flex-wrap gap-2">
+                  <div className="flex flex-wrap gap-2 items-center">
+                    <ExportButton onClick={exportCriteria} label="Export all rubrics" />
                     <button
                       onClick={() => addItem('eligibility')}
                       className="px-4 py-2 bg-white/10 hover:bg-white/20 text-white rounded-lg text-sm font-semibold transition"

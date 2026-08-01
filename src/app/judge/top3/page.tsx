@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import { createClient } from '@/lib/supabase/client'
 import { Banner, EmptyState, LoadingScreen, Pill } from '@/components/judging/ui'
+import { loadSession } from '@/lib/judging/session'
 
 type RankedProject = {
   project_id: string
@@ -25,7 +26,15 @@ export default function JudgeTop3Page() {
 
   useEffect(() => {
     async function load() {
-      const auth = await fetch('/api/auth/user').then((r) => r.json())
+      let auth
+      try {
+        auth = await loadSession()
+      } catch (e) {
+        setError(e instanceof Error ? e.message : 'Could not verify your session.')
+        setLoading(false)
+        return
+      }
+
       if (!auth.user || !auth.isJudge) {
         router.replace('/judge/login')
         return

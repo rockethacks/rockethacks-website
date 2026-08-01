@@ -6,6 +6,7 @@ import Link from 'next/link'
 import { createClient } from '@/lib/supabase/client'
 import { getPasswordRequirementsText, passwordsMatch } from '@/lib/utils/passwordValidation'
 import { Banner, Field, InlineSpinner, LoadingScreen, inputClass } from '@/components/judging/ui'
+import { loadSession } from '@/lib/judging/session'
 
 type Mode = 'activate' | 'signin'
 
@@ -57,7 +58,16 @@ function JudgeLoginForm() {
   useEffect(() => {
     let cancelled = false
     async function checkSession() {
-      const data = await fetch('/api/auth/user').then((r) => r.json())
+      let data
+      try {
+        data = await loadSession()
+      } catch (e) {
+        if (cancelled) return
+        // Still show the form; they can retry by submitting it
+        setError(e instanceof Error ? e.message : 'Could not verify your session.')
+        setChecking(false)
+        return
+      }
       if (cancelled) return
 
       if (data.user) {
