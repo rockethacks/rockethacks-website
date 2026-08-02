@@ -8,7 +8,7 @@ export default function OrganizerLayout({ children }: { children: React.ReactNod
   const router = useRouter()
   const [ready, setReady] = useState(false)
   const [isAdmin, setIsAdmin] = useState(false)
-  const [canAccessJudging, setCanAccessJudging] = useState(false)
+  const [portalKeys, setPortalKeys] = useState<string[]>([])
 
   const gate = useCallback(async () => {
     try {
@@ -20,8 +20,9 @@ export default function OrganizerLayout({ children }: { children: React.ReactNod
         return
       }
 
+      const keys: string[] = Array.isArray(data.portalKeys) ? data.portalKeys : []
       setIsAdmin(!!data.isAdmin)
-      setCanAccessJudging(!!data.isJudgingTeam || !!data.isAdmin)
+      setPortalKeys(data.isAdmin ? Array.from(new Set([...keys, 'judging'])) : keys)
       setReady(true)
     } catch {
       router.replace('/login?redirect=/organizer')
@@ -39,7 +40,7 @@ export default function OrganizerLayout({ children }: { children: React.ReactNod
   return (
     <StaffShell
       isAdmin={isAdmin}
-      canAccessJudging={canAccessJudging}
+      portalKeys={portalKeys}
       title={isAdmin ? 'Admin Portal' : 'Organizer Portal'}
     >
       {children}

@@ -4,6 +4,7 @@ import { useCallback, useEffect, useMemo, useState } from 'react'
 import * as XLSX from 'xlsx'
 import { createClient } from '@/lib/supabase/client'
 import type {
+  AssignableOrganizerRole,
   OrganizerInvite,
   OrganizerInviteTeamAssignment,
   OrganizerProfile,
@@ -13,6 +14,7 @@ import type {
 import { ORGANIZER_ROLE_LABELS } from '@/types/organizer'
 import { CopyLinkButton } from '@/components/staff/CopyLinkButton'
 import { ConfirmRemoveDialog } from '@/components/staff/ConfirmRemoveDialog'
+import { HelpTip } from '@/components/judging/ui'
 
 function randomCode() {
   const alphabet = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789'
@@ -69,7 +71,7 @@ export default function AdminTeamPage() {
   const [inviteForm, setInviteForm] = useState({
     email: '',
     full_name: '',
-    role: 'organizer' as OrganizerRole,
+    role: 'organizer' as AssignableOrganizerRole,
     expires_days: 14,
     teamIds: [] as string[],
     leaderTeamIds: [] as string[],
@@ -78,7 +80,7 @@ export default function AdminTeamPage() {
   const [addForm, setAddForm] = useState({
     email: '',
     full_name: '',
-    role: 'organizer' as OrganizerRole,
+    role: 'organizer' as AssignableOrganizerRole,
     teamIds: [] as string[],
     leaderTeamIds: [] as string[],
   })
@@ -108,7 +110,10 @@ export default function AdminTeamPage() {
       setError('')
     }
 
-    const teamList = (t.data || []) as OrgTeam[]
+    const teamList = ((t.data || []) as OrgTeam[]).map((team) => ({
+      ...team,
+      portal_key: team.portal_key ?? null,
+    }))
     setTeams(teamList)
     setInvites((i.data || []) as OrganizerInvite[])
 
@@ -412,15 +417,43 @@ export default function AdminTeamPage() {
     onChange: (next: { teamIds: string[]; leaderIds: string[] }) => void
   }) => (
     <div className="space-y-2">
-      <p className="text-xs font-semibold text-gray-400 uppercase">Teams</p>
+      <div className="flex flex-wrap items-center gap-x-3 gap-y-1">
+        <p className="text-xs font-semibold text-gray-400 uppercase">Teams</p>
+        <div className="flex flex-wrap items-center gap-3 text-[10px] text-gray-500">
+          <span className="inline-flex items-center gap-1.5">
+            <span
+              className="inline-block h-2.5 w-2.5 rounded-sm border border-emerald-400/70 bg-emerald-500/30"
+              aria-hidden
+            />
+            Portal tab
+          </span>
+          <span className="inline-flex items-center gap-1.5">
+            <span
+              className="inline-block h-2.5 w-2.5 rounded-sm border border-white/20 bg-white/10"
+              aria-hidden
+            />
+            Roster only
+          </span>
+          <HelpTip
+            label="About team colors"
+            text="Emerald teams unlock a staff portal tab (Judging today). Gray teams are roster tags only until their portals are built."
+          />
+        </div>
+      </div>
       <div className="flex flex-wrap gap-2">
         {teams.map((team) => {
           const on = teamIds.includes(team.id)
           const leader = leaderIds.includes(team.id)
+          const hasPortal = !!team.portal_key
           return (
             <div key={team.id} className="flex items-center gap-1">
               <button
                 type="button"
+                title={
+                  hasPortal
+                    ? `Unlocks the ${team.portal_key} portal tab`
+                    : 'Roster tag — no portal tab yet'
+                }
                 onClick={() => {
                   if (on) {
                     onChange({
@@ -436,8 +469,12 @@ export default function AdminTeamPage() {
                 }}
                 className={`px-3 py-1.5 rounded-lg text-xs font-semibold border transition ${
                   on
-                    ? 'bg-blue-600/80 border-blue-500 text-white'
-                    : 'bg-white/5 border-white/10 text-gray-300 hover:bg-white/10'
+                    ? hasPortal
+                      ? 'bg-emerald-600/80 border-emerald-400 text-white'
+                      : 'bg-blue-600/80 border-blue-500 text-white'
+                    : hasPortal
+                      ? 'bg-emerald-500/10 border-emerald-400/50 text-emerald-200 hover:bg-emerald-500/20'
+                      : 'bg-white/5 border-white/10 text-gray-300 hover:bg-white/10'
                 }`}
               >
                 {team.name}
@@ -475,7 +512,8 @@ export default function AdminTeamPage() {
       <div>
         <h2 className="text-xl font-bold text-white">Team</h2>
         <p className="text-sm text-gray-400 mt-1">
-          Invite organizers, assign team tags, and mark team leaders. Staff accounts are separate from hacker applications.
+          Invite organizers, assign teams, and mark team leaders. Selecting a team with a portal
+          (e.g. Judging) unlocks that staff tab — roles are only Organizer or Admin.
         </p>
       </div>
 
@@ -518,13 +556,15 @@ export default function AdminTeamPage() {
             className={selectClass}
             value={inviteForm.role}
             onChange={(e) =>
-              setInviteForm({ ...inviteForm, role: e.target.value as OrganizerRole })
+              setInviteForm({ ...inviteForm, role: e.target.value as AssignableOrganizerRole })
             }
           >
             <option value="organizer">Organizer</option>
-            <option value="judging_team">Judging Team</option>
             <option value="admin">Admin</option>
           </select>
+          <p className="text-xs text-gray-500 -mt-2">
+            Emerald teams unlock a portal tab; gray teams are roster-only for now.
+          </p>
           <TeamPicker
             teamIds={inviteForm.teamIds}
             leaderIds={inviteForm.leaderTeamIds}
@@ -570,10 +610,9 @@ export default function AdminTeamPage() {
           <select
             className={selectClass}
             value={addForm.role}
-            onChange={(e) => setAddForm({ ...addForm, role: e.target.value as OrganizerRole })}
+            onChange={(e) => setAddForm({ ...addForm, role: e.target.value as AssignableOrganizerRole })}
           >
             <option value="organizer">Organizer</option>
-            <option value="judging_team">Judging Team</option>
             <option value="admin">Admin</option>
           </select>
           <TeamPicker
@@ -781,11 +820,14 @@ export default function AdminTeamPage() {
                   onChange={(e) => updateSelectedRole(e.target.value as OrganizerRole)}
                 >
                   <option value="organizer">Organizer</option>
-                  <option value="judging_team">Judging Team</option>
                   <option value="admin">Admin</option>
+                  {selected.role === 'judging_team' && (
+                    <option value="judging_team">Judging Team (legacy)</option>
+                  )}
                 </select>
                 <p className="text-xs text-gray-500 pt-1">
-                  Judging tab: set Role to Judging Team, or add the Judging team tag below.
+                  Judging tab comes from the Judging team below (portal: judging), not from this
+                  role.
                 </p>
               </label>
               <TeamPicker

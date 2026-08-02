@@ -9,7 +9,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
   const router = useRouter()
   const [ready, setReady] = useState(false)
   const [isAdmin, setIsAdmin] = useState(false)
-  const [canAccessJudging, setCanAccessJudging] = useState(false)
+  const [portalKeys, setPortalKeys] = useState<string[]>([])
   const [isHeadJudgeOnly, setIsHeadJudgeOnly] = useState(false)
 
   const isJudgingPath = pathname.startsWith('/admin/judging')
@@ -19,12 +19,12 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
       const res = await fetch('/api/auth/user')
       const data = await res.json()
       const admin = !!data.isAdmin
-      const judgingTeam = !!data.isJudgingTeam
+      const keys: string[] = Array.isArray(data.portalKeys) ? data.portalKeys : []
+      const judgingTeam = !!data.isJudgingTeam || keys.includes('judging')
       const headJudge = !!data.isHeadJudge
-      const judgingAccess = admin || judgingTeam || headJudge
 
       setIsAdmin(admin)
-      setCanAccessJudging(judgingAccess)
+      setPortalKeys(admin ? Array.from(new Set([...keys, 'judging'])) : keys)
 
       if (admin) {
         setIsHeadJudgeOnly(false)
@@ -33,7 +33,6 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
       }
 
       if (isJudgingPath && (judgingTeam || headJudge)) {
-        // Head judges who are not staff get judging-only chrome
         setIsHeadJudgeOnly(headJudge && !data.isOrganizer)
         setReady(true)
         return
@@ -66,7 +65,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
   }
 
   return (
-    <StaffShell isAdmin={isAdmin} canAccessJudging={canAccessJudging}>
+    <StaffShell isAdmin={isAdmin} portalKeys={portalKeys}>
       {children}
     </StaffShell>
   )
