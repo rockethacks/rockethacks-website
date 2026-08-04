@@ -67,6 +67,7 @@ export default function AdminTeamPage() {
   })
   const [origin, setOrigin] = useState('')
   const [search, setSearch] = useState('')
+  const [emailSendingId, setEmailSendingId] = useState<string | null>(null)
 
   const [inviteForm, setInviteForm] = useState({
     email: '',
@@ -218,7 +219,7 @@ export default function AdminTeamPage() {
     if (iErr) {
       setError(iErr.message)
     } else {
-      setMessage(`Invite ${code} created for ${inviteForm.email}.`)
+      setMessage(`Invite ${code} created for ${inviteForm.email}. Sending invite email…`)
       setInviteForm({
         email: '',
         full_name: '',
@@ -228,8 +229,41 @@ export default function AdminTeamPage() {
         leaderTeamIds: [],
       })
       await load()
+      const email = inviteForm.email.trim().toLowerCase()
+      fetch('/api/admin/invites/send-email', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ type: 'organizer', invite_code: code }),
+      })
+        .then(async (r) => {
+          const j = await r.json().catch(() => ({}))
+          setMessage(r.ok
+            ? `Invite ${code} created for ${email}. Invite email sent.`
+            : `Invite ${code} created for ${email}. Email not sent: ${(j as { error?: string }).error ?? 'unknown error'}.`,
+          )
+        })
+        .catch(() => setMessage(`Invite ${code} created for ${email}. Email could not be sent (network error).`))
     }
     setBusy(false)
+  }
+
+  const sendInviteEmail = async (inv: OrganizerInvite) => {
+    setEmailSendingId(inv.id)
+    setError('')
+    try {
+      const r = await fetch('/api/admin/invites/send-email', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ type: 'organizer', invite_code: inv.invite_code }),
+      })
+      const j = await r.json().catch(() => ({}))
+      if (r.ok) setMessage(`Invite email sent to ${inv.email}.`)
+      else setError((j as { error?: string }).error ?? 'Email send failed.')
+    } catch {
+      setError('Network error sending email.')
+    } finally {
+      setEmailSendingId(null)
+    }
   }
 
   const addExisting = async (e: React.FormEvent) => {
@@ -896,10 +930,20 @@ export default function AdminTeamPage() {
               </div>
               <div className="flex gap-2">
                 {!inv.used && (
-                  <CopyLinkButton
-                    text={`${origin}/login?org_code=${inv.invite_code}`}
-                    label="Copy link"
-                  />
+                  <>
+                    <CopyLinkButton
+                      text={`${origin}/login?org_code=${inv.invite_code}`}
+                      label="Copy link"
+                    />
+                    <button
+                      type="button"
+                      onClick={() => sendInviteEmail(inv)}
+                      disabled={emailSendingId === inv.id}
+                      className="px-3 py-1.5 bg-blue-600/20 hover:bg-blue-600/30 border border-blue-500/30 text-blue-300 text-xs font-semibold rounded-lg transition disabled:opacity-50"
+                    >
+                      {emailSendingId === inv.id ? 'Sending…' : 'Send email'}
+                    </button>
+                  </>
                 )}
                 <button
                   type="button"
