@@ -49,6 +49,7 @@ export default function JudgesAdminPage() {
   const [confirmRemove, setConfirmRemove] = useState(false)
   const [newTag, setNewTag] = useState('')
   const [origin, setOrigin] = useState('')
+  const [emailSendingId, setEmailSendingId] = useState<string | null>(null)
 
   const [form, setForm] = useState({
     email: '',
@@ -136,11 +137,30 @@ export default function JudgesAdminPage() {
     if (iErr) {
       setError(iErr.message)
     } else {
-      setMessage(`Invite ${code} created for ${form.email}.`)
+      setMessage(`Invite ${code} created for ${form.email}. Use "Send email" to deliver it.`)
       setForm({ ...form, email: '', full_name: '', industry: '', job_title: '', company: '' })
       await load()
     }
     setCreating(false)
+  }
+
+  const sendInviteEmail = async (inv: JudgeInvite) => {
+    setEmailSendingId(inv.id)
+    setError('')
+    try {
+      const r = await fetch('/api/admin/invites/send-email', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ type: 'judge', invite_code: inv.invite_code }),
+      })
+      const j = await r.json().catch(() => ({}))
+      if (r.ok) setMessage(`Invite email sent to ${inv.email}.`)
+      else setError((j as { error?: string }).error ?? 'Email send failed.')
+    } catch {
+      setError('Network error sending email.')
+    } finally {
+      setEmailSendingId(null)
+    }
   }
 
   const revokeInvite = async (id: string) => {
@@ -486,12 +506,20 @@ export default function JudgesAdminPage() {
                       Expires {new Date(inv.expires_at).toLocaleString()}
                     </p>
                     {!inv.used && !expired && (
-                      <div className="flex gap-2">
+                      <div className="flex gap-2 flex-wrap">
                         <CopyLinkButton
                           text={`${origin}/judge/login?code=${inv.invite_code}`}
                           label="Copy sign-in link"
                           variant="ghost"
                         />
+                        <button
+                          type="button"
+                          onClick={() => sendInviteEmail(inv)}
+                          disabled={emailSendingId === inv.id}
+                          className="px-3 py-1.5 bg-blue-600/20 hover:bg-blue-600/30 border border-blue-500/30 text-blue-300 text-xs font-semibold rounded-lg transition disabled:opacity-50"
+                        >
+                          {emailSendingId === inv.id ? 'Sending…' : 'Send email'}
+                        </button>
                         <button
                           onClick={() => revokeInvite(inv.id)}
                           className="px-3 py-1.5 bg-red-600/80 hover:bg-red-600 text-white text-xs font-semibold rounded-lg transition"

@@ -29,11 +29,47 @@ export async function GET() {
     })
   }
 
-  const { data: organizerProfile } = await supabase
+  let { data: organizerProfile } = await supabase
     .from('organizer_profiles')
     .select('role, full_name, email')
     .eq('user_id', user.id)
     .maybeSingle()
+
+  // Session established without going through /api/auth/callback (e.g. GoTrue
+  // redirected straight to the Site URL) can leave a pending invite un-redeemed.
+  // Redeem it here so any caller of this route (dropdown, login page) picks up
+  // the correct role immediately instead of only after visiting /dashboard.
+  if (!organizerProfile) {
+    const { data: applicant } = await supabase
+      .from('applicants')
+      .select('id')
+      .eq('user_id', user.id)
+      .maybeSingle()
+
+    if (!applicant) {
+      const meta = user.user_metadata || {}
+      const staffCode =
+        typeof meta.staff_invite_code === 'string' ? meta.staff_invite_code.trim().toUpperCase() : ''
+      const judgeCode =
+        typeof meta.judge_invite_code === 'string' ? meta.judge_invite_code.trim().toUpperCase() : ''
+
+      if (staffCode) {
+        await supabase.rpc('redeem_organizer_invite', { p_invite_code: staffCode })
+      } else {
+        await supabase.rpc('redeem_pending_organizer_invite')
+      }
+      if (judgeCode) {
+        await supabase.rpc('redeem_judge_invite', { p_invite_code: judgeCode })
+      }
+
+      const { data: refreshed } = await supabase
+        .from('organizer_profiles')
+        .select('role, full_name, email')
+        .eq('user_id', user.id)
+        .maybeSingle()
+      organizerProfile = refreshed
+    }
+  }
 
   const isAdmin = organizerProfile?.role === 'admin'
   const isOrganizer = !!organizerProfile
