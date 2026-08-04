@@ -10,6 +10,28 @@ import {
   useState,
 } from 'react'
 import { createClient } from '@/lib/supabase/client'
+import { fetchUnreadCount } from '@/lib/tasks/api'
+
+function TaskBadge() {
+  const [count, setCount] = useState(0)
+  useEffect(() => {
+    fetchUnreadCount().then(setCount).catch(() => {})
+    const supabase = createClient()
+    const channel = supabase
+      .channel('task_notifications_badge')
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'task_notifications' }, () => {
+        fetchUnreadCount().then(setCount).catch(() => {})
+      })
+      .subscribe()
+    return () => { supabase.removeChannel(channel) }
+  }, [])
+  if (count === 0) return null
+  return (
+    <span className="ml-1.5 inline-flex items-center justify-center min-w-[16px] h-4 px-1 rounded-full bg-red-500 text-[10px] font-bold text-white leading-none">
+      {count > 99 ? '99+' : count}
+    </span>
+  )
+}
 
 export type StaffNavItem = {
   href: string
@@ -19,13 +41,24 @@ export type StaffNavItem = {
   adminOnly?: boolean
   /** Unlocks when user has this org_teams.portal_key (admins always see it) */
   portalKey?: string
+  /** When true, hidden for admins (who use /admin/tasks instead) */
+  skipForAdmin?: boolean
+  /** Show notification badge next to label */
+  hasBadge?: boolean
 }
 
 export const STAFF_NAV: StaffNavItem[] = [
   { href: '/admin', label: 'Applicants', exact: true, adminOnly: true },
   { href: '/admin/team', label: 'Team', adminOnly: true },
+  { href: '/admin/tasks', label: 'Tasks', adminOnly: true, hasBadge: true },
   { href: '/admin/judging', label: 'Judging', portalKey: 'judging' },
   { href: '/organizer', label: 'Check-In' },
+  { href: '/organizer/tasks/logistics',           label: 'Logistics',           portalKey: 'logistics',           skipForAdmin: true, hasBadge: true },
+  { href: '/organizer/tasks/product',             label: 'Product',             portalKey: 'product',             skipForAdmin: true, hasBadge: true },
+  { href: '/organizer/tasks/development',         label: 'Development',         portalKey: 'development',         skipForAdmin: true, hasBadge: true },
+  { href: '/organizer/tasks/corporate-relations', label: 'Corporate Relations', portalKey: 'corporate-relations', skipForAdmin: true, hasBadge: true },
+  { href: '/organizer/tasks/safety',              label: 'Safety',              portalKey: 'safety',              skipForAdmin: true, hasBadge: true },
+  { href: '/organizer/tasks/volunteer',           label: 'Volunteer',           portalKey: 'volunteer',           skipForAdmin: true, hasBadge: true },
 ]
 
 function isNavActive(pathname: string, item: StaffNavItem) {
@@ -105,6 +138,7 @@ function StaffTabs({ items }: { items: StaffNavItem[] }) {
               }`}
             >
               {item.label}
+              {item.hasBadge && <TaskBadge />}
             </Link>
           )
         })}
@@ -152,6 +186,7 @@ export function StaffShell({
 
   const nav = STAFF_NAV.filter((item) => {
     if (item.adminOnly) return isAdmin
+    if (item.skipForAdmin && isAdmin) return false
     if (item.portalKey) return isAdmin || keys.has(item.portalKey)
     return true
   })
