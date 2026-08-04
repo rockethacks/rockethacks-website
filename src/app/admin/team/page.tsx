@@ -68,6 +68,7 @@ export default function AdminTeamPage() {
   const [origin, setOrigin] = useState('')
   const [search, setSearch] = useState('')
   const [emailSendingId, setEmailSendingId] = useState<string | null>(null)
+  const [sentInviteIds, setSentInviteIds] = useState<Set<string>>(new Set())
 
   const [inviteForm, setInviteForm] = useState({
     email: '',
@@ -243,8 +244,12 @@ export default function AdminTeamPage() {
         body: JSON.stringify({ type: 'organizer', invite_code: inv.invite_code }),
       })
       const j = await r.json().catch(() => ({}))
-      if (r.ok) setMessage(`Invite email sent to ${inv.email}.`)
-      else setError((j as { error?: string }).error ?? 'Email send failed.')
+      if (r.ok) {
+        setMessage(`Invite email sent to ${inv.email}.`)
+        setSentInviteIds((prev) => new Set(prev).add(inv.id))
+      } else {
+        setError((j as { error?: string }).error ?? 'Email send failed.')
+      }
     } catch {
       setError('Network error sending email.')
     } finally {
@@ -925,9 +930,13 @@ export default function AdminTeamPage() {
                       type="button"
                       onClick={() => sendInviteEmail(inv)}
                       disabled={emailSendingId === inv.id}
-                      className="px-3 py-1.5 bg-blue-600/20 hover:bg-blue-600/30 border border-blue-500/30 text-blue-300 text-xs font-semibold rounded-lg transition disabled:opacity-50"
+                      className={
+                        sentInviteIds.has(inv.id)
+                          ? 'px-3 py-1.5 bg-green-600/20 hover:bg-green-600/30 border border-green-500/30 text-green-300 text-xs font-semibold rounded-lg transition disabled:opacity-50'
+                          : 'px-3 py-1.5 bg-blue-600/20 hover:bg-blue-600/30 border border-blue-500/30 text-blue-300 text-xs font-semibold rounded-lg transition disabled:opacity-50'
+                      }
                     >
-                      {emailSendingId === inv.id ? 'Sending…' : 'Send email'}
+                      {emailSendingId === inv.id ? 'Sending…' : sentInviteIds.has(inv.id) ? 'Sent' : 'Send email'}
                     </button>
                   </>
                 )}
