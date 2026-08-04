@@ -244,6 +244,7 @@ export function TaskDetailPanel({ task, currentUserId, isAdmin, onClose, onUpdat
   const threadEndRef = useRef<HTMLDivElement>(null)
   const canComplete = isAdmin || currentUserId === task.creator_id
   const canDelete = isAdmin || currentUserId === task.creator_id
+  const canComment = isAdmin || (task.assignees ?? []).some((a) => a.organizer_id === currentUserId)
   const shouldReduce = useReducedMotion()
 
   useEffect(() => {
@@ -566,14 +567,20 @@ export function TaskDetailPanel({ task, currentUserId, isAdmin, onClose, onUpdat
             </div>
           )}
 
-          <textarea
-            rows={2}
-            value={commentText}
-            onChange={(e) => setCommentText(e.target.value)}
-            onKeyDown={(e) => { if (e.key === 'Enter' && (e.metaKey || e.ctrlKey)) { e.preventDefault(); handlePostComment() } }}
-            placeholder="Add a comment… (⌘+Enter to post)"
-            className="w-full resize-none bg-white/5 border border-white/10 rounded-lg px-3 py-2.5 text-sm text-white placeholder-gray-600 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition"
-          />
+          {canComment ? (
+            <textarea
+              rows={2}
+              value={commentText}
+              onChange={(e) => setCommentText(e.target.value)}
+              onKeyDown={(e) => { if (e.key === 'Enter' && (e.metaKey || e.ctrlKey)) { e.preventDefault(); handlePostComment() } }}
+              placeholder="Add a comment… (⌘+Enter to post)"
+              className="w-full resize-none bg-white/5 border border-white/10 rounded-lg px-3 py-2.5 text-sm text-white placeholder-gray-600 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition"
+            />
+          ) : (
+            <p className="text-xs text-gray-500 italic px-1">
+              Only assignees and admins can comment on this task. You have view-only access.
+            </p>
+          )}
 
           <div className="flex items-center gap-2">
             <button
@@ -599,15 +606,17 @@ export function TaskDetailPanel({ task, currentUserId, isAdmin, onClose, onUpdat
                 {task.status === 'completed' ? 'Reopen' : actionLoading ? 'Saving…' : 'Mark Complete'}
               </button>
             )}
-            <button
-              type="button"
-              onClick={handlePostComment}
-              disabled={posting || !commentText.trim()}
-              className="flex items-center gap-1.5 text-xs font-semibold px-3 py-1.5 rounded-lg bg-blue-600 hover:bg-blue-500 text-white transition disabled:opacity-40 disabled:cursor-not-allowed"
-            >
-              {posting ? <span className="inline-block w-3 h-3 border border-white/30 border-t-white rounded-full animate-spin" /> : null}
-              Post
-            </button>
+            {canComment && (
+              <button
+                type="button"
+                onClick={handlePostComment}
+                disabled={posting || !commentText.trim()}
+                className="flex items-center gap-1.5 text-xs font-semibold px-3 py-1.5 rounded-lg bg-blue-600 hover:bg-blue-500 text-white transition disabled:opacity-40 disabled:cursor-not-allowed"
+              >
+                {posting ? <span className="inline-block w-3 h-3 border border-white/30 border-t-white rounded-full animate-spin" /> : null}
+                Post
+              </button>
+            )}
           </div>
         </div>
       </motion.div>

@@ -101,6 +101,7 @@ export function TaskBoard({ module, isAdmin }: { module: string | null; isAdmin:
 
   const [search, setSearch] = useState('')
   const [priorityFilter, setPriorityFilter] = useState<TaskPriority | null>(null)
+  const [myTasksOnly, setMyTasksOnly] = useState(false)
   const [selectedTaskId, setSelectedTaskId] = useState<string | null>(null)
   const [showCreate, setShowCreate] = useState(false)
   const [editingTask, setEditingTask] = useState<Task | null>(null)
@@ -129,6 +130,7 @@ export function TaskBoard({ module, isAdmin }: { module: string | null; isAdmin:
   const filtered = tasks.filter((t) => {
     if (search && !t.title.toLowerCase().includes(search.toLowerCase())) return false
     if (priorityFilter && t.priority !== priorityFilter) return false
+    if (myTasksOnly && !(t.assignees ?? []).some((a) => a.organizer_id === currentUserId)) return false
     return true
   })
 
@@ -161,6 +163,14 @@ export function TaskBoard({ module, isAdmin }: { module: string | null; isAdmin:
           onChange={(e) => setSearch(e.target.value)}
           className="flex-1 min-w-[180px] max-w-xs px-3 py-1.5 bg-white/5 border border-white/10 rounded-lg text-sm text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-500/50"
         />
+        <button
+          type="button"
+          onClick={() => setMyTasksOnly((v) => !v)}
+          disabled={!currentUserId}
+          className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition border shrink-0 disabled:opacity-50 ${myTasksOnly ? 'bg-blue-500/20 text-blue-300 border-blue-500/40' : 'bg-transparent text-gray-400 border-white/10 hover:bg-white/10'}`}
+        >
+          View My Tasks
+        </button>
         <div className="flex items-center gap-1">
           <button
             type="button"
