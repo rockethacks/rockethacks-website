@@ -137,23 +137,9 @@ export default function JudgesAdminPage() {
     if (iErr) {
       setError(iErr.message)
     } else {
-      setMessage(`Invite ${code} created for ${form.email}. Sending invite email…`)
-      const email = form.email.trim().toLowerCase()
+      setMessage(`Invite ${code} created for ${form.email}. Use "Send email" to deliver it.`)
       setForm({ ...form, email: '', full_name: '', industry: '', job_title: '', company: '' })
       await load()
-      fetch('/api/admin/invites/send-email', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ type: 'judge', invite_code: code }),
-      })
-        .then(async (r) => {
-          const j = await r.json().catch(() => ({}))
-          setMessage(r.ok
-            ? `Invite ${code} created for ${email}. Invite email sent.`
-            : `Invite ${code} created for ${email}. Email not sent: ${(j as { error?: string }).error ?? 'unknown error'}.`,
-          )
-        })
-        .catch(() => setMessage(`Invite ${code} created for ${email}. Email could not be sent (network error).`))
     }
     setCreating(false)
   }

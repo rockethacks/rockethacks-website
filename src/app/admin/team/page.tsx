@@ -219,7 +219,7 @@ export default function AdminTeamPage() {
     if (iErr) {
       setError(iErr.message)
     } else {
-      setMessage(`Invite ${code} created for ${inviteForm.email}. Sending invite email…`)
+      setMessage(`Invite ${code} created for ${inviteForm.email}. Use "Send email" to deliver it.`)
       setInviteForm({
         email: '',
         full_name: '',
@@ -229,20 +229,6 @@ export default function AdminTeamPage() {
         leaderTeamIds: [],
       })
       await load()
-      const email = inviteForm.email.trim().toLowerCase()
-      fetch('/api/admin/invites/send-email', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ type: 'organizer', invite_code: code }),
-      })
-        .then(async (r) => {
-          const j = await r.json().catch(() => ({}))
-          setMessage(r.ok
-            ? `Invite ${code} created for ${email}. Invite email sent.`
-            : `Invite ${code} created for ${email}. Email not sent: ${(j as { error?: string }).error ?? 'unknown error'}.`,
-          )
-        })
-        .catch(() => setMessage(`Invite ${code} created for ${email}. Email could not be sent (network error).`))
     }
     setBusy(false)
   }
