@@ -61,6 +61,7 @@ export async function POST(request: Request) {
   const full_name = typeof body.full_name === 'string' ? body.full_name.trim() : null
   const team_assignments = Array.isArray(body.team_assignments) ? body.team_assignments : []
 
+  // New assigns: organizer | admin. judging_team accepted only for legacy clients.
   if (!email || !['organizer', 'judging_team', 'admin'].includes(role)) {
     return NextResponse.json({ error: 'Invalid email or role' }, { status: 400 })
   }

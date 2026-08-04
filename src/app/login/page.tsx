@@ -41,7 +41,7 @@ function LoginForm() {
     const err = searchParams.get('error')
     if (err === 'staff_access_required') {
       setError(
-        'You are signed in, but this account is not staff yet. Enter your invite code and sign in again, or use First time? Activate with invite code.'
+        'You are signed in, but this account is not staff yet. Open the invite link from an admin (it includes your code), then sign in with the invited email.'
       )
     } else if (err === 'auth_failed') {
       setError('Authentication failed. Please try signing in again.')
@@ -398,7 +398,7 @@ function LoginForm() {
             </button>
           </form>
 
-          {isStaffInvite && (
+          {orgCodeFromUrl && (
             <button
               type="button"
               onClick={() => {
@@ -411,7 +411,7 @@ function LoginForm() {
             >
               {staffMode === 'activate'
                 ? 'Already activated? Sign in instead'
-                : 'First time? Activate with invite code'}
+                : 'First time? Set password with this invite'}
             </button>
           )}
 
@@ -453,20 +453,6 @@ function LoginForm() {
               className="w-full py-3 px-4 bg-white/5 hover:bg-white/10 border border-white/20 rounded-lg text-rh-white text-sm font-medium transition-all"
             >
               Back to Password Sign In
-            </button>
-          )}
-
-          {staffMode !== 'activate' && !orgCodeFromUrl && (
-            <button
-              type="button"
-              onClick={() => {
-                setStaffMode('activate')
-                setError('')
-                setMessage('')
-              }}
-              className="w-full py-3 px-4 bg-white/5 hover:bg-white/10 border border-white/20 rounded-lg text-rh-white text-sm font-medium transition-all"
-            >
-              First time? Activate with invite code
             </button>
           )}
 

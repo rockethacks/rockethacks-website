@@ -60,16 +60,30 @@ export async function updateSession(request: NextRequest) {
     return data
   }
 
-  async function isOnJudgingOrgTeam() {
+  /** Portal access via org_teams.portal_key (plus legacy judging role/name). */
+  async function hasOrgPortal(portalKey: string) {
     if (!user) return false
+    const organizer = await getOrganizerProfile()
+    if (!organizer) return false
+    if (organizer.role === 'admin') return true
+    if (portalKey === 'judging' && organizer.role === 'judging_team') return true
+
     const { data } = await supabase
       .from('organizer_team_members')
-      .select('team_id, org_teams(name)')
+      .select('team_id, org_teams(name, portal_key)')
       .eq('organizer_id', user.id)
+
     return (data || []).some((row) => {
-      const team = row.org_teams as { name?: string } | { name?: string }[] | null
-      if (Array.isArray(team)) return team.some((t) => t.name === 'Judging')
-      return team?.name === 'Judging'
+      const team = row.org_teams as
+        | { name?: string; portal_key?: string | null }
+        | { name?: string; portal_key?: string | null }[]
+        | null
+      const teams = Array.isArray(team) ? team : team ? [team] : []
+      return teams.some(
+        (t) =>
+          t.portal_key === portalKey ||
+          (portalKey === 'judging' && t.name === 'Judging')
+      )
     })
   }
 
@@ -84,8 +98,7 @@ export async function updateSession(request: NextRequest) {
 
     const organizer = await getOrganizerProfile()
     const isAdmin = organizer?.role === 'admin'
-    const isJudgingRole = organizer?.role === 'judging_team'
-    const isJudgingTeam = isJudgingRole || (!isAdmin && !!organizer && (await isOnJudgingOrgTeam()))
+    const isJudgingTeam = await hasOrgPortal('judging')
 
     // Head judges and judging staff may access /admin/judging/* only
     const isJudgingPath = path.startsWith('/admin/judging')
@@ -145,9 +158,62 @@ export async function updateSession(request: NextRequest) {
       return NextResponse.redirect(redirectUrl)
     }
 
-    const organizer = await getOrganizerProfile()
+    let organizer = await getOrganizerProfile()
+    // Email-confirm can establish a session without password login (which normally
+    // redeems a pending staff invite). Only attempt redeem for non-hackers so
+    // applicant dashboard traffic is untouched.
+    const { data: applicant } = await supabase
+      .from('applicants')
+      .select('id')
+      .eq('user_id', user.id)
+      .maybeSingle()
+
+    if (!organizer && !applicant) {
+      const meta = user.user_metadata || {}
+      const staffCode =
+        typeof meta.staff_invite_code === 'string'
+          ? meta.staff_invite_code.trim().toUpperCase()
+          : ''
+      if (staffCode) {
+        await supabase.rpc('redeem_organizer_invite', { p_invite_code: staffCode })
+      } else {
+        await supabase.rpc('redeem_pending_organizer_invite')
+      }
+      organizer = await getOrganizerProfile()
+    }
     if (organizer) {
       return NextResponse.redirect(new URL(staffHome(organizer.role), request.url))
+    }
+
+    // Confirmed account with no application → never leave an empty dashboard
+    if (path.startsWith('/dashboard') && !applicant) {
+      const { data: judgeProfile } = await supabase
+        .from('judge_profiles')
+        .select('user_id')
+        .eq('user_id', user.id)
+        .maybeSingle()
+      if (judgeProfile) {
+        return NextResponse.redirect(new URL('/judge', request.url))
+      }
+      const judgeCode =
+        typeof user.user_metadata?.judge_invite_code === 'string'
+          ? user.user_metadata.judge_invite_code.trim().toUpperCase()
+          : ''
+      if (judgeCode) {
+        return NextResponse.redirect(
+          new URL(`/judge/login?code=${encodeURIComponent(judgeCode)}`, request.url)
+        )
+      }
+      const staffCode =
+        typeof user.user_metadata?.staff_invite_code === 'string'
+          ? user.user_metadata.staff_invite_code.trim().toUpperCase()
+          : ''
+      if (staffCode) {
+        return NextResponse.redirect(
+          new URL(`/login?org_code=${encodeURIComponent(staffCode)}`, request.url)
+        )
+      }
+      return NextResponse.redirect(new URL('/apply', request.url))
     }
   }
 

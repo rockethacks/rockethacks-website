@@ -3,13 +3,16 @@ import { NextResponse } from 'next/server'
 
 /**
  * Get current user with role information.
- * Staff RBAC: organizer_profiles. Judging: judge_profiles. Hackers: applicants row.
- * Judging tab: role judging_team, admin, or membership on the Judging org team.
+ * Staff RBAC: organizer_profiles. Portal tabs: org_teams.portal_key via membership.
+ * Judging tab: admin, portal_key=judging, legacy judging_team role, or head_judge.
  */
 export async function GET() {
   const supabase = await createClient()
 
-  const { data: { user }, error } = await supabase.auth.getUser()
+  const {
+    data: { user },
+    error,
+  } = await supabase.auth.getUser()
 
   if (error || !user) {
     return NextResponse.json({
@@ -18,10 +21,11 @@ export async function GET() {
       isJudgingTeam: false,
       isJudge: false,
       isHeadJudge: false,
+      portalKeys: [] as string[],
       role: 'participant',
       organizerRole: null,
       judgeRole: null,
-      user: null
+      user: null,
     })
   }
 
@@ -36,22 +40,37 @@ export async function GET() {
   const organizerRole = organizerProfile?.role ?? null
   const role = organizerRole ?? 'participant'
 
-  let onJudgingOrgTeam = false
-  if (organizerProfile && organizerProfile.role !== 'judging_team' && !isAdmin) {
+  const portalKeys = new Set<string>()
+  if (organizerProfile) {
     const { data: memberships } = await supabase
       .from('organizer_team_members')
-      .select('team_id, org_teams(name)')
+      .select('team_id, org_teams(name, portal_key)')
       .eq('organizer_id', user.id)
 
-    onJudgingOrgTeam = (memberships || []).some((row) => {
-      const team = row.org_teams as { name?: string } | { name?: string }[] | null
-      if (Array.isArray(team)) return team.some((t) => t.name === 'Judging')
-      return team?.name === 'Judging'
-    })
+    for (const row of memberships || []) {
+      const team = row.org_teams as
+        | { name?: string; portal_key?: string | null }
+        | { name?: string; portal_key?: string | null }[]
+        | null
+      const teams = Array.isArray(team) ? team : team ? [team] : []
+      for (const t of teams) {
+        if (t.portal_key) portalKeys.add(t.portal_key)
+        // Legacy: Judging name before portal_key backfill
+        if (t.name === 'Judging') portalKeys.add('judging')
+      }
+    }
+
+    if (organizerProfile.role === 'judging_team') {
+      portalKeys.add('judging')
+    }
   }
 
-  const isJudgingTeam =
-    isAdmin || organizerProfile?.role === 'judging_team' || onJudgingOrgTeam
+  if (isAdmin) {
+    portalKeys.add('judging')
+  }
+
+  const portalKeyList = Array.from(portalKeys)
+  const isJudgingTeam = isAdmin || portalKeyList.includes('judging')
 
   const { data: judgeProfile } = await supabase
     .from('judge_profiles')
@@ -68,6 +87,7 @@ export async function GET() {
     isJudgingTeam,
     isJudge,
     isHeadJudge,
+    portalKeys: portalKeyList,
     role,
     organizerRole,
     judgeRole: judgeProfile?.role ?? null,
@@ -75,6 +95,6 @@ export async function GET() {
       id: user.id,
       email: user.email,
       full_name: organizerProfile?.full_name ?? judgeProfile?.full_name ?? null,
-    }
+    },
   })
 }

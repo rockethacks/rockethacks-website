@@ -11,6 +11,7 @@ Run these **manually** in the Supabase SQL Editor. Do **not** use MCP `apply_mig
 | 3 | [`012_judging_functions.sql`](./012_judging_functions.sql) | Invite redeem, score sync, audit, assignment suggest |
 | 4 | [`013_judging_fixes.sql`](./013_judging_fixes.sql) | Invite pre-check RPC, assignment immutability + submit lock |
 | 5 | [`014_judging_visits.sql`](./014_judging_visits.sql) | Visit-based time model, judge↔track links, plan builder RPC |
+| 6 | [`015_judging_plan_optimize.sql`](./015_judging_plan_optimize.sql) | Persist judges_per_project; layered coverage planner |
 
 ## Safety guarantees
 

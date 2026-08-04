@@ -47,14 +47,19 @@ export async function POST(request: NextRequest) {
   }
 
   const origin = process.env.NEXT_PUBLIC_SITE_URL || request.nextUrl.origin
-  const staffRedirect = `/login?org_code=${encodeURIComponent(cleanCode)}`
+  // Prefer /organizer as the confirm landing; invite code also lives in user_metadata
+  // so redeem still works if Supabase strips the redirect query.
+  const staffRedirect = `/organizer`
 
   const { data, error } = await supabase.auth.signUp({
     email: cleanEmail,
     password,
     options: {
       emailRedirectTo: `${origin}/api/auth/callback?redirect=${encodeURIComponent(staffRedirect)}`,
-      data: { password_setup_completed: true },
+      data: {
+        password_setup_completed: true,
+        staff_invite_code: cleanCode,
+      },
     },
   })
 

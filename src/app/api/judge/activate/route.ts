@@ -52,14 +52,17 @@ export async function POST(request: NextRequest) {
   }
 
   const origin = process.env.NEXT_PUBLIC_SITE_URL || request.nextUrl.origin
-  const judgeRedirect = `/judge/login?code=${encodeURIComponent(cleanCode)}`
+  const judgeRedirect = `/judge`
 
   const { data, error } = await supabase.auth.signUp({
     email: cleanEmail,
     password,
     options: {
       emailRedirectTo: `${origin}/api/auth/callback?redirect=${encodeURIComponent(judgeRedirect)}`,
-      data: { password_setup_completed: true },
+      data: {
+        password_setup_completed: true,
+        judge_invite_code: cleanCode,
+      },
     },
   })
 

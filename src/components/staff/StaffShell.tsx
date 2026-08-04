@@ -17,14 +17,14 @@ export type StaffNavItem = {
   exact?: boolean
   /** Only shown to admins */
   adminOnly?: boolean
-  /** Shown to admins and judging_team staff */
-  judgingAccess?: boolean
+  /** Unlocks when user has this org_teams.portal_key (admins always see it) */
+  portalKey?: string
 }
 
 export const STAFF_NAV: StaffNavItem[] = [
   { href: '/admin', label: 'Applicants', exact: true, adminOnly: true },
   { href: '/admin/team', label: 'Team', adminOnly: true },
-  { href: '/admin/judging', label: 'Judging', judgingAccess: true },
+  { href: '/admin/judging', label: 'Judging', portalKey: 'judging' },
   { href: '/organizer', label: 'Check-In' },
 ]
 
@@ -128,7 +128,9 @@ function StaffTabs({ items }: { items: StaffNavItem[] }) {
 type StaffShellProps = {
   children: React.ReactNode
   isAdmin: boolean
-  /** Admin or judging_team — unlocks Judging tab */
+  /** Portal keys from org team membership (e.g. ['judging']) */
+  portalKeys?: string[]
+  /** @deprecated Prefer portalKeys; kept for judging layouts */
   canAccessJudging?: boolean
   title?: string
   subtitle?: string
@@ -137,15 +139,20 @@ type StaffShellProps = {
 export function StaffShell({
   children,
   isAdmin,
+  portalKeys = [],
   canAccessJudging = false,
   title,
   subtitle = 'RocketHacks 2026 staff',
 }: StaffShellProps) {
   const router = useRouter()
 
+  const keys = new Set(portalKeys)
+  if (canAccessJudging) keys.add('judging')
+  if (isAdmin) keys.add('judging')
+
   const nav = STAFF_NAV.filter((item) => {
     if (item.adminOnly) return isAdmin
-    if (item.judgingAccess) return isAdmin || canAccessJudging
+    if (item.portalKey) return isAdmin || keys.has(item.portalKey)
     return true
   })
   const heading = title ?? (isAdmin ? 'Admin Portal' : 'Organizer Portal')
