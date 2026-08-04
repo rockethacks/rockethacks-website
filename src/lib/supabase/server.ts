@@ -87,7 +87,6 @@ export function applyCookiesToResponse(
       sameSite: 'lax' as const, // Critical for iOS Safari cross-site navigation
       secure: process.env.NODE_ENV === 'production', // HTTPS only in production
       path: '/', // Available site-wide
-      httpOnly: name.includes('auth-token') || name.includes('access-token'), // Security for auth tokens
       maxAge: options?.maxAge || 60 * 60 * 24 * 7, // 7 days default
       // Priority hint for browsers (high = important to keep)
       priority: 'high' as any,

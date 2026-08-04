@@ -34,8 +34,6 @@ export async function updateSession(request: NextRequest) {
               path: '/',
               // Extend maxAge for mobile browsers
               maxAge: options?.maxAge || 60 * 60 * 24 * 7, // 7 days default
-              // HttpOnly for auth tokens only
-              httpOnly: name.includes('auth-token') || name.includes('access-token'),
             }
             supabaseResponse.cookies.set(name, value, cookieOptions)
           })
