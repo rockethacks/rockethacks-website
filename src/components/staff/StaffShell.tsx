@@ -52,7 +52,7 @@ export const STAFF_NAV: StaffNavItem[] = [
   { href: '/admin/team', label: 'Team', adminOnly: true },
   { href: '/admin/tasks', label: 'Tasks', adminOnly: true, hasBadge: true },
   { href: '/admin/judging', label: 'Judging', portalKey: 'judging' },
-  { href: '/organizer', label: 'Check-In', exact: true },
+  { href: '/organizer', label: 'Check-In' },
   { href: '/organizer/tasks/logistics',           label: 'Logistics',           portalKey: 'logistics',           skipForAdmin: true, hasBadge: true },
   { href: '/organizer/tasks/product',             label: 'Product',             portalKey: 'product',             skipForAdmin: true, hasBadge: true },
   { href: '/organizer/tasks/development',         label: 'Development',         portalKey: 'development',         skipForAdmin: true, hasBadge: true },

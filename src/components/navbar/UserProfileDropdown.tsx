@@ -1,7 +1,6 @@
 "use client";
-import React, { useState, useEffect, useRef, useCallback } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
 import { FiUser, FiLogOut } from "react-icons/fi";
 import { MdDashboard } from "react-icons/md";
 import { createClient } from "@/lib/supabase/client";
@@ -45,60 +44,57 @@ export default function UserProfileDropdown({ isMobile = false, onMenuClose }: U
   const [loading, setLoading] = useState(true);
   const dropdownRef = useRef<HTMLDivElement>(null);
   const supabase = createClient();
-  const router = useRouter();
-
-  const loadProfile = useCallback(async () => {
-    try {
-      const {
-        data: { user: authUser },
-      } = await supabase.auth.getUser();
-      setUser(authUser);
-
-      if (!authUser) {
-        setRoleInfo(null);
-        setFirstName("");
-        return authUser;
-      }
-
-      const [roleRes, applicantRes] = await Promise.all([
-        fetch("/api/auth/user").then((r) => r.json()),
-        supabase
-          .from("applicants")
-          .select("first_name")
-          .eq("user_id", authUser.id)
-          .maybeSingle(),
-      ]);
-
-      const info: AuthRoleInfo = {
-        isAdmin: !!roleRes.isAdmin,
-        isOrganizer: !!roleRes.isOrganizer,
-        isJudge: !!roleRes.isJudge && !roleRes.isOrganizer,
-        organizerRole: roleRes.organizerRole ?? null,
-        displayName: roleRes.user?.full_name ?? null,
-      };
-      // Admins/organizers who are also judges still go to staff home
-      if (roleRes.isOrganizer) {
-        info.isJudge = false;
-      }
-      setRoleInfo(info);
-
-      if (applicantRes.data?.first_name) {
-        setFirstName(applicantRes.data.first_name);
-      } else if (info.displayName) {
-        setFirstName(String(info.displayName).split(/\s+/)[0]);
-      } else {
-        setFirstName(authUser.email?.split("@")[0] || "User");
-      }
-      return authUser;
-    } catch (error) {
-      console.error("Error fetching user:", error);
-      return null;
-    } finally {
-      setLoading(false);
-    }
-  }, [supabase]);
 
   useEffect(() => {
+    const loadProfile = async () => {
+      try {
+        const {
+          data: { user: authUser },
+        } = await supabase.auth.getUser();
+        setUser(authUser);
+
+        if (!authUser) {
+          setRoleInfo(null);
+          setFirstName("");
+          return;
+        }
+
+        const [roleRes, applicantRes] = await Promise.all([
+          fetch("/api/auth/user").then((r) => r.json()),
+          supabase
+            .from("applicants")
+            .select("first_name")
+            .eq("user_id", authUser.id)
+            .maybeSingle(),
+        ]);
+
+        const info: AuthRoleInfo = {
+          isAdmin: !!roleRes.isAdmin,
+          isOrganizer: !!roleRes.isOrganizer,
+          isJudge: !!roleRes.isJudge && !roleRes.isOrganizer,
+          organizerRole: roleRes.organizerRole ?? null,
+          displayName: roleRes.user?.full_name ?? null,
+        };
+        // Admins/organizers who are also judges still go to staff home
+        if (roleRes.isOrganizer) {
+          info.isJudge = false;
+        }
+        setRoleInfo(info);
+
+        if (applicantRes.data?.first_name) {
+          setFirstName(applicantRes.data.first_name);
+        } else if (info.displayName) {
+          setFirstName(String(info.displayName).split(/\s+/)[0]);
+        } else {
+          setFirstName(authUser.email?.split("@")[0] || "User");
+        }
+      } catch (error) {
+        console.error("Error fetching user:", error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
     loadProfile();
 
     const {
@@ -115,7 +111,7 @@ export default function UserProfileDropdown({ isMobile = false, onMenuClose }: U
     });
 
     return () => subscription.unsubscribe();
-  }, [supabase, loadProfile]);
+  }, [supabase]);
 
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
@@ -146,32 +142,19 @@ export default function UserProfileDropdown({ isMobile = false, onMenuClose }: U
   const homeHref = homeForRole(roleInfo);
   const homeLabel = labelForRole(roleInfo);
 
-  // Re-checks auth right before deciding where the click goes, instead of trusting
-  // possibly-stale client state — an authenticated user always gets the dropdown,
-  // never a bounce through /login.
-  const handleSignInClick = async (e: React.MouseEvent) => {
-    e.preventDefault();
-    const authUser = await loadProfile();
-    if (authUser) {
-      setDropdownOpen(true);
-    } else {
-      router.push("/login");
-    }
-  };
-
   if (loading) {
     return null;
   }
 
   if (!user) {
     return (
-      <button
-        onClick={handleSignInClick}
+      <Link
+        href="/login"
         className="flex items-center justify-center w-10 h-10 rounded-full bg-gradient-to-br from-rh-yellow to-rh-orange hover:from-rh-orange hover:to-rh-yellow transition-all duration-300 shadow-lg hover:shadow-xl hover:scale-105"
         aria-label="Sign in"
       >
         <FiUser size={20} className="text-rh-navy" />
-      </button>
+      </Link>
     );
   }
 
