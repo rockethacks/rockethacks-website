@@ -3,7 +3,7 @@ import type { Task, TaskComment, TaskAssignee, TaskLabel, OrganizerOption } from
 
 const db = () => createClient()
 
-export async function fetchTasks(module?: string | null): Promise<Task[]> {
+export async function fetchTasks(module?: string | string[] | null): Promise<Task[]> {
   const supabase = db()
 
   let q = supabase
@@ -18,7 +18,12 @@ export async function fetchTasks(module?: string | null): Promise<Task[]> {
     .order('deadline', { ascending: true, nullsFirst: false })
     .order('created_at', { ascending: false })
 
-  if (module) q = q.eq('module', module)
+  if (Array.isArray(module)) {
+    if (module.length === 0) return []
+    q = q.in('module', module)
+  } else if (module) {
+    q = q.eq('module', module)
+  }
 
   const { data, error } = await q
   if (error) throw new Error(error.message)
@@ -178,6 +183,16 @@ export async function remindAssignees(taskId: string, message?: string): Promise
     const json = await res.json().catch(() => ({}))
     throw new Error((json as { error?: string }).error ?? 'Failed to send reminder')
   }
+}
+
+export async function fetchMentionedTaskIds(): Promise<Set<string>> {
+  const supabase = db()
+  const { data } = await supabase
+    .from('task_notifications')
+    .select('task_id')
+    .eq('type', 'mentioned')
+    .eq('is_read', false)
+  return new Set((data ?? []).map((r: { task_id: string }) => r.task_id))
 }
 
 export async function fetchUnreadCount(): Promise<number> {

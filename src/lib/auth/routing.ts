@@ -1,8 +1,8 @@
 /** Shared post-login homes for staff roles on organizer_profiles. */
 export type StaffRole = 'admin' | 'organizer' | 'judging_team' | string
 
-export function staffHome(role: StaffRole | null | undefined): '/admin' | '/organizer' {
-  return role === 'admin' ? '/admin' : '/organizer'
+export function staffHome(role: StaffRole | null | undefined): string {
+  return role === 'admin' ? '/admin/team' : '/organizer/tasks'
 }
 
 /** Parse a relative redirect like `/login?org_code=ABC` into path + query. */

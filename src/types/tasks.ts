@@ -19,6 +19,7 @@ export interface Task {
   labels?: TaskLabel[]
   comment_count?: number
   is_watching?: boolean
+  is_mentioned?: boolean
 }
 
 export interface TaskAssignee {
@@ -46,7 +47,7 @@ export interface TaskNotification {
   id: string
   user_id: string
   task_id: string
-  type: 'assigned' | 'commented' | 'completed' | 'watching'
+  type: 'assigned' | 'commented' | 'completed' | 'watching' | 'mentioned'
   is_read: boolean
   created_at: string
 }

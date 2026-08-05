@@ -3,7 +3,7 @@
 import { useCallback, useEffect, useState } from 'react'
 import { AnimatePresence } from 'framer-motion'
 import { createClient } from '@/lib/supabase/client'
-import { fetchTasks } from '@/lib/tasks/api'
+import { fetchTasks, fetchMentionedTaskIds } from '@/lib/tasks/api'
 import type { Task, TaskPriority } from '@/types/tasks'
 import { TaskDetailPanel } from './TaskDetailPanel'
 import { CreateTaskModal } from './CreateTaskModal'
@@ -46,6 +46,15 @@ function TaskRow({ task, showModule, dimmed, onClick }: { task: Task; showModule
       <span className="shrink-0 rounded-full" style={{ width: 8, height: 8, backgroundColor: PRIORITY_COLORS[task.priority] }} title={task.priority} />
 
       <span className="flex-1 min-w-0 text-sm text-white truncate">{task.title}</span>
+
+      {task.is_mentioned && (
+        <span
+          className="shrink-0 inline-flex items-center justify-center w-4 h-4 rounded-full bg-blue-500/25 text-blue-400 text-[10px] font-bold leading-none"
+          title="You were mentioned in this task"
+        >
+          @
+        </span>
+      )}
 
       {showModule && (
         <span className="shrink-0 px-2 py-0.5 rounded bg-amber-500/15 text-amber-300 text-xs font-medium">
@@ -93,7 +102,7 @@ function TaskRow({ task, showModule, dimmed, onClick }: { task: Task; showModule
 
 // ─── TaskBoard ────────────────────────────────────────────────────────────────
 
-export function TaskBoard({ module, isAdmin }: { module: string | null; isAdmin: boolean }) {
+export function TaskBoard({ module, modules, isAdmin }: { module: string | null; modules?: string[]; isAdmin: boolean }) {
   const [tasks, setTasks] = useState<Task[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
@@ -113,17 +122,26 @@ export function TaskBoard({ module, isAdmin }: { module: string | null; isAdmin:
     })
   }, [])
 
+  // Stable key for the modules array so useCallback doesn't fire on every render
+  const modulesKey = modules?.join(',')
+
   const load = useCallback(async () => {
     setLoading(true)
     setError(null)
     try {
-      setTasks(await fetchTasks(module))
+      const fetchArg = modules ?? module
+      const [fetched, mentionedIds] = await Promise.all([
+        fetchTasks(fetchArg),
+        fetchMentionedTaskIds(),
+      ])
+      setTasks(fetched.map((t) => ({ ...t, is_mentioned: mentionedIds.has(t.id) })))
     } catch (e) {
       setError(e instanceof Error ? e.message : 'Failed to load tasks')
     } finally {
       setLoading(false)
     }
-  }, [module])
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [module, modulesKey])
 
   useEffect(() => { load() }, [load])
 
@@ -137,7 +155,7 @@ export function TaskBoard({ module, isAdmin }: { module: string | null; isAdmin:
   const active = filtered.filter((t) => t.status === 'open')
   const completed = filtered.filter((t) => t.status === 'completed')
   const title = module ? `${formatModuleLabel(module)} Tasks` : 'All Tasks'
-  const showModule = module === null
+  const showModule = module === null || modules !== undefined
   const selectedTask = tasks.find((t) => t.id === selectedTaskId) ?? null
 
   return (

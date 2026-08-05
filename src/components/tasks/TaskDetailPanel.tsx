@@ -1,9 +1,9 @@
 'use client'
 
-import { useEffect, useRef, useState, useCallback } from 'react'
+import { useEffect, useRef, useState, useCallback, useMemo } from 'react'
 import { motion, AnimatePresence, useReducedMotion } from 'framer-motion'
 import { createClient } from '@/lib/supabase/client'
-import type { Task, TaskComment } from '@/types/tasks'
+import type { Task, TaskComment, OrganizerOption } from '@/types/tasks'
 import {
   fetchComments,
   addComment,
@@ -15,11 +15,13 @@ import {
   isWatching,
   markNotificationsRead,
   remindAssignees,
+  fetchOrganizers,
 } from '@/lib/tasks/api'
 
 // ─── Helpers ────────────────────────────────────────────────────────────────
 
 const URL_RE = /https?:\/\/[^\s<>"]+/g
+const MENTION_RE = /@\[([^\]]+)\]/g
 
 function linkify(text: string): React.ReactNode[] {
   const nodes: React.ReactNode[] = []
@@ -43,6 +45,24 @@ function linkify(text: string): React.ReactNode[] {
     last = match.index + url.length
   }
   if (last < text.length) nodes.push(text.slice(last))
+  return nodes
+}
+
+function renderContent(text: string): React.ReactNode[] {
+  const nodes: React.ReactNode[] = []
+  let last = 0
+  let match: RegExpExecArray | null
+  MENTION_RE.lastIndex = 0
+  while ((match = MENTION_RE.exec(text)) !== null) {
+    if (match.index > last) nodes.push(...linkify(text.slice(last, match.index)))
+    nodes.push(
+      <span key={`m-${match.index}`} className="text-blue-400 font-medium">
+        @{match[1]}
+      </span>
+    )
+    last = match.index + match[0].length
+  }
+  if (last < text.length) nodes.push(...linkify(text.slice(last)))
   return nodes
 }
 
@@ -240,12 +260,25 @@ export function TaskDetailPanel({ task, currentUserId, isAdmin, onClose, onUpdat
   const [reminding, setReminding] = useState(false)
   const [remindError, setRemindError] = useState<string | null>(null)
   const [remindSent, setRemindSent] = useState(false)
+  const [organizers, setOrganizers] = useState<OrganizerOption[]>([])
+  const [mentionQuery, setMentionQuery] = useState('')
+  const [mentionStart, setMentionStart] = useState(0)
+  const [showMention, setShowMention] = useState(false)
+  const [mentionIdx, setMentionIdx] = useState(0)
 
   const threadEndRef = useRef<HTMLDivElement>(null)
+  const textareaRef = useRef<HTMLTextAreaElement>(null)
   const canComplete = isAdmin || currentUserId === task.creator_id
   const canDelete = isAdmin || currentUserId === task.creator_id
   const canComment = isAdmin || (task.assignees ?? []).some((a) => a.organizer_id === currentUserId)
   const shouldReduce = useReducedMotion()
+
+  const mentionMatches = useMemo(() => {
+    const q = mentionQuery.toLowerCase()
+    return organizers
+      .filter((o) => (o.full_name || o.email).toLowerCase().includes(q))
+      .slice(0, 6)
+  }, [organizers, mentionQuery])
 
   useEffect(() => {
     let cancelled = false
@@ -281,6 +314,40 @@ export function TaskDetailPanel({ task, currentUserId, isAdmin, onClose, onUpdat
     return () => document.removeEventListener('keydown', handler)
   }, [onClose])
 
+  useEffect(() => {
+    if (!canComment) return
+    fetchOrganizers().then(setOrganizers).catch(() => {})
+  }, [canComment])
+
+  const handleCommentChange = useCallback((e: React.ChangeEvent<HTMLTextAreaElement>) => {
+    const val = e.target.value
+    setCommentText(val)
+    const pos = e.target.selectionStart ?? val.length
+    const before = val.slice(0, pos)
+    const atIdx = before.lastIndexOf('@')
+    if (atIdx >= 0 && before[atIdx + 1] !== '[') {
+      const query = before.slice(atIdx + 1)
+      if (!query.includes('\n')) {
+        setMentionQuery(query)
+        setMentionStart(atIdx)
+        setShowMention(true)
+        setMentionIdx(0)
+        return
+      }
+    }
+    setShowMention(false)
+  }, [])
+
+  const selectMention = useCallback((organizer: OrganizerOption) => {
+    const name = organizer.full_name || organizer.email
+    setCommentText((prev) => {
+      const after = prev.slice(mentionStart + 1 + mentionQuery.length)
+      return prev.slice(0, mentionStart) + `@[${name}]` + after
+    })
+    setShowMention(false)
+    setTimeout(() => textareaRef.current?.focus(), 0)
+  }, [mentionStart, mentionQuery])
+
   const handleToggleWatch = useCallback(async () => {
     setWatchLoading(true)
     try {
@@ -299,6 +366,16 @@ export function TaskDetailPanel({ task, currentUserId, isAdmin, onClose, onUpdat
       setCommentText('')
     } finally { setPosting(false) }
   }, [commentText, task.id])
+
+  const handleCommentKeyDown = useCallback((e: React.KeyboardEvent<HTMLTextAreaElement>) => {
+    if (showMention && mentionMatches.length > 0) {
+      if (e.key === 'ArrowDown') { e.preventDefault(); setMentionIdx((i) => Math.min(i + 1, mentionMatches.length - 1)); return }
+      if (e.key === 'ArrowUp') { e.preventDefault(); setMentionIdx((i) => Math.max(i - 1, 0)); return }
+      if (e.key === 'Tab' || (e.key === 'Enter' && !e.metaKey && !e.ctrlKey)) { e.preventDefault(); selectMention(mentionMatches[mentionIdx]); return }
+      if (e.key === 'Escape') { e.preventDefault(); setShowMention(false); return }
+    }
+    if (e.key === 'Enter' && (e.metaKey || e.ctrlKey)) { e.preventDefault(); handlePostComment() }
+  }, [showMention, mentionMatches, mentionIdx, selectMention, handlePostComment])
 
   const handleComplete = useCallback(async () => {
     setActionLoading(true)
@@ -469,7 +546,7 @@ export function TaskDetailPanel({ task, currentUserId, isAdmin, onClose, onUpdat
                             </span>
                             <span className="text-xs text-gray-500">{timeAgo(comment.created_at)}</span>
                           </div>
-                          <p className="text-sm text-gray-300 leading-relaxed whitespace-pre-wrap break-words">{linkify(comment.content)}</p>
+                          <p className="text-sm text-gray-300 leading-relaxed whitespace-pre-wrap break-words">{renderContent(comment.content)}</p>
                         </div>
                       </div>
                     </ThreadNode>
@@ -568,14 +645,32 @@ export function TaskDetailPanel({ task, currentUserId, isAdmin, onClose, onUpdat
           )}
 
           {canComment ? (
-            <textarea
-              rows={2}
-              value={commentText}
-              onChange={(e) => setCommentText(e.target.value)}
-              onKeyDown={(e) => { if (e.key === 'Enter' && (e.metaKey || e.ctrlKey)) { e.preventDefault(); handlePostComment() } }}
-              placeholder="Add a comment… (⌘+Enter to post)"
-              className="w-full resize-none bg-white/5 border border-white/10 rounded-lg px-3 py-2.5 text-sm text-white placeholder-gray-600 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition"
-            />
+            <div className="relative">
+              {showMention && mentionMatches.length > 0 && (
+                <div className="absolute bottom-full mb-1 left-0 right-0 bg-[#0f1f3a] border border-white/10 rounded-lg shadow-xl overflow-hidden z-20">
+                  {mentionMatches.map((o, i) => (
+                    <button
+                      key={o.user_id}
+                      type="button"
+                      onMouseDown={(e) => { e.preventDefault(); selectMention(o) }}
+                      className={`w-full flex items-center gap-2.5 px-3 py-2 text-left transition ${i === mentionIdx ? 'bg-blue-600/30 text-white' : 'text-gray-300 hover:bg-white/10'}`}
+                    >
+                      <Avatar fullName={o.full_name} email={o.email} size="sm" />
+                      <span className="text-sm">{o.full_name || o.email}</span>
+                    </button>
+                  ))}
+                </div>
+              )}
+              <textarea
+                ref={textareaRef}
+                rows={2}
+                value={commentText}
+                onChange={handleCommentChange}
+                onKeyDown={handleCommentKeyDown}
+                placeholder="Add a comment… (⌘+Enter to post, @ to mention)"
+                className="w-full resize-none bg-white/5 border border-white/10 rounded-lg px-3 py-2.5 text-sm text-white placeholder-gray-600 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition"
+              />
+            </div>
           ) : (
             <p className="text-xs text-gray-500 italic px-1">
               Only assignees and admins can comment on this task. You have view-only access.
