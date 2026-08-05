@@ -152,6 +152,11 @@ export function TaskBoard({ module, modules, isAdmin }: { module: string | null;
     return true
   })
 
+  const handleSelectTask = (taskId: string) => {
+    setSelectedTaskId(taskId)
+    setTasks((prev) => prev.map((t) => t.id === taskId ? { ...t, is_mentioned: false } : t))
+  }
+
   const active = filtered.filter((t) => t.status === 'open')
   const completed = filtered.filter((t) => t.status === 'completed')
   const title = module ? `${formatModuleLabel(module)} Tasks` : 'All Tasks'
@@ -234,7 +239,7 @@ export function TaskBoard({ module, modules, isAdmin }: { module: string | null;
               </div>
             ) : (
               active.map((task) => (
-                <TaskRow key={task.id} task={task} showModule={showModule} onClick={() => setSelectedTaskId(task.id)} />
+                <TaskRow key={task.id} task={task} showModule={showModule} onClick={() => handleSelectTask(task.id)} />
               ))
             )}
           </div>
@@ -251,7 +256,7 @@ export function TaskBoard({ module, modules, isAdmin }: { module: string | null;
                 <span className="text-xs font-semibold text-gray-400 uppercase tracking-wider">Completed ({completed.length})</span>
               </button>
               {completedOpen && completed.map((task) => (
-                <TaskRow key={task.id} task={task} showModule={showModule} dimmed onClick={() => setSelectedTaskId(task.id)} />
+                <TaskRow key={task.id} task={task} showModule={showModule} dimmed onClick={() => handleSelectTask(task.id)} />
               ))}
             </div>
           )}
