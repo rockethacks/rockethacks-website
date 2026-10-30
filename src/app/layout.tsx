@@ -1,5 +1,5 @@
 import type { Metadata, Viewport } from "next";
-import { terminal, jakarta } from "./fonts/fonts";
+import { alegreyaSansSC, terminal } from "./fonts/fonts";
 import MlhBadgeGate from "@/components/rh27/MlhBadgeGate";
 import "./globals.css";
 
@@ -10,8 +10,8 @@ export const viewport: Viewport = {
   userScalable: true,
   viewportFit: "cover",
   themeColor: [
-    { media: "(prefers-color-scheme: light)", color: "#030c1b" },
-    { media: "(prefers-color-scheme: dark)", color: "#030c1b" },
+    { media: "(prefers-color-scheme: light)", color: "#013805" },
+    { media: "(prefers-color-scheme: dark)", color: "#013805" },
   ],
   colorScheme: "dark",
   // Ensure proper rendering on different devices
@@ -59,8 +59,8 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" className={`${terminal.variable} ${jakarta.variable}`}>
-      <body className={`${jakarta.className} antialiased`}>
+    <html lang="en" className={`${terminal.variable} ${alegreyaSansSC.variable}`}>
+      <body className={`${alegreyaSansSC.className} antialiased`}>
         <MlhBadgeGate />
         {children}
       </body>

@@ -82,7 +82,7 @@ export default function Navbar() {
     }
   };
 
-  const navLinks = [
+  const navLinks: Array<{ href: string; label: string; highlight?: boolean }> = [
     { href: "#about", label: "ABOUT" },
     { href: "/gallery", label: "2025" },
     { href: "#sponsor", label: "SPONSORS" },
@@ -93,13 +93,11 @@ export default function Navbar() {
 
   return (
     <nav
-      className={`
-      fixed top-0 left-0 right-0 z-50 transition-all duration-300
-      ${!isHomePage || scrolled ? "glass-strong backdrop-blur-md shadow-lg" : "bg-transparent"}
-    `}
+      className="fixed top-0 left-0 right-0 z-50 transition-all duration-300 backdrop-blur-md shadow-lg"
+      style={{ backgroundColor: "#001F02" }}
     >
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex items-center h-20">
+      <div className="max-w-[1280px] mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="relative flex items-center h-20">
           {/* Logo */}
           <div className="flex-shrink-0">
             <Link
@@ -107,8 +105,8 @@ export default function Navbar() {
               className="block transition-transform hover:scale-105"
             >
               <Image
-                src="/assets/rh_26/rh_26_folder/rh_26_bundle_png/rh_26_logo_color_transparent.png"
-                alt="RocketHacks 2026"
+                src="/assets/rh_27/rh_27_folder/rh_27_logo_cropped.png"
+                alt="RocketHacks 2027"
                 width={120}
                 height={60}
                 className="h-10 sm:h-12 w-auto object-contain"
@@ -120,7 +118,7 @@ export default function Navbar() {
           </div>
 
           {/* Centered Desktop Navigation */}
-          <div className="hidden md:flex items-center justify-center flex-1 space-x-8">
+          <div className="hidden md:flex absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 items-center justify-center space-x-6 lg:space-x-8 whitespace-nowrap">
             {navLinks.map((link) => (
               <Link
                 key={link.href}
@@ -152,8 +150,8 @@ export default function Navbar() {
             </Link>
           </div>
 
-          {/* Desktop User Profile & Mobile menu button */}
-          <div className="flex items-center gap-4 ml-auto">
+          {/* Keep account controls separate from the centered nav group. */}
+          <div className="absolute right-0 md:right-[140px] top-1/2 -translate-y-1/2 flex items-center gap-4">
             {/* User Profile Dropdown - Always visible */}
             <div>
               <UserProfileDropdown />
@@ -200,8 +198,8 @@ export default function Navbar() {
             {/* Logo at top */}
             <div className="flex justify-center mb-10">
               <Image
-                src="/assets/rh_26/rh_26_folder/rh_26_bundle_png/rh_26_logo_color_transparent.png"
-                alt="RocketHacks 2026"
+                src="/assets/rh_27/rh_27_folder/rh_27_logo_cropped.png"
+                alt="RocketHacks 2027"
                 width={150}
                 height={75}
                 className="h-14 w-auto"

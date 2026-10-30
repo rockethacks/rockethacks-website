@@ -86,8 +86,8 @@ export default function Footer() {
           <div className="lg:col-span-2">
             <div className="mb-6">
               <Image
-                src="/assets/rh_26/rh_26_folder/rh_26_bundle_png/rh_26_logo_color_transparent.png"
-                alt="RocketHacks 2026"
+                src="/assets/rh_27/rh_27_folder/rh_27_logo_cropped.png"
+                alt="RocketHacks 2027"
                 width={200}
                 height={100}
                 className="h-16 w-auto"

@@ -7,15 +7,15 @@
 
 /* CSS variables for RH26 color palette */
 :root {
-  --background: #030c1b;
+  --background: #0a2415;
   --primary-white: #ffffff;
-  --primary-yellow: #ffc65a;
-  --primary-purple-light: #7f819e;
-  --primary-purple-dark: #402c7f;
-  --accent-orange: #f483f5;
-  --accent-pink: #c32c9a;
-  --accent-navy-light: #21215b;
-  --accent-navy-dark: #0a0037;
+  --primary-yellow: #59ba60;
+  --primary-purple-light: #7bcf7b;
+  --primary-purple-dark: #013805;
+  --accent-orange: #7bcf7b;
+  --accent-pink: #59ba60;
+  --accent-navy-light: #1f5a32;
+  --accent-navy-dark: #013805;
   
   /* Glassmorphism variables */
   --glass-bg: rgba(255, 255, 255, 0.1);

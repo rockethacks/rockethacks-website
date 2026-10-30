@@ -1,24 +1,10 @@
 "use client";
-import React, { useEffect, useState } from "react";
+import React from "react";
 import Image from "next/image";
 import Link from "next/link";
-import { terminal } from "../../app/fonts/fonts";
+import { alegreyaSansSC, josefinSans } from "../../app/fonts/fonts";
 
 export default function Hero() {
-  const [dots, setDots] = useState(".");
-
-  // Small "loading" animation without extra dependencies.
-  useEffect(() => {
-    const t = window.setInterval(() => {
-      setDots((prev) => {
-        if (prev.length >= 3) return ".";
-        return prev + ".";
-      });
-    }, 500);
-
-    return () => window.clearInterval(t);
-  }, []);
-
   return (
     <div className="pt-24 sm:pt-20">
       {/* Spacer for fixed navbar - increased for smaller screens */}
@@ -31,10 +17,10 @@ export default function Hero() {
           paddingBottom: "max(2rem, 5vh)",
         }}
       >
-        {/* Background Image with improved overlay */}
-        <div className="absolute inset-0">
+        {/* Background Image */}
+        <div className="absolute -inset-y-20 inset-x-0 scale-[1.08]">
           <Image
-            src="/assets/rh_26/rh_26_folder/rh_26_bg.png"
+            src="/assets/rh_27/rh_27_folder/rh_27_bg.png"
             alt="RocketHacks 2027 Background"
             fill
             className="object-cover object-center"
@@ -42,39 +28,27 @@ export default function Hero() {
             quality={75}
             sizes="100vw"
             placeholder="blur"
-            blurDataURL="data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAAAQABAAD/2wBDAAYEBQYFBAYGBQYHBwYIChAKCgkJChQODwwQFxQYGBcUFhYaHSUfGhsjHBYWICwgIyYnKSopGR8tMC0oMCUoKSj/2wBDAQcHBwoIChMKChMoGhYaKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCj/wAARCAABAAEDASIAAhEBAxEB/8QAFQABAQAAAAAAAAAAAAAAAAAAAAv/xAAUEAEAAAAAAAAAAAAAAAAAAAAA/8QAFQEBAQAAAAAAAAAAAAAAAAAAAAX/xAAUEQEAAAAAAAAAAAAAAAAAAAAA/9oADAMBAAIRAxEAPwCdABmX/9k="
+            blurDataURL="data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAAAQABAAD/2wBDAAYEBQYFBAYGBQYHBwYIChAKCgkJChQODwwQFxQYGBcUFhYaHSUfGhsjHBYWICwgIyYnKSopGR8tMC0oMCUoKSj/2wBDAQcHBwoIChMKChMoGhYaKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCj/wAARCAABAAEDASIAAhEBAxEB/8QAFQABAQAAAAAAAAAAAAAAAAAAAAv/xAAUEAEAAAAAAAAAAAAAAAAAAAAA/8QAFQEBAQAAAAAAAAAAAAAAAAAAAAX/xAAUEQEAAAAAAAAAAAAAAAAAAAAA/9oADAMBAAIRAxEAPwCdABmX/9k="
           />
-          {/* Gradient overlay for better text readability */}
-          <div className="absolute inset-0 bg-gradient-to-b from-black/40 via-transparent to-black/60"></div>
         </div>
+
+        {/* Gradient overlay for better text readability */}
+        <div className="absolute inset-0 z-[7] bg-gradient-to-b from-black/40 via-transparent to-black/60"></div>
 
         {/* Content - Viewport-aware spacing */}
         <div className="relative z-10 w-full max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
           {/* Centered Content */}
           <div className="text-center space-y-[clamp(1rem,3vh,2rem)] animate-slide-up">
-            {/* Main Heading - Aggressive scaling prevention */}
-            <div className="space-y-2">
-              <h1
-                className={`${terminal.className} gradient-text uppercase tracking-wider font-bold`}
-                style={{
-                  fontSize: "clamp(2rem, 6vw, 5rem)", // Reduced max from 6rem to 5rem
-                  lineHeight: "1",
-                  marginBottom: "0.5rem",
-                }}
-              >
-                RocketHacks 2027
-              </h1>
-
-              <h2
-                className={`${terminal.className} text-rh-white font-light uppercase tracking-wide`}
-                style={{
-                  fontSize: "clamp(0.875rem, 2.5vw, 1.75rem)", // Reduced from 2rem to 1.75rem
-                  lineHeight: "1.2",
-                  marginTop: "0.5rem",
-                }}
-              >
-                University of Toledo
-              </h2>
+            {/* Main Heading */}
+            <div className="flex justify-center">
+              <Image
+                src="/assets/rh_27/rh_27_folder/rh_27_logo_cropped.png"
+                alt="RocketHacks 2027 - Leap Beyond Limits"
+                width={900}
+                height={450}
+                priority
+                className="w-[80%] max-w-[30rem] h-auto object-contain"
+              />
             </div>
 
             {/* Event Details - Compact on small screens */}
@@ -85,22 +59,16 @@ export default function Hero() {
               }}
             >
               <h3
-                className={`${terminal.className} text-rh-yellow font-bold`}
+                className={`${josefinSans.className} text-rh-yellow font-bold`}
                 style={{
                   fontSize: "clamp(1.25rem, 4vw, 2.5rem)",
                   marginBottom: "clamp(0.75rem, 1.5vh, 1.25rem)",
                 }}
               >
-                <span className="inline-flex items-center gap-3">
-                  <span
-                    aria-hidden="true"
-                    className="inline-block w-5 h-5 rounded-full border-2 border-rh-yellow/25 border-t-rh-yellow animate-spin"
-                  />
-                  Details Loading{dots}
-                </span>
+                February 27-28, 2027
               </h3>
               <div
-                className="text-rh-white/90 leading-relaxed space-y-2"
+                className={`${alegreyaSansSC.className} text-rh-white/90 leading-relaxed space-y-2`}
                 style={{
                   fontSize: "clamp(1rem, 2.5vw, 1.5rem)",
                 }}
@@ -125,7 +93,7 @@ export default function Hero() {
                 href="https://www.google.com/maps/place/University+of+Toledo+College+of+Engineering/@41.6562443,-83.6111421,17.04z/data=!4m10!1m2!2m1!1suniversity+of+toledo+engineering!3m6!1s0x883c78b11a8e7c21:0x94cf93f50c1b110f!8m2!3d41.6557317!4d-83.6063728!15sCiB1bml2ZXJzaXR5IG9mIHRvbGVkbyBlbmdpbmVlcmluZ1oiIiB1bml2ZXJzaXR5IG9mIHRvbGVkbyBlbmdpbmVlcmluZ5IBFXVuaXZlcnNpdHlfZGVwYXJ0bWVudJoBJENoZERTVWhOTUc5blMwVkpRMEZuU1VSYWMwNUhkREpuUlJBQqoBVAoJL20vMDJrbG55EAEyHxABIhuAkM289MsT1UCrbBdJG1-sfW28zZ-RFzOAfsAyJBACIiB1bml2ZXJzaXR5IG9mIHRvbGVkbyBlbmdpbmVlcmluZ-ABAPoBBAgAED4!16s%2Fg%2F11c555sm9s?entry=ttu&g_ep=EgoyMDI1MTExMS4wIKXMDSoASAFQAw%3D%3D"
                 target="_blank"
                 rel="noopener noreferrer"
-                className="inline-flex items-center text-rh-white/80 hover:text-rh-yellow transition-colors duration-300 group"
+                className={`${alegreyaSansSC.className} inline-flex items-center text-rh-white/80 hover:text-rh-yellow transition-colors duration-300 group`}
                 style={{
                   gap: "clamp(0.5rem, 1vw, 0.75rem)",
                   fontSize: "clamp(0.875rem, 2.5vw, 1.25rem)",
@@ -174,7 +142,7 @@ export default function Hero() {
             style={{ top: "max(160px, 18vh)", animationDelay: "1s" }}
           ></div>
           <div
-            className="absolute left-[10%] w-3 h-3 bg-rh-purple-light rounded-full animate-float opacity-70 hidden md:block"
+            className="absolute left-[10%] w-3 h-3 bg-green-400 rounded-full animate-float opacity-70 hidden md:block"
             style={{ bottom: "max(120px, 12vh)", animationDelay: "2s" }}
           ></div>
           <div

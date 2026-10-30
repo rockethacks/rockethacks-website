@@ -64,7 +64,7 @@ const Sponsor: React.FC<SponsorProps> = ({ sponsors }) => {
         {/* Background Image */}
         <div className="absolute inset-0">
           <Image
-            src="/assets/rh_26/rh_26_folder/rh_bg_2.png"
+            src="/assets/rh_27/rh_27_folder/rh_27_bg.png"
             alt="Sponsor Background"
             fill
             className="object-cover object-center"
