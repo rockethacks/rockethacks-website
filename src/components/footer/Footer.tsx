@@ -95,8 +95,7 @@ export default function Footer() {
             </div>
             <p className="text-rh-white/80 leading-relaxed mb-6 max-w-md">
               RocketHacks is the premier 24-hour hackathon in the Midwest,
-              hosted by the University of Toledo. Join us in 2026 as we hack the
-              horizon together.
+              hosted by the University of Toledo. Join us in 2027 as we leap beyond limits together.
             </p>
             <div className="space-y-3">
               <div className="flex items-center space-x-3 text-rh-white/70">

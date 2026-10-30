@@ -102,7 +102,7 @@ const Sponsor: React.FC<SponsorProps> = ({ sponsors }) => {
                 <p className="text-rh-white/80 text-sm md:text-base max-w-2xl mx-auto">
                   Interested in partnering with us?{" "}
                   <Link
-                    href="/documents/sponsorship-packet.pdf"
+                    href="/documents/rh27-sponsorship-packet.pdf"
                     target="_blank"
                     rel="noopener noreferrer"
                     className="text-rh-yellow hover:text-rh-orange transition-colors duration-300 underline decoration-rh-yellow/50 hover:decoration-rh-orange underline-offset-4 font-medium"
@@ -111,7 +111,7 @@ const Sponsor: React.FC<SponsorProps> = ({ sponsors }) => {
                   </Link>{" "}
                   or{" "}
                   <Link
-                    href="mailto:rockethacks@utoledo.edu?subject=Sponsorship Inquiry - RocketHacks 2026"
+                    href="mailto:rockethacks@utoledo.edu?subject=Sponsorship Inquiry - RocketHacks 2027"
                     className="text-rh-yellow hover:text-rh-orange transition-colors duration-300 underline decoration-rh-yellow/50 hover:decoration-rh-orange underline-offset-4 font-medium"
                   >
                     contact us
