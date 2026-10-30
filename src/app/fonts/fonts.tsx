@@ -1,12 +1,22 @@
 import localFont from "next/font/local";
-import { Plus_Jakarta_Sans } from "next/font/google";
+import { Alegreya_Sans_SC, Josefin_Sans, Plus_Jakarta_Sans } from "next/font/google";
 
-// Terminal Grotesque for headings and technical elements
-export const terminal = localFont({ 
-  src: "./terminal-grotesque.ttf",
-  display: 'swap',
-  variable: '--font-terminal'
+export const josefinSans = Josefin_Sans({
+  subsets: ["latin"],
+  weight: ["400", "600", "700"],
+  display: "swap",
+  variable: "--font-josefin-sans"
 });
+
+export const alegreyaSansSC = Alegreya_Sans_SC({
+  subsets: ["latin"],
+  weight: ["400", "500", "700"],
+  display: "swap",
+  variable: "--font-alegreya-sans-sc"
+});
+
+// Alegreya Sans SC replaces the previous terminal heading style.
+export const terminal = alegreyaSansSC;
 
 // Terminal Grotesque Open for lighter weight text
 export const terminalOpen = localFont({ 

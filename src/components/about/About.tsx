@@ -93,10 +93,10 @@ export default function About() {
             {/* Next Gen AI Track */}
           {/*
             <div className="card group text-center p-6 hover:scale-105 transition-all duration-500" role="listitem">
-              <div className="w-16 h-16 mx-auto mb-4 rounded-full bg-gradient-to-br from-purple-400 to-blue-600 flex items-center justify-center group-hover:animate-pulse">
+              <div className="w-16 h-16 mx-auto mb-4 rounded-full bg-gradient-to-br from-green-400 to-emerald-600 flex items-center justify-center group-hover:animate-pulse">
                 <GiBrain size={32} className="text-white" />
               </div>
-              <h3 className={`${terminal.className} text-xl mb-3 text-purple-400 group-hover:text-purple-300 transition-colors`}>
+              <h3 className={`${terminal.className} text-xl mb-3 text-green-400 group-hover:text-green-300 transition-colors`}>
                 NEXT GEN AI
               </h3>
               <p className="text-sm text-rh-white/80 leading-relaxed">

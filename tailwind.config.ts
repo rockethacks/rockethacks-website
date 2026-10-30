@@ -17,18 +17,18 @@ const config: Config = {
       colors: {
         'rh': {
           'white': '#ffffff',
-          'yellow': '#ffc65a',
+          'yellow': '#59ba60',
           'purple': {
-            'light': '#7f819e',
-            'dark': '#402c7f'
+            'light': '#7bcf7b',
+            'dark': '#013805'
           },
-          'orange': '#f483f5',
-          'pink': '#c32c9a',
+          'orange': '#7bcf7b',
+          'pink': '#59ba60',
           'navy': {
-            'light': '#21215b',
-            'dark': '#0a0037'
+            'light': '#1f5a32',
+            'dark': '#013805'
           },
-          'background': '#030c1b'
+          'background': '#0a2415'
         }
       },
       fontFamily: {
