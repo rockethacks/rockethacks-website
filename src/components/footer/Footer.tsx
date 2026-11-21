@@ -1,11 +1,5 @@
 import React from "react";
-import {
-  BsTwitterX,
-  BsInstagram,
-  BsLinkedin,
-  BsGithub,
-  BsYoutube,
-} from "react-icons/bs";
+import { BsInstagram, BsLinkedin, BsGithub } from "react-icons/bs";
 import { FaTiktok } from "react-icons/fa";
 import { SiDevpost } from "react-icons/si";
 import { HiMail, HiLocationMarker } from "react-icons/hi";
@@ -20,12 +14,6 @@ export default function Footer() {
       ariaLabel: "Find out more on Devpost",
       icon: SiDevpost,
       name: "Devpost",
-    },
-    {
-      href: "https://x.com/UTRocketHacks",
-      ariaLabel: "Follow us on X (Twitter)",
-      icon: BsTwitterX,
-      name: "X",
     },
     {
       href: "https://www.instagram.com/rockethacks.ut",
@@ -51,19 +39,12 @@ export default function Footer() {
       icon: FaTiktok,
       name: "TikTok",
     },
-    {
-      href: "https://www.youtube.com/@RocketHacks25",
-      ariaLabel: "Subscribe to our YouTube channel",
-      icon: BsYoutube,
-      name: "YouTube",
-    },
   ];
 
   const quickLinks = [
     { href: "#about", label: "About" },
     { href: "#sponsor", label: "Sponsors" },
     { href: "#contact", label: "Contact" },
-    { href: "/team", label: "Team" },
   ];
 
   return (
@@ -168,7 +149,7 @@ export default function Footer() {
         <div className="border-t border-rh-white/10 pt-8">
           <div className="flex flex-col md:flex-row justify-between items-center space-y-4 md:space-y-0">
             <div className="text-rh-white/60 text-sm">
-              © 2026 RocketHacks. All rights reserved. Made with ❤️ by the
+              © 2027 RocketHacks. All rights reserved. Made with ❤️ by the
               RocketHacks team.
             </div>
             <div className="flex items-center space-x-6 text-sm text-rh-white/60">

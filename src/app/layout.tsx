@@ -19,17 +19,17 @@ export const viewport: Viewport = {
 };
 
 export const metadata: Metadata = {
-  title: "RocketHacks 2026 | Hack the Horizon",
+  title: "RocketHacks 2027 | Leap Beyond Limits",
   description:
-    "RocketHacks is a 24-hour Hackathon hosted by The University of Toledo. Join us in 2026 for the biggest hackathon in the Midwest!",
+    "RocketHacks is a 24-hour hackathon hosted by the University of Toledo. Join us in 2027 for the biggest hackathon in the Midwest!",
   keywords:
     "hackathon, programming, technology, university of toledo, coding, innovation",
   authors: [{ name: "RocketHacks Team" }],
   icons: {
-    icon: "/assets/rh_26/rh_26_folder/rh_26_bundle_png/rh_26_arrow_transparent.png",
+    icon: "/assets/rh_27/rh_27_folder/rh_27_arrow_white.png",
   },
   openGraph: {
-    title: "RocketHacks 2026 | Hack the Horizon",
+    title: "RocketHacks 2027 | Leap Beyond Limits",
     description:
       "Join the biggest hackathon in the Midwest at the University of Toledo",
     url: "https://rockethacks.org",
@@ -47,7 +47,7 @@ export const metadata: Metadata = {
   },
   twitter: {
     card: "summary_large_image",
-    title: "RocketHacks 2026 | Hack the Horizon",
+    title: "RocketHacks 2027 | Leap Beyond Limits",
     description:
       "Join the biggest hackathon in the Midwest at the University of Toledo",
   },

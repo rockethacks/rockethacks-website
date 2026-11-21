@@ -312,7 +312,7 @@ export default function ApplyPage() {
     <div className="min-h-screen bg-gradient-to-br from-[#030c1b] via-[#0a1628] to-[#030c1b] py-12 px-4">
       <div className="max-w-4xl mx-auto">
         <div className="bg-white/5 backdrop-blur-lg rounded-2xl border border-white/10 p-8">
-          <h1 className="text-4xl font-bold text-white mb-2">Apply to RocketHacks 2026</h1>
+          <h1 className="text-4xl font-bold text-white mb-2">Apply to RocketHacks 2027</h1>
           <p className="text-gray-400 mb-8">Complete your MLH-compliant application</p>
 
           {error && (

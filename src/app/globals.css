@@ -119,9 +119,6 @@ body {
   /* Ensure proper width */
   width: 100%;
   max-width: 100vw;
-  /* Force proper rendering on high-DPI displays */
-  -webkit-transform: translateZ(0);
-  transform: translateZ(0);
   /* Improve text rendering */
   text-rendering: optimizeLegibility;
   /* Ensure consistent sizing across devices */

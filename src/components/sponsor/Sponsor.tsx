@@ -298,7 +298,7 @@ const Sponsor: React.FC<SponsorProps> = ({ sponsors }) => {
                 </h3>
                 <p className="text-rh-white/80 mb-6">
                   We&apos;re actively working with amazing companies and
-                  organizations to make RocketHacks 2026 extraordinary.
+                  organizations to make RocketHacks 2027 extraordinary.
                 </p>
                 <Link
                   href="/documents/sponsorship-packet.pdf"

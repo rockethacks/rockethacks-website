@@ -33,7 +33,7 @@ function FAQ() {
     {
       question: "What is RocketHacks?",
       answer:
-        "RocketHacks is an event where individuals or teams collaborate intensively on software development or hardware projects, typically within 24 hours. The event will start on Saturday, March 14, 2026 and end on Sunday, March 15, 2026. However there is additional time before and after hacking for introductions and presentations. It's an opportunity to learn, create, and innovate while competing with other teams.",
+        "RocketHacks is an event where individuals or teams collaborate intensively on software development or hardware projects, typically within 24 hours. The event will start on Saturday, February 27, 2027 and end on Sunday, February 28, 2027. However there is additional time before and after hacking for introductions and presentations. It's an opportunity to learn, create, and innovate while competing with other teams.",
       category: "general",
       icon: <FaQuestionCircle size={20} />,
     },
@@ -68,14 +68,14 @@ function FAQ() {
     {
       question: "How long does RocketHacks last?",
       answer:
-        "RocketHacks will last for 24 hours. The event will start on Saturday, March 14, 2026 and end on Sunday, March 15, 2026. However, there is additional time before and after hacking for introductions and presentations.",
+        "RocketHacks will last for 24 hours. The event will start on Saturday, February 27, 2027 and end on Sunday, February 28, 2027. However, there is additional time before and after hacking for introductions and presentations.",
       category: "event",
       icon: <FaClock size={20} />,
     },
     {
-      question: "Is RocketHacks 2026 in-person or virtual?",
+      question: "Is RocketHacks 2027 in-person or virtual?",
       answer:
-        "RocketHacks 2026 is an in-person only event. We hope to give you the best hackathon experience at the University of Toledo North Engineering Campus, 1700 N Westwood Ave, Toledo, OH 43607. Unfortunately, we will not be providing a virtual option this year. We are also unable to offer travel reimbursements at this time.",
+        "RocketHacks 2027 is an in-person only event. We hope to give you the best hackathon experience at the University of Toledo North Engineering Campus, 1700 N Westwood Ave, Toledo, OH 43607. Unfortunately, we will not be providing a virtual option this year. We are also unable to offer travel reimbursements at this time.",
       category: "logistics",
       icon: <FaMapMarkerAlt size={20} />,
     },
@@ -141,7 +141,7 @@ function FAQ() {
         {/* Background Image */}
         <div className="absolute inset-0">
           <Image
-            src="/assets/rh_26/rh_26_folder/rh_bg_1.jpg"
+            src="/assets/rh_27/rh_27_folder/rh_27_bg.png"
             alt="FAQ Background"
             fill
             className="object-cover object-center"
@@ -245,10 +245,10 @@ function FAQ() {
               </h3>
               <p className="text-rh-white/90 mb-6">
                 Our team is here to help! Don&apos;t hesitate to reach out if
-                you need any additional information about RocketHacks 2026.
+                you need any additional information about RocketHacks 2027.
               </p>
               <a
-                href="mailto:rockethacks@utoledo.edu?subject=RocketHacks 2026 Question"
+                href="mailto:rockethacks@utoledo.edu?subject=RocketHacks 2027 Question"
                 className="btn-primary px-6 py-3 inline-flex items-center space-x-2"
               >
                 <FaEnvelope size={16} />

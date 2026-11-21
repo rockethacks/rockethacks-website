@@ -173,7 +173,7 @@ export default function TeamPage() {
           </h1>
           <div className="w-24 h-1 bg-gradient-to-r from-rh-yellow to-rh-orange mx-auto mb-8 rounded-full"></div>
           <p className="text-lg leading-relaxed text-rh-white/90 max-w-3xl mx-auto">
-            The passionate innovators behind RocketHacks 2026. Our diverse team of students 
+            The passionate innovators behind RocketHacks 2027. Our diverse team of students
             works tirelessly to create an unforgettable hackathon experience.
           </p>
         </div>

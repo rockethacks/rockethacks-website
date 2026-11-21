@@ -119,16 +119,16 @@ export const Prizes = () => {
                 />
               </div>
               <p className="text-rh-white/70 text-sm mt-4">
-                Last year&apos;s incredible prize pool - 2026 will be even bigger!
+                Last year&apos;s incredible prize pool - 2027 will be even bigger!
               </p>
             </GlassCard>
           </div>
 
-          {/* 2026 Prize Categories */}
+          {/* 2027 Prize Categories */}
           <div className="space-y-12">
             <div className="text-center mb-12">
               <h3 className={`${terminal.className} text-3xl text-rh-yellow mb-4`}>
-                RocketHacks 2026 Prize Categories
+                RocketHacks 2027 Prize Categories
               </h3>
               <p className="text-rh-white/80 max-w-2xl mx-auto">
                 We&apos;re working with our sponsors to create an even more exciting prize structure. 

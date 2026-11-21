@@ -81,7 +81,11 @@ export default function Hero() {
                   style={{ fontSize: "clamp(0.875rem, 2.5vw, 1.25rem)" }}
                 >
                   University of Toledo
-                  <br />
+                </p>
+                <p
+                  className="text-rh-white/80"
+                  style={{ fontSize: "clamp(0.875rem, 2.5vw, 1.25rem)" }}
+                >
                   College of Engineering
                 </p>
               </div>
