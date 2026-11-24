@@ -17,7 +17,6 @@ import {
 } from "lucide-react";
 import { terminal } from "@/app/fonts/fonts";
 
-const registrationUrl = "http://invonet.utoledo.edu/event/12960973";
 const linkedinPostUrl =
   "https://www.linkedin.com/posts/rockethacks_stand-out-in-the-job-market-learn-to-create-activity-7528632407747444736-wJmk";
 
@@ -268,8 +267,8 @@ export default function Workshops2027() {
         <div className="grid lg:grid-cols-[minmax(0,1.05fr)_minmax(360px,0.95fr)]">
           <div className="flex flex-col justify-center p-6 sm:p-8 lg:p-10">
             <div className="mb-5 flex flex-wrap items-center gap-3">
-              <span className="rounded-full border border-rh-yellow/40 bg-rh-yellow/10 px-3 py-1 text-xs font-bold uppercase tracking-wider text-rh-yellow">
-                Upcoming workshop
+              <span className="rounded-full border border-green-400/30 bg-green-400/10 px-3 py-1 text-xs font-bold uppercase tracking-wider text-green-300">
+                Past workshop
               </span>
               <span className="rounded-full bg-rh-white/10 px-3 py-1 text-xs font-semibold text-rh-white/75">
                 Open to all majors
@@ -340,15 +339,6 @@ export default function Workshops2027() {
             </div>
 
             <div className="flex flex-wrap items-center gap-4">
-              <a
-                href={registrationUrl}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="inline-flex items-center gap-2 rounded-xl bg-rh-yellow px-6 py-3 font-bold text-rh-navy-dark transition hover:bg-rh-yellow/90"
-              >
-                RSVP Now
-                <ArrowUpRight className="h-4 w-4" />
-              </a>
               <a
                 href={linkedinPostUrl}
                 target="_blank"

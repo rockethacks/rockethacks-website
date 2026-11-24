@@ -1,5 +1,5 @@
 "use client";
-import React, { useState, useEffect, useMemo, useCallback, memo } from "react";
+import React, { useState, useEffect, useMemo, useCallback, useRef, memo } from "react";
 import Image from "next/image";
 import { terminal } from "../../app/fonts/fonts";
 import { GlassCard } from "../ui/glass-card";
@@ -320,6 +320,8 @@ const Gallery: React.FC<GalleryProps> = ({ images = projectImages }) => {
   const [currentIndex, setCurrentIndex] = useState(0);
   const [filter, setFilter] = useState<string>("all");
   const [isAutoPlaying, setIsAutoPlaying] = useState(true);
+  const [isVisible, setIsVisible] = useState(false);
+  const galleryRef = useRef<HTMLElement | null>(null);
 
   const categories = useMemo(() => ({
     all: { name: "All Moments", icon: FaCalendar },

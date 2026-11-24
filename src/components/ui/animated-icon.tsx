@@ -44,7 +44,7 @@ const AnimatedIcon = React.forwardRef<HTMLDivElement, AnimatedIconProps>(
         : 'bg-blue-500 text-white',
       green: gradient
         ? 'bg-gradient-to-br from-green-400 to-green-600 text-white'
-        : 'bg-green-500 text-white'
+        : 'bg-rh-yellow text-rh-navy-dark'
     };
 
     const animations = {

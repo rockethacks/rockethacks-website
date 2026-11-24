@@ -241,14 +241,15 @@ function LoginForm() {
     <div className="min-h-screen relative flex items-center justify-center px-4 overflow-hidden">
       <div className="absolute inset-0 z-0">
         <Image
-          src="/assets/rh_26/rh_26_folder/rh_26_bg.png"
-          alt="RocketHacks Background"
+          src="/assets/rh_27/rh_27_folder/rh_27_bg.png"
+          alt="RocketHacks 2027 Background"
           fill
           className="object-cover object-center"
           priority
           quality={75}
+          sizes="100vw"
         />
-        <div className="absolute inset-0 bg-gradient-to-br from-black/60 via-black/50 to-black/70"></div>
+        <div className="absolute inset-0 z-[7] bg-gradient-to-b from-black/60 via-black/40 to-black/75"></div>
       </div>
 
       <div className="absolute left-[10%] top-[20%] w-4 h-4 bg-rh-yellow rounded-full animate-float opacity-60"></div>

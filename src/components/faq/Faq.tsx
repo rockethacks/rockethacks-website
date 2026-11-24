@@ -24,7 +24,6 @@ import {
 interface FAQItem {
   question: string;
   answer: string;
-  category: "general" | "registration" | "event" | "logistics";
   icon: React.ReactNode;
 }
 
@@ -34,103 +33,69 @@ function FAQ() {
       question: "What is RocketHacks?",
       answer:
         "RocketHacks is an event where individuals or teams collaborate intensively on software development or hardware projects, typically within 24 hours. The event will start on Saturday, February 27, 2027 and end on Sunday, February 28, 2027. However there is additional time before and after hacking for introductions and presentations. It's an opportunity to learn, create, and innovate while competing with other teams.",
-      category: "general",
       icon: <FaQuestionCircle size={20} />,
     },
     {
       question: "Who can participate?",
       answer:
         "RocketHacks: Any student enrolled in a university or high school can participate in RocketHacks.\n\nCode&Create: Any underclassman/senior enrolled at any high school.",
-      category: "registration",
       icon: <FaUsers size={20} />,
     },
     {
       question: "What should I bring?",
       answer:
         "Bring your laptop, charger, and any hardware you plan to hack with. We'll provide food, drinks, and a space-themed workspace!",
-      category: "logistics",
       icon: <FaLaptop size={20} />,
     },
     {
       question: "Do I need a team?",
       answer:
         "You can participate solo or in teams of up to 4 people. Don't have a team? We'll help you find one during our team formation event!",
-      category: "registration",
       icon: <FaUsers size={20} />,
     },
     {
       question: "What if I don't have coding experience?",
       answer:
         "No worries! Hackathons are a great place to learn. There will be workshops, mentors, and resources available to help you. You can also focus on other aspects like design, project management, or testing.",
-      category: "general",
       icon: <FaQuestionCircle size={20} />,
     },
     {
       question: "How long does RocketHacks last?",
       answer:
         "RocketHacks will last for 24 hours. The event will start on Saturday, February 27, 2027 and end on Sunday, February 28, 2027. However, there is additional time before and after hacking for introductions and presentations.",
-      category: "event",
       icon: <FaClock size={20} />,
     },
     {
       question: "Is RocketHacks 2027 in-person or virtual?",
       answer:
         "RocketHacks 2027 is an in-person only event. We hope to give you the best hackathon experience at the University of Toledo North Engineering Campus, 1700 N Westwood Ave, Toledo, OH 43607. Unfortunately, we will not be providing a virtual option this year. We are also unable to offer travel reimbursements at this time.",
-      category: "logistics",
       icon: <FaMapMarkerAlt size={20} />,
     },
     {
       question: "How much does RocketHacks cost?",
       answer:
         "RocketHacks is free for all students enrolled at any accredited university or high school. Swag, prizes, and great memories are all included with this completely free cost!",
-      category: "registration",
       icon: <FaDollarSign size={20} />,
     },
     {
       question: "Should I expect a waiver?",
       answer:
         "You betcha. Before any hacking begins we require you to sign a waiver which will be emailed to all registered participants prior to the hackathon. If you are under 18, you will need a parent or legal guardian to sign the waiver.",
-      category: "logistics",
       icon: <FaFileAlt size={20} />,
     },
     {
       question: "Is there a Code of Conduct?",
       answer:
         "Absolutely! We operate on the Major League Hacking Code of Conduct to create an all-inclusive environment for our hackers.",
-      category: "general",
       icon: <FaFileAlt size={20} />,
     },
     {
       question: "What if I have more questions?",
       answer:
         "Send us an email to rockethacks@utoledo.edu. We are always happy to help.",
-      category: "general",
       icon: <FaEnvelope size={20} />,
     },
   ];
-
-  const categories = {
-    general: {
-      name: "General",
-      color: "yellow" as const,
-      count: faqItems.filter((item) => item.category === "general").length,
-    },
-    registration: {
-      name: "Registration",
-      color: "orange" as const,
-      count: faqItems.filter((item) => item.category === "registration").length,
-    },
-    event: {
-      name: "Event Details",
-      color: "purple" as const,
-      count: faqItems.filter((item) => item.category === "event").length,
-    },
-    logistics: {
-      name: "Logistics",
-      color: "pink" as const,
-      count: faqItems.filter((item) => item.category === "logistics").length,
-    },
-  };
 
   return (
     <div>
@@ -192,8 +157,9 @@ function FAQ() {
                         <AnimatedIcon
                           icon={item.icon}
                           size="sm"
-                          color={categories[item.category].color}
-                          animation="pulse"
+                          color="green"
+                          gradient={false}
+                          animation="none"
                         />
                         <span className="font-medium text-sm">
                           {item.question}
