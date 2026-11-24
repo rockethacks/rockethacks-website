@@ -9,7 +9,7 @@ const terminal = localFont({ src: "../../app/fonts/terminal-grotesque.ttf" });
 const scheduleData = [
   {
     day: "Saturday",
-    date: "March 14",
+    date: "February 27",
     events: [
       {
         name: "Hacker Check-In",
@@ -82,7 +82,7 @@ const scheduleData = [
   },
   {
     day: "Sunday",
-    date: "March 15",
+    date: "February 28",
     events: [
       {
         name: "Breakfast",

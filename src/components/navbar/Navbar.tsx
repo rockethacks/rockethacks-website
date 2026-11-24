@@ -84,6 +84,8 @@ export default function Navbar() {
 
   const navLinks: Array<{ href: string; label: string; highlight?: boolean }> = [
     { href: "#about", label: "ABOUT" },
+    { href: "#faq", label: "FAQ" },
+    { href: "#workshops", label: "WORKSHOPS" },
     { href: "/gallery", label: "2025" },
     { href: "#sponsor", label: "SPONSORS" },
     { href: "#contact", label: "CONTACT" },
@@ -118,14 +120,14 @@ export default function Navbar() {
           </div>
 
           {/* Centered Desktop Navigation */}
-          <div className="hidden md:flex absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 items-center justify-center space-x-6 lg:space-x-8 whitespace-nowrap">
+          <div className="hidden md:flex absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 items-center justify-center space-x-3 lg:space-x-8 whitespace-nowrap">
             {navLinks.map((link) => (
               <Link
                 key={link.href}
                 href={link.href.startsWith("#") ? `/${link.href}` : link.href}
                 onClick={(e) => handleNavClick(e, link.href)}
                 className={`
-                  ${terminal.className} text-sm font-medium tracking-wider
+                  ${terminal.className} text-xs font-medium tracking-wider lg:text-sm
                   ${
                     link.highlight
                       ? "text-rh-yellow hover:text-rh-yellow/80 font-bold"
@@ -144,7 +146,7 @@ export default function Navbar() {
             <Link
               href="/code-create"
               onClick={closeMenu}
-              className="btn-primary px-4 py-2 text-xs"
+              className="btn-primary px-2 py-2 text-xs lg:px-4"
             >
               CODE & CREATE
             </Link>
@@ -251,7 +253,7 @@ export default function Navbar() {
             {/* Footer at bottom */}
             <div className="text-center mt-6 pt-6 border-t border-white/10">
               <p className="text-white/60 text-xs">
-                © 2026 RocketHacks - University of Toledo
+                © 2027 RocketHacks - University of Toledo
               </p>
             </div>
           </div>

@@ -649,14 +649,14 @@ export default function DashboardPage() {
                                 RSVP Required
                               </h3>
                               <p className="text-sm text-rh-white/70 mt-0.5">
-                                March 14–15, 2026 (Saturday–Sunday)
+                                February 27–28, 2027 (Saturday–Sunday)
                               </p>
                             </div>
                           </div>
 
                           <p className="text-sm sm:text-base text-rh-white/85 leading-relaxed">
-                            Will you be present for RocketHacks on March 14 and
-                            15, 2026?
+                            Will you be present for RocketHacks on February 27 and
+                            28, 2027?
                           </p>
 
                           <div className="mt-4 flex flex-wrap items-center gap-3">
@@ -770,7 +770,7 @@ export default function DashboardPage() {
                                 d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"
                               />
                             </svg>
-                            Thursday, March 12
+                            Thursday, February 25
                           </span>
                           <span className="flex items-center gap-1.5">
                             <svg
@@ -1296,8 +1296,6 @@ export default function DashboardPage() {
           </Link>
           <Link
             href="/#faq"
-            target="_blank"
-            rel="noopener noreferrer"
             className="glass rounded-xl p-6 hover:border-rh-yellow/50 transition-all duration-300 group animate-slide-up"
             style={{ animationDelay: "0.4s" }}
           >

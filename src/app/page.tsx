@@ -5,6 +5,9 @@ import dynamic from "next/dynamic";
 import Navbar from "@/components/navbar/Navbar";
 import Hero from "@/components/hero/Hero";
 import About from "@/components/about/About";
+import FAQ from "@/components/faq/Faq";
+import Workshops from "@/components/workshops/Workshops";
+import WorkshopNotice from "@/components/workshops/WorkshopNotice";
 import { SponsorData } from "@/components/sponsor/SponsorData";
 /* Kept for future use */
 /* import { Prizes } from "@/components/prizes/Prizes"; */
@@ -42,11 +45,14 @@ export default function Home() {
       <main className="relative">
         <Hero />
         <About />
+        <FAQ />
+        <Workshops />
         <Sponsor sponsors={SponsorData} />
         {/* Temporarily hidden - uncomment to enable prizes section */}
         {/* <Prizes /> */}
         <Contact />
       </main>
+      <WorkshopNotice />
       <Footer />
     </div>
   );
