@@ -51,47 +51,63 @@ export default function Contact() {
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6 w-full max-w-2xl">
                 {/* Email Button */}
-                <Link href="mailto:rockethacks@utoledo.edu">
-                  <ModernButton 
-                    variant="primary" 
-                    size="lg" 
-                    className="w-full group"
-                  >
-                    <div className="flex items-center justify-center space-x-3">
-                      <MdEmail className="group-hover:scale-110 transition-transform" size={20} />
-                      <div className="text-left">
-                        <div className="font-semibold">Email Us</div>
-                        <div className="text-sm opacity-90">rockethacks@utoledo.edu</div>
-                      </div>
-                    </div>
-                  </ModernButton>
-                </Link>
+                <ModernButton
+                  asChild
+                  variant="primary"
+                  size="lg"
+                  className="h-[76px] w-full px-5 py-3 group"
+                >
+                  <Link href="mailto:rockethacks@utoledo.edu">
+                    <span className="grid w-full max-w-[250px] grid-cols-[28px_minmax(0,1fr)] items-center gap-3 text-left">
+                      <MdEmail
+                        className="h-6 w-6 shrink-0 transition-transform group-hover:scale-110"
+                        aria-hidden="true"
+                      />
+                      <span className="min-w-0">
+                        <span className="block font-semibold leading-tight">
+                          Email Us
+                        </span>
+                        <span className="mt-1 block break-all text-xs leading-tight opacity-90">
+                          rockethacks@utoledo.edu
+                        </span>
+                      </span>
+                    </span>
+                  </Link>
+                </ModernButton>
 
                 {/* Discord Button */}
-                <Link 
-                  href="https://discord.gg/nFKYdrqQ3g"
-                  target="_blank"
-                  rel="noopener noreferrer"
+                <ModernButton
+                  asChild
+                  variant="secondary"
+                  size="lg"
+                  className="h-[76px] w-full px-5 py-3 group"
                 >
-                  <ModernButton 
-                    variant="secondary" 
-                    size="lg" 
-                    className="w-full group"
+                  <Link
+                    href="https://discord.gg/nFKYdrqQ3g"
+                    target="_blank"
+                    rel="noopener noreferrer"
                   >
-                    <div className="flex items-center justify-center space-x-3">
-                      <FaDiscord className="group-hover:scale-110 transition-transform" size={20} />
-                      <div className="text-left">
-                        <div className="font-semibold">Join Discord</div>
-                        <div className="text-sm opacity-90">Community Chat</div>
-                      </div>
-                    </div>
-                  </ModernButton>
-                </Link>
+                    <span className="grid w-full max-w-[250px] grid-cols-[28px_minmax(0,1fr)] items-center gap-3 text-left">
+                      <FaDiscord
+                        className="h-6 w-6 shrink-0 transition-transform group-hover:scale-110"
+                        aria-hidden="true"
+                      />
+                      <span className="min-w-0">
+                        <span className="block font-semibold leading-tight">
+                          Join Discord
+                        </span>
+                        <span className="mt-1 block text-xs leading-tight opacity-90">
+                          Community Chat
+                        </span>
+                      </span>
+                    </span>
+                  </Link>
+                </ModernButton>
               </div>
 
               {/* Additional Contact Info */}
               <div className="pt-6 border-t border-rh-white/10 w-full">
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-6 text-center">
+                <div className="mx-auto grid max-w-xl grid-cols-1 gap-6 text-center sm:grid-cols-2">
                   <div>
                     <div className="text-rh-yellow font-semibold mb-1">Response Time</div>
                     <div className="text-sm text-rh-white/70">Within 24 hours</div>
@@ -99,10 +115,6 @@ export default function Contact() {
                   <div>
                     <div className="text-rh-yellow font-semibold mb-1">Best For</div>
                     <div className="text-sm text-rh-white/70">General inquiries</div>
-                  </div>
-                  <div>
-                    <div className="text-rh-yellow font-semibold mb-1">Office Hours</div>
-                    <div className="text-sm text-rh-white/70">Mon-Fri, 9AM-5PM EST</div>
                   </div>
                 </div>
               </div>
