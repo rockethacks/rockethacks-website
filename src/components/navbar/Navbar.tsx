@@ -18,11 +18,26 @@ export default function Navbar() {
   const isHomePage = pathname === "/";
 
   useEffect(() => {
-    if (menuOpen) {
-      document.body.classList.add("no-scroll");
-    } else {
-      document.body.classList.remove("no-scroll");
-    }
+    if (!menuOpen) return;
+
+    const closeOnEscape = (event: KeyboardEvent) => {
+      if (event.key === "Escape") setMenuOpen(false);
+    };
+    const closeOnOutsideClick = (event: PointerEvent) => {
+      if (
+        event.target instanceof Element &&
+        !event.target.closest("[data-mobile-menu]")
+      ) {
+        setMenuOpen(false);
+      }
+    };
+
+    document.addEventListener("keydown", closeOnEscape);
+    document.addEventListener("pointerdown", closeOnOutsideClick);
+    return () => {
+      document.removeEventListener("keydown", closeOnEscape);
+      document.removeEventListener("pointerdown", closeOnOutsideClick);
+    };
   }, [menuOpen]);
 
   useEffect(() => {
@@ -66,12 +81,12 @@ export default function Navbar() {
   ) => {
     // Anchor links: on home page smooth-scroll; on other pages navigate to /#section
     if (href.startsWith("#")) {
+      closeMenu();
       if (isHomePage) {
         e.preventDefault();
         const targetId = href.substring(1);
         const targetElement = document.getElementById(targetId);
         if (targetElement) {
-          closeMenu();
           targetElement.scrollIntoView({
             behavior: "smooth",
             block: "start",
@@ -163,102 +178,52 @@ export default function Navbar() {
             <div className="md:hidden">
               <button
                 onClick={toggleMenu}
-                className="text-rh-white hover:text-rh-yellow transition-colors duration-200 p-2 relative z-[101]"
-                aria-label="Toggle menu"
+                data-mobile-menu
+                className="text-rh-white hover:text-rh-yellow transition-colors duration-200 p-2"
+                aria-label={menuOpen ? "Close navigation menu" : "Open navigation menu"}
+                aria-controls="mobile-navigation"
                 aria-expanded={menuOpen}
               >
-                <FiMenu size={28} />
+                {menuOpen ? <FiX size={28} /> : <FiMenu size={28} />}
               </button>
             </div>
           </div>
+
+          {/* Compact mobile navigation popover */}
+          {menuOpen && (
+            <div
+              id="mobile-navigation"
+              data-mobile-menu
+              className="md:hidden absolute right-0 top-[calc(100%+2.25rem)] z-[10001] w-80 max-w-[calc(100vw-2rem)] max-h-[calc(100dvh-9rem)] overflow-y-auto overscroll-contain rounded-2xl border border-white/15 bg-[#001F02]/95 p-3 shadow-2xl backdrop-blur-xl animate-fade-in"
+            >
+              <div className="flex flex-col">
+                {navLinks.map((link) => (
+                  <Link
+                    key={link.href}
+                    href={link.href.startsWith("#") ? `/${link.href}` : link.href}
+                    onClick={(e) => handleNavClick(e, link.href)}
+                    className={`${terminal.className} rounded-lg px-4 py-2.5 text-left text-sm font-medium tracking-wider text-rh-white/90 transition-colors hover:bg-white/5 hover:text-rh-yellow`}
+                  >
+                    {link.label}
+                  </Link>
+                ))}
+
+                {user && (
+                  <UserProfileDropdown isMobile={true} onMenuClose={closeMenu} />
+                )}
+
+                <Link
+                  href="/code-create"
+                  onClick={closeMenu}
+                  className="btn-primary mt-3 block w-full px-4 py-3 text-center text-sm"
+                >
+                  CODE & CREATE
+                </Link>
+              </div>
+            </div>
+          )}
         </div>
       </div>
-
-      {/* Mobile Full-Screen Navigation Menu */}
-      {menuOpen && (
-        <div
-          className="md:hidden fixed inset-0 z-[9999] animate-fade-in"
-          style={{
-            backgroundColor: "rgba(10, 0, 55, 0.98)", // Direct color value
-            backdropFilter: "blur(12px)",
-            WebkitBackdropFilter: "blur(12px)",
-          }}
-        >
-          {/* Close button area - ensure it's visible */}
-          <div className="absolute top-4 right-4 z-[10001]">
-            <button
-              onClick={closeMenu}
-              className="text-white hover:text-yellow-400 transition-colors duration-200 p-3 bg-white/10 rounded-full"
-              aria-label="Close menu"
-            >
-              <FiX size={28} strokeWidth={2.5} />
-            </button>
-          </div>
-
-          {/* Menu content - properly spaced */}
-          <div className="flex flex-col h-full pt-20 pb-8 px-6 overflow-y-auto">
-            {/* Logo at top */}
-            <div className="flex justify-center mb-10">
-              <Image
-                src="/assets/rh_27/rh_27_folder/rh_27_logo_cropped.png"
-                alt="RocketHacks 2027"
-                width={150}
-                height={75}
-                className="h-14 w-auto"
-                priority
-              />
-            </div>
-
-            {/* Navigation links - vertically stacked */}
-            <nav className="flex flex-col items-stretch space-y-1 flex-1">
-              {navLinks.map((link) => (
-                <Link
-                  key={link.href}
-                  href={link.href.startsWith("#") ? `/${link.href}` : link.href}
-                  onClick={(e) => handleNavClick(e, link.href)}
-                  className={`
-                    ${terminal.className}
-                    text-xl font-medium tracking-wider
-                    ${
-                      link.highlight
-                        ? "text-yellow-400 hover:text-yellow-300 font-bold"
-                        : "text-white hover:text-yellow-400"
-                    }
-                    transition-all duration-200
-                    py-4 px-6 text-center
-                    border-b border-white/10
-                    hover:bg-white/5
-                    active:bg-white/10
-                  `}
-                >
-                  {link.label}
-                </Link>
-              ))}
-
-              {/* User Profile Menu Items - Mobile */}
-              {user && (
-                <UserProfileDropdown isMobile={true} onMenuClose={closeMenu} />
-              )}
-
-              {/* CTA Button */}
-              <Link
-                href="/code-create"
-                onClick={closeMenu}
-                className="btn-primary px-6 py-4 text-base mt-8 mx-auto w-11/12 max-w-sm text-center block"
-              >
-                CODE & CREATE
-              </Link>
-            </nav>
-
-            {/* Footer at bottom */}
-            <div className="text-center mt-6 pt-6 border-t border-white/10">
-              <p className="text-white/60 text-xs">
-                © 2027 RocketHacks - University of Toledo
-              </p>
-            </div>
-          </div>
-        </div>
-      )}
     </nav>
   );
 }

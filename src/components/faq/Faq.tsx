@@ -128,7 +128,7 @@ function FAQ() {
           ></div>
         </div>
 
-        <div className="relative max-w-6xl mx-auto">
+        <div className="relative foreground-safe-content mx-auto">
           {/* Section Header */}
           <div className="text-center mb-10 animate-slide-up">
             <h2

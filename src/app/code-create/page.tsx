@@ -4,18 +4,34 @@ import Image from "next/image";
 import Link from "next/link";
 import { terminal } from "../fonts/fonts";
 import {
+  FaCalendarAlt,
   FaCode,
-  FaUsers,
+  FaHandshake,
+  FaMapMarkerAlt,
   FaTrophy,
   FaUniversity,
-  FaHandshake,
+  FaUsers,
+  FaClock,
 } from "react-icons/fa";
 import { PiTerminalWindow } from "react-icons/pi";
 import { GiBrain } from "react-icons/gi";
 
 export default function CodeCreatePage() {
   return (
-    <div className="min-h-screen relative bg-gradient-to-b from-rh-background via-rh-navy-dark to-rh-navy-light text-white overflow-hidden">
+    <div className="min-h-screen relative bg-rh-background text-white overflow-hidden">
+      <div className="fixed inset-0 z-0 pointer-events-none">
+        <Image
+          src="/assets/rh_27/rh_27_folder/rh_27_bg.png"
+          alt=""
+          fill
+          className="object-cover object-center"
+          priority
+          quality={75}
+          sizes="100vw"
+        />
+        <div className="absolute inset-0 z-[7] bg-gradient-to-b from-black/60 via-black/40 to-black/75" />
+      </div>
+
       {/* Unified background pattern (prevents segmented/sectioned look) */}
       <div
         className="absolute inset-0 opacity-5 pointer-events-none z-0"
@@ -33,14 +49,13 @@ export default function CodeCreatePage() {
               className="block transition-transform hover:scale-105"
             >
               <Image
-                src="/assets/rh_26/rh_26_folder/rh_26_bundle_png/rh_26_logo_color_transparent.png"
+                src="/assets/rh_27/rh_27_folder/rh_27_logo_cropped.png"
                 alt="RocketHacks"
-                width={120}
-                height={60}
-                className="h-10 sm:h-12 w-auto object-contain"
+                width={144}
+                height={96}
+                className="h-12 sm:h-14 w-auto object-contain"
                 priority
-                sizes="120px"
-                style={{ aspectRatio: "2/1" }}
+                sizes="144px"
               />
             </Link>
             <Link href="/" className="btn-primary px-4 py-2 text-sm">
@@ -52,7 +67,7 @@ export default function CodeCreatePage() {
 
       {/* Hero Section */}
       <section className="relative text-center min-h-screen flex items-center justify-center pt-24 sm:pt-20">
-        <div className="relative z-10 w-full max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
+        <div className="relative z-10 foreground-safe-content mx-auto px-4 sm:px-6 lg:px-8 py-16">
           {/* Main Heading */}
           <div className="text-center mb-16 animate-slide-up">
             <div className="mb-12 sm:mb-16 animate-slide-up">
@@ -63,16 +78,31 @@ export default function CodeCreatePage() {
                 <h2
                   className={`${terminal.className} text-2xl sm:text-3xl md:text-4xl gradient-text uppercase tracking-wider font-bold mb-4`}
                 >
-                  Code & Create 2027 - Coming Soon
+                  Code & Create
                 </h2>
                 <p className="text-base sm:text-lg leading-relaxed text-rh-white/90 mb-6 max-w-2xl mx-auto">
-                  Code & Create 2026 is over. We&apos;re getting ready for the
-                  next edition—check back soon for event dates, locations, and
-                  registration details.
+                  Join us for a hands-on day of learning, building, and
+                  exploring at the University of Toledo.
                 </p>
-                <p className="text-xs sm:text-sm text-rh-yellow/80 mb-4">
-                  *High school students should bring their own laptop when
-                  registration opens.
+                <div className="mb-5 grid gap-3 text-center sm:grid-cols-3">
+                  <div className="rounded-xl border border-white/10 bg-white/5 p-3">
+                    <FaCalendarAlt className="mx-auto mb-2 text-rh-yellow" aria-hidden="true" />
+                    <p className={`${terminal.className} text-xs uppercase tracking-wider text-rh-white/60`}>Date</p>
+                    <p className="mt-1 text-sm font-semibold text-rh-white">February 27, 2027</p>
+                  </div>
+                  <div className="rounded-xl border border-white/10 bg-white/5 p-3">
+                    <FaClock className="mx-auto mb-2 text-rh-yellow" aria-hidden="true" />
+                    <p className={`${terminal.className} text-xs uppercase tracking-wider text-rh-white/60`}>Time</p>
+                    <p className="mt-1 text-sm font-semibold text-rh-white">9:00 AM - 3:00 PM</p>
+                  </div>
+                  <div className="rounded-xl border border-white/10 bg-white/5 p-3">
+                    <FaMapMarkerAlt className="mx-auto mb-2 text-rh-yellow" aria-hidden="true" />
+                    <p className={`${terminal.className} text-xs uppercase tracking-wider text-rh-white/60`}>Location</p>
+                    <p className="mt-1 text-sm font-semibold text-rh-white">Nitschke Hall</p>
+                  </div>
+                </div>
+                <p className="text-xs sm:text-sm text-rh-yellow/80">
+                  High school students should bring their own laptop.
                 </p>
               </div>
             </div>
@@ -108,7 +138,7 @@ export default function CodeCreatePage() {
 
       {/* Main Agenda Section */}
       <section className="relative py-20 px-5 md:px-10">
-        <div className="max-w-7xl mx-auto">
+        <div className="foreground-safe-content mx-auto">
           <div className="text-center mb-16">
             <h2
               className={`${terminal.className} heading-lg gradient-text mb-6 uppercase tracking-wider`}
@@ -228,7 +258,7 @@ export default function CodeCreatePage() {
 
       {/* Benefits Section */}
       <section className="relative py-20 px-5 md:px-10">
-        <div className="max-w-7xl mx-auto">
+        <div className="foreground-safe-content mx-auto">
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
             {/* Left Column - Benefits */}
             <div className="animate-slide-up">
@@ -324,21 +354,16 @@ export default function CodeCreatePage() {
                 <h3
                   className={`${terminal.className} text-xl sm:text-2xl text-rh-yellow mb-4`}
                 >
-                  Code & Create 2027
+                  What to Expect
                 </h3>
                 <p className="text-sm sm:text-base text-rh-white/90 mb-6 leading-relaxed">
-                  Registration details will be shared soon. In the meantime,
-                  enjoy the overview of what students typically learn and
-                  create during Code & Create.
+                  Spend the day learning practical programming and building
+                  interactive projects with support from University of Toledo
+                  mentors.
                 </p>
-                <p className="text-xs text-rh-yellow/80 mb-4">
-                  *Students are expected to bring their own laptop
+                <p className="text-xs text-rh-yellow/80">
+                  Bring your own laptop to participate in the hands-on workshops.
                 </p>
-                <div className="mt-4">
-                  <p className="text-xs text-rh-white/60">
-                    Please check back for the official event announcement.
-                  </p>
-                </div>
               </div>
             </div>
           </div>
@@ -347,7 +372,7 @@ export default function CodeCreatePage() {
 
       {/* Key Learning Outcomes */}
       <section className="relative py-20 px-5 md:px-10">
-        <div className="max-w-7xl mx-auto">
+        <div className="foreground-safe-content mx-auto">
           <div className="text-center mb-16">
             <h2
               className={`${terminal.className} heading-lg gradient-text mb-6 uppercase tracking-wider`}
@@ -436,14 +461,14 @@ export default function CodeCreatePage() {
 
       {/* Footer */}
       <footer className="relative py-12 px-5 md:px-10 border-t border-rh-white/10">
-        <div className="max-w-7xl mx-auto text-center">
+        <div className="foreground-safe-content mx-auto text-center">
           <Link href="/" className="inline-block mb-6">
             <Image
-              src="/assets/rh_26/rh_26_folder/rh_26_bundle_png/rh_26_logo_color_transparent.png"
+              src="/assets/rh_27/rh_27_folder/rh_27_logo_cropped.png"
               alt="RocketHacks"
-              width={120}
-              height={60}
-              className="h-12 w-auto"
+              width={144}
+              height={96}
+              className="h-14 w-auto object-contain"
             />
           </Link>
           <p className="text-rh-white/60">© 2027 RocketHacks - University of Toledo College of Engineering</p>

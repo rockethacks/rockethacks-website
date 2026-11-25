@@ -52,8 +52,8 @@ const config: Config = {
         '3xl': '64px'
       },
       boxShadow: {
-        'glass': '0 8px 32px 0 rgba(31, 38, 135, 0.37)',
-        'glass-lg': '0 12px 40px 0 rgba(31, 38, 135, 0.5)',
+        'glass': '0 8px 32px 0 rgba(0, 96, 36, 0.38)',
+        'glass-lg': '0 12px 40px 0 rgba(0, 96, 36, 0.5)',
         'glow': '0 0 20px rgba(255, 196, 90, 0.5)',
         'glow-lg': '0 0 40px rgba(255, 196, 90, 0.8)'
       },

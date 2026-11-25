@@ -31,7 +31,7 @@ export default function Workshops() {
         />
       </div>
 
-      <div className="relative mx-auto max-w-7xl">
+      <div className="relative mx-auto foreground-safe-content">
         <header className="mb-10 text-center md:mb-14">
           <h2
             id="workshops-heading"
