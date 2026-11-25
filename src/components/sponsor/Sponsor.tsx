@@ -86,7 +86,7 @@ const Sponsor: React.FC<SponsorProps> = ({ sponsors }) => {
           ></div>
         </div>
 
-        <div className="relative max-w-7xl mx-auto">
+        <div className="relative foreground-safe-content mx-auto">
           {/* Sponsors Carousel Section */}
           <div id="sponsors" className="animate-fade-scale">
             <div className="text-center mb-8 md:mb-12">
@@ -121,7 +121,7 @@ const Sponsor: React.FC<SponsorProps> = ({ sponsors }) => {
               </div>
             </div>
 
-            <div className="space-y-8 overflow-hidden -mx-4 sm:-mx-5 md:-mx-10">
+            <div className="space-y-8 overflow-hidden">
               {/* Row 1: Main Sponsors - Left to Right */}
               <div className="group relative">
                 <div className="flex gap-8 animate-scroll-left group-hover:pause-animation px-4">

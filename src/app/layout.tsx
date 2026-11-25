@@ -1,5 +1,6 @@
 import type { Metadata, Viewport } from "next";
 import { alegreyaSansSC, terminal } from "./fonts/fonts";
+import Image from "next/image";
 import MlhBadgeGate from "@/components/rh27/MlhBadgeGate";
 import "./globals.css";
 
@@ -63,6 +64,28 @@ export default function RootLayout({
       <body className={`${alegreyaSansSC.className} antialiased`}>
         <MlhBadgeGate />
         {children}
+        <div className="scroll-foreground" aria-hidden="true">
+          <div className="scroll-foreground__side scroll-foreground__side--left">
+            <Image
+              src="/assets/rh_27/rh_27_folder/rh_27_scroll_layer_test.png"
+              alt=""
+              width={1983}
+              height={793}
+              sizes="100vw"
+              className="scroll-foreground__image scroll-foreground__image--left"
+            />
+          </div>
+          <div className="scroll-foreground__side scroll-foreground__side--right">
+            <Image
+              src="/assets/rh_27/rh_27_folder/rh_27_scroll_layer_test.png"
+              alt=""
+              width={1983}
+              height={793}
+              sizes="100vw"
+              className="scroll-foreground__image scroll-foreground__image--right"
+            />
+          </div>
+        </div>
       </body>
     </html>
   );

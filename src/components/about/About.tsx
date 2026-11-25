@@ -25,7 +25,7 @@ export default function About() {
           ></div>
         </div>
 
-        <div className="relative max-w-7xl mx-auto">
+        <div className="relative foreground-safe-content mx-auto">
           {/* Section Header */}
           <div className="text-center mb-16 animate-slide-up">
             <h2
